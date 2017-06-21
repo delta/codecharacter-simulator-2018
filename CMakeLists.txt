@@ -1,0 +1,30 @@
+cmake_minimum_required(VERSION 3.6.2)
+project(simulator)
+
+include(GenerateExportHeader)
+
+set(CMAKE_CXX_STANDARD 11)
+
+set(BUILD_PROJECT "all" CACHE STRING "Set the name of the project to build")
+set(BUILD_ROOT_DIR ${CMAKE_BINARY_DIR})
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+if(BUILD_PROJECT STREQUAL "physics")
+	add_subdirectory(src/physics)
+elseif(BUILD_PROJECT STREQUAL "state")
+	add_subdirectory(src/state)
+elseif(BUILD_PROJECT STREQUAL "tester")
+	add_subdirectory(ext/googletest/googletest)
+	add_subdirectory(src/tester)
+elseif(BUILD_PROJECT STREQUAL "main")
+	add_subdirectory(src/main)
+else()
+	add_subdirectory(src/physics)
+	add_subdirectory(src/state)
+	add_subdirectory(ext/googletest/googletest)
+	add_subdirectory(src/tester)
+	add_subdirectory(src/main)
+endif()
