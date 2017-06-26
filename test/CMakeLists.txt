@@ -7,6 +7,7 @@ set(SOURCE_FILES
 	test_main.cpp
 	state/state_test.cpp
 	state/soldier_test.cpp
+	state/map_test.cpp
 )
 
 if(NOT BUILD_PROJECT STREQUAL "all")
