@@ -26,7 +26,7 @@ public:
 	 *
 	 * @return     true if the vectors are equal, else false
 	 */
-	bool operator==(Vector rhs);
+	bool operator==(const Vector& rhs) const;
 
 	/**
 	 * Addition operator for vectors
@@ -35,7 +35,7 @@ public:
 	 *
 	 * @return     Sum of the vectors
 	 */
-	Vector operator+(Vector rhs);
+	Vector operator+(const Vector& rhs) const;
 
 	/**
 	 * Minus operator for vectors
@@ -45,7 +45,7 @@ public:
 	 *
 	 * @return     Difference of the vectors
 	 */
-	Vector operator-(Vector rhs);
+	Vector operator-(const Vector& rhs) const;
 
 	/**
 	 * Scalar Addition operator
@@ -55,7 +55,7 @@ public:
 	 *
 	 * @return     The new vector
 	 */
-	Vector operator+(double scalar);
+	Vector operator+(const double& scalar) const;
 
 	/**
 	 * Scalar Subtraction operator
@@ -65,7 +65,7 @@ public:
 	 *
 	 * @return     The new vector
 	 */
-	Vector operator-(double scalar);
+	Vector operator-(const double& scalar) const;
 
 	/**
 	 * Scalar multiplication operator
@@ -74,7 +74,7 @@ public:
 	 *
 	 * @return     The scaled vector
 	 */
-	Vector operator*(double scalar);
+	Vector operator*(const double& scalar) const;
 
 	/**
 	 * Scalar division operator
@@ -83,7 +83,7 @@ public:
 	 *
 	 * @return     The scaled vector
 	 */
-	Vector operator/(double scalar);
+	Vector operator/(const double& scalar) const;
 
 	friend std::ostream& operator<<(
 		std::ostream& ostream,
@@ -97,7 +97,7 @@ public:
 	 *
 	 * @return     The result of the dot product
 	 */
-	double dot(Vector rhs);
+	double dot(const Vector& rhs) const;
 
 	/**
 	 * The magnitude of the vector
@@ -105,7 +105,7 @@ public:
 	 * @return     The magnitude of the vector
 	 */
 
-	double magnitude();
+	double magnitude() const;
 	/**
 	 * Distance between this and another vector
 	 *
@@ -113,7 +113,7 @@ public:
 	 *
 	 * @return     The distance between the two vectors
 	 */
-	double distance(Vector other);
+	double distance(const Vector& other) const;
 
 	double x;
 	double y;
