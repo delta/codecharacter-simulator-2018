@@ -26,9 +26,10 @@ enum class ActorType {
 /**
  * Enum for the two game players
  */
-enum PlayerId {
+enum class PlayerId : int {
 	PLAYER1 = 0,
 	PLAYER2 = 1,
+	PLAYER_COUNT = 2,
 };
 
 }
