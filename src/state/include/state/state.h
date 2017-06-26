@@ -25,6 +25,10 @@ protected:
 public:
 	State();
 
+	State& operator=(const State& other) = delete;
+
+	State(const State& other) = delete;
+
 	explicit State(
 		std::vector<Soldier*> soldiers
 	);
