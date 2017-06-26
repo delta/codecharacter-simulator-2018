@@ -5,30 +5,6 @@
 using namespace std;
 
 /**
- * Tests to make sure tests are testing (testing tests)
- */
-TEST(Test, TestingTest) {
-	EXPECT_GT(5,2);
-}
-
-/**
- * Test for Soldier
- */
-TEST(Soldiers, Constructor) {
-	unique_ptr<state::Soldier> test_soldier(new state::Soldier(
-		1,
-		state::PlayerId::PLAYER1,
-		state::ActorType::SOLDIER,
-		100,
-		100,
-		physics::Vector(10,10),
-		50,
-		physics::Vector(15,15)
-	));
-	EXPECT_EQ(1, test_soldier->GetActorId());
-}
-
-/**
  * Test for State
  */
 TEST(State, SoldierConstructor) {
@@ -55,12 +31,3 @@ TEST(State, SoldierConstructor) {
 	}
 }
 
-
-
-/**
- * Run Tests
- */
-int main(int argc, char* argv[]) {
-	testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
-}

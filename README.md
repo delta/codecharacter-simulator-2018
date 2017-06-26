@@ -16,6 +16,8 @@
 
 7. `make install`
 
-8. To run the simulator, `<your_install_location/bin/simulator`
+8. To run the simulator, `<your_install_location>/bin/simulator`
 
-To run the unit tests, `<your_install_location>/bin/tester`
+To run the unit tests, `<your_install_location>/bin/test`
+
+Pass `-DBUILD_PROJECT=<project_name>` to cmake to build only a specific module. Passing `no_tests` as the project name builds everything but the unit tests.
