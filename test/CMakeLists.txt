@@ -3,8 +3,11 @@ project(tests)
 
 set(BUILD_ROOT_DIR ${CMAKE_BINARY_DIR})
 
+include_directories(.)
+
 set(SOURCE_FILES
 	test_main.cpp
+	state/mocks/map_mock.h
 	state/state_test.cpp
 	state/soldier_test.cpp
 	state/map_test.cpp
@@ -17,6 +20,6 @@ endif()
 
 add_executable(tests ${SOURCE_FILES})
 
-target_link_libraries(tests physics state gtest)
+target_link_libraries(tests physics state gtest gmock)
 
 install(TARGETS tests DESTINATION bin)
