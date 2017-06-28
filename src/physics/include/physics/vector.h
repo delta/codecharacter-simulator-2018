@@ -85,7 +85,7 @@ public:
 	 */
 	Vector operator/(const double& scalar) const;
 
-	friend std::ostream& operator<<(
+	PHYSICS_EXPORT friend std::ostream& operator<<(
 		std::ostream& ostream,
 		const Vector& vector
 	);
