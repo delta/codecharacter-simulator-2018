@@ -11,6 +11,7 @@
 #include <memory>
 #include "physics/vector.h"
 #include "state/actor/soldier.h"
+#include "state/map/interfaces/i_map.h"
 #include "state/state_export.h"
 
 namespace state {
@@ -22,6 +23,11 @@ protected:
 	 */
 	std::vector<std::unique_ptr<Soldier> > soldiers;
 
+	/**
+	 * Map of the game
+	 */
+	std::unique_ptr<IMap> map;
+
 public:
 	State();
 
@@ -29,8 +35,9 @@ public:
 
 	State(const State& other) = delete;
 
-	explicit State(
-		std::vector<Soldier*> soldiers
+	State(
+		std::vector<Soldier*> soldiers,
+		IMap* map
 	);
 
 	~State() = default;

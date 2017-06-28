@@ -10,7 +10,7 @@ namespace state {
 		// Init None
 	}
 
-	State::State(std::vector<Soldier*> p_soldiers) {
+	State::State(std::vector<Soldier*> p_soldiers, IMap* map) : map(map) {
 		for(int i = 0; i < p_soldiers.size(); ++i) {
 			soldiers.emplace_back(std::move(p_soldiers[i]));
 		}

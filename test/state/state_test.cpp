@@ -1,6 +1,8 @@
 #include "physics/vector.h"
 #include "state/state.h"
+
 #include "gtest/gtest.h"
+#include "state/mocks/map_mock.h"
 
 using namespace std;
 
@@ -20,7 +22,7 @@ TEST(State, SoldierConstructor) {
 	);
 	vector<state::Soldier*> test_soldiers;
 	test_soldiers.push_back(test_soldier);
-	auto * S = new state::State(test_soldiers);
+	auto * S = new state::State(test_soldiers, new MapMock());
 	vector<state::Soldier*> get_soldiers;
 	get_soldiers = S->GetAllSoldiers();
 	for(int i = 0; i < get_soldiers.size(); i++) {
