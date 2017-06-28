@@ -14,7 +14,7 @@ Map::Map(
 	int64_t element_size) :
 	map_elements(map_elements), element_size(element_size) {}
 
-MapElement Map::GetElementByXY(physics::Vector position) {
+MapElement& Map::GetElementByXY(physics::Vector position) {
 	auto elt_size = this->GetElementSize();
 	auto map_size = this->map_elements.size();
 
@@ -27,7 +27,7 @@ MapElement Map::GetElementByXY(physics::Vector position) {
 	return this->map_elements[floor(position.x / elt_size)][floor(position.y / elt_size)];
 }
 
-MapElement Map::GetElementByOffset(physics::Vector position) {
+MapElement& Map::GetElementByOffset(physics::Vector position) {
 	auto map_size = this->map_elements.size();
 
 	if (map_size <= position.x ||

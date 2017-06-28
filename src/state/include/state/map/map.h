@@ -43,7 +43,7 @@ public:
 	 * @throw      std::out_of_range If position does not
 	 *                               point to a valid element
 	 */
-	MapElement GetElementByXY(physics::Vector position);
+	MapElement& GetElementByXY(physics::Vector position);
 
 	/**
 	 * Gets an element by its offset in the 2D grid of elements
@@ -55,7 +55,7 @@ public:
 	 * @throw      std::out_of_range If position does not
 	 *                               point to a valid element
 	 */
-	MapElement GetElementByOffset(physics::Vector position);
+	MapElement& GetElementByOffset(physics::Vector position);
 
 	/**
 	 * Gets the size of the map (width/height) in offsets
