@@ -7,12 +7,13 @@
 #define STATE_MAP_MAP_H
 
 #include "physics/vector.h"
+#include "state/map/interfaces/i_map.h"
 #include "state/map/map_element.h"
 #include "state/state_export.h"
 
 namespace state {
 
-class STATE_EXPORT Map {
+class STATE_EXPORT Map : public IMap {
 private:
 
 	/**
@@ -43,7 +44,7 @@ public:
 	 * @throw      std::out_of_range If position does not
 	 *                               point to a valid element
 	 */
-	MapElement& GetElementByXY(physics::Vector position);
+	MapElement& GetElementByXY(physics::Vector position) override;
 
 	/**
 	 * Gets an element by its offset in the 2D grid of elements
@@ -55,21 +56,21 @@ public:
 	 * @throw      std::out_of_range If position does not
 	 *                               point to a valid element
 	 */
-	MapElement& GetElementByOffset(physics::Vector position);
+	MapElement& GetElementByOffset(physics::Vector position) override;
 
 	/**
 	 * Gets the size of the map (width/height) in offsets
 	 *
 	 * @return     The map's size
 	 */
-	int64_t GetSize();
+	int64_t GetSize() override;
 
 	/**
 	 * Gets the size of an element of the map
 	 *
 	 * @return     The element size
 	 */
-	int64_t GetElementSize();
+	int64_t GetElementSize() override;
 };
 
 }
