@@ -1,6 +1,7 @@
 #include <stdexcept>
 #include "physics/vector.h"
 #include "state/map/map.h"
+#include "state/utilities.h"
 #include "gtest/gtest.h"
 
 using namespace std;
@@ -72,4 +73,18 @@ TEST_F(MapTest, ValidGetSize) {
 
 TEST_F(MapTest, ValidGetElementSize) {
 	ASSERT_EQ(elt_size, map.GetElementSize());
+}
+
+TEST_F(MapTest, SetOwnership) {
+	Vector pos(0, 0);
+
+	map.GetElementByOffset(pos).SetOwnership(PlayerId::PLAYER1, true);
+
+	EXPECT_EQ(map.GetElementByOffset(pos)
+		.GetOwnership()[static_cast<int>(PlayerId::PLAYER1)], true);
+
+	EXPECT_EQ(
+		map.GetElementByOffset(pos)
+			.GetOwnership()[static_cast<int>(PlayerId::PLAYER2)],
+		false);
 }
