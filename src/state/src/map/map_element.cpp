@@ -12,7 +12,7 @@ MapElement::MapElement(
 	TerrainType terrain_type) :
 	position(position),
 	terrain_type(terrain_type),
-	ownership(false, static_cast<int>(PlayerId::PLAYER_COUNT)) {}
+	ownership(static_cast<int>(PlayerId::PLAYER_COUNT), false) {}
 
 physics::Vector MapElement::GetPosition() {
 	return this->position;
