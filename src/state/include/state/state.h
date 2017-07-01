@@ -12,6 +12,7 @@
 #include "physics/vector.h"
 #include "state/actor/soldier.h"
 #include "state/map/interfaces/i_map.h"
+#include "state/money_manager/money_manager.h"
 #include "state/state_export.h"
 
 namespace state {
@@ -28,6 +29,11 @@ protected:
 	 */
 	std::unique_ptr<IMap> map;
 
+	/**
+	 * MoneyManager object to handle player currency
+	 */
+	MoneyManager money_manager;
+
 public:
 	State();
 
@@ -37,7 +43,8 @@ public:
 
 	State(
 		std::vector<Soldier*> soldiers,
-		IMap* map
+		IMap* map,
+		MoneyManager money_manager
 	);
 
 	~State() = default;

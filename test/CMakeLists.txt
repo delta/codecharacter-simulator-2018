@@ -10,6 +10,7 @@ set(SOURCE_FILES
 	state/mocks/map_mock.h
 	state/soldier_test.cpp
 	state/map_test.cpp
+	state/money_manager_test.cpp
 )
 
 if(NOT BUILD_PROJECT STREQUAL "all")

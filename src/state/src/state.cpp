@@ -10,7 +10,12 @@ namespace state {
 		// Init None
 	}
 
-	State::State(std::vector<Soldier*> p_soldiers, IMap* map) : map(map) {
+	State::State(
+		std::vector<Soldier*> p_soldiers,
+		IMap* map,
+		MoneyManager money_manager
+		): map(map),
+		money_manager(money_manager) {
 		for(int i = 0; i < p_soldiers.size(); ++i) {
 			soldiers.emplace_back(std::move(p_soldiers[i]));
 		}
