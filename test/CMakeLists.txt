@@ -8,7 +8,6 @@ include_directories(.)
 set(SOURCE_FILES
 	test_main.cpp
 	state/mocks/map_mock.h
-	state/state_test.cpp
 	state/soldier_test.cpp
 	state/map_test.cpp
 )
