@@ -3,7 +3,7 @@ project(simulator)
 
 include(GenerateExportHeader)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 set(BUILD_PROJECT "all" CACHE STRING "Set the name of the project to build")
 set(BUILD_ROOT_DIR ${CMAKE_BINARY_DIR})
