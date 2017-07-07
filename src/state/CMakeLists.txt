@@ -9,6 +9,7 @@ set(SOURCE_FILES
 	src/map/map.cpp
 	src/map/map_element.cpp
 	src/money_manager/money_manager.cpp
+	src/tower_manager/tower_manager.cpp
 )
 
 set(INCLUDE_PATH include)

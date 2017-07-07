@@ -12,6 +12,7 @@ set(SOURCE_FILES
 	state/tower_test.cpp
 	state/map_test.cpp
 	state/money_manager_test.cpp
+	state/tower_manager_test.cpp
 )
 
 if(NOT BUILD_PROJECT STREQUAL "all")
