@@ -25,6 +25,12 @@ protected:
 	ActorId id;
 
 	/**
+	 * Static counter that's used to assign a unique
+	 * incrementing id to all actors
+	 */
+	static ActorId actor_id_increment;
+
+	/**
 	 * ID of the player that the actor belongs to
 	 */
 	PlayerId player_id;
@@ -64,6 +70,23 @@ public:
 	virtual ~Actor();
 
 	/**
+	 * Gets the next actor id to assign to new actors
+	 *
+	 * @return     The new actor id to assign
+	 */
+	static ActorId GetNextActorId();
+
+	/**
+	 * Sets the auto incrementing actor id,
+	 * Resets it to 0 when no parameter is passed
+	 *
+	 * @param[in]   actor_id ActorId to set
+	 *
+	 * @throw       std::out_of_range If actor_id is negative
+	 */
+	static void SetActorIdIncrement(ActorId actor_id=0);
+
+	/**
 	 * Get actor id
 	 *
 	 * @return     ActorId of the actor
@@ -97,6 +120,16 @@ public:
 	 * @return     Actor Max HP
 	 */
 	int64_t GetMaxHp();
+
+	/**
+	 * Set the HP of the Actor
+	 *
+	 * @param[in]  hp New HP to set
+	 *
+	 * @throw std::out_of_range If hp is negative or greater
+	 *                          than the max_hp
+	 */
+	void SetHp(int64_t hp);
 
 	/**
 	 * Get the position of the actor

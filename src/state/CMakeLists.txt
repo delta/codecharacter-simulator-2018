@@ -5,6 +5,7 @@ set(SOURCE_FILES
 	src/state.cpp
 	src/actor/actor.cpp
 	src/actor/soldier.cpp
+	src/actor/tower.cpp
 	src/map/map.cpp
 	src/map/map_element.cpp
 	src/money_manager/money_manager.cpp
