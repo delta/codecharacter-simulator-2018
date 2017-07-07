@@ -6,7 +6,6 @@ include(GenerateExportHeader)
 set(CMAKE_CXX_STANDARD 14)
 
 set(BUILD_PROJECT "all" CACHE STRING "Set the name of the project to build")
-set(BUILD_ROOT_DIR ${CMAKE_BINARY_DIR})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)

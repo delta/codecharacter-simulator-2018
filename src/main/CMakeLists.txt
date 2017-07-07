@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.6.2)
 project(main)
 
-set(BUILD_ROOT_DIR ${CMAKE_BINARY_DIR})
-
 if((NOT BUILD_PROJECT STREQUAL "all") AND (NOT BUILD_PROJECT STREQUAL "no_tests"))
 	include(${CMAKE_INSTALL_PREFIX}/lib/physics_config.cmake)
 	include(${CMAKE_INSTALL_PREFIX}/lib/state_config.cmake)

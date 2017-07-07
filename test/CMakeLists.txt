@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.6.2)
 project(tests)
 
-set(BUILD_ROOT_DIR ${CMAKE_BINARY_DIR})
-
 include_directories(.)
 
 set(SOURCE_FILES
