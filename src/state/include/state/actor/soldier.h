@@ -10,6 +10,7 @@
 #include "physics/vector.h"
 #include "state/actor/actor.h"
 #include "state/state_export.h"
+#include "state/actor/respawn_system/respawn_system.h"
 
 namespace state {
 
@@ -27,6 +28,11 @@ protected:
 	 * Current soldier velocity
 	 */
 	physics::Vector velocity;
+
+	/**
+	 * Respawn System member for soldier
+	 */
+	RespawnSystem respawn_system;
 
 public:
 	/**

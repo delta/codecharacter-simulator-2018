@@ -31,7 +31,8 @@ Soldier::Soldier(
 		position
 	),
 	max_speed(max_speed),
-	velocity(velocity) {}
+	velocity(velocity),
+	respawn_system(this) {}
 
 physics::Vector Soldier::GetVelocity() {
 	return velocity;
@@ -41,6 +42,12 @@ int64_t Soldier::GetMaxSpeed() {
 	return max_speed;
 }
 
-void Soldier::Update() {}
+void Soldier::Update() {
+	this->respawn_system.Update();
+	if(this->respawn_system.IsReadyToRespawn()) {
+		this->hp = this->max_hp;
+		this->position = RespawnSystem::respawn_position;
+	}
+}
 
 }

@@ -6,11 +6,11 @@ include_directories(.)
 set(SOURCE_FILES
 	test_main.cpp
 	state/mocks/map_mock.h
-	state/soldier_test.cpp
 	state/tower_test.cpp
 	state/map_test.cpp
 	state/money_manager_test.cpp
 	state/tower_manager_test.cpp
+	state/soldier_test.cpp
 )
 
 if(NOT BUILD_PROJECT STREQUAL "all")

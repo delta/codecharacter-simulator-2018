@@ -6,6 +6,8 @@ set(SOURCE_FILES
 	src/actor/actor.cpp
 	src/actor/soldier.cpp
 	src/actor/tower.cpp
+	src/actor/respawn_system/respawn_system.cpp
+	src/actor/respawn_system/respawn_system_static_init.cpp
 	src/map/map.cpp
 	src/map/map_element.cpp
 	src/money_manager/money_manager.cpp
