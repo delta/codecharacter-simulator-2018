@@ -152,7 +152,6 @@ void TowerManager::UpgradeTower(state::ActorId tower_id) {
 	}
 
 	int64_t current_tower_level = static_cast<int64_t>(towers[current_tower_index]->GetTowerLevel());
-	int64_t tower_upgrade_cost = build_costs[current_tower_level];
 
 	int64_t map_size = map->GetSize();
 	int64_t element_size = map->GetElementSize();
@@ -161,6 +160,8 @@ void TowerManager::UpgradeTower(state::ActorId tower_id) {
 	if (current_tower_level == build_costs.size()) {
 		throw std::out_of_range("Max level reached, upgrade not allowed");
 	}
+
+	int64_t tower_upgrade_cost = build_costs[current_tower_level];
 
 	// Check if the player has sufficient balance
 	int64_t current_balance = this->money_manager->GetBalance(player_id);
