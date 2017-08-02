@@ -5,6 +5,8 @@ include(GenerateExportHeader)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
 set(BUILD_PROJECT "all" CACHE STRING "Set the name of the project to build")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
