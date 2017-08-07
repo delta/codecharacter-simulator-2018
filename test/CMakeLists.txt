@@ -11,15 +11,21 @@ set(SOURCE_FILES
 	state/money_manager_test.cpp
 	state/tower_manager_test.cpp
 	state/soldier_test.cpp
+	drivers/shared_memory/shm_test.cpp
 )
 
 if(NOT BUILD_PROJECT STREQUAL "all")
 	include(${CMAKE_INSTALL_PREFIX}/lib/physics_config.cmake)
 	include(${CMAKE_INSTALL_PREFIX}/lib/state_config.cmake)
+	include(${CMAKE_INSTALL_PREFIX}/lib/drivers_config.cmake)
 endif()
 
 add_executable(tests ${SOURCE_FILES})
 
-target_link_libraries(tests physics state gtest gmock)
+add_executable(shm_client drivers/shared_memory/shm_client.cpp)
 
-install(TARGETS tests DESTINATION bin)
+target_link_libraries(tests physics state drivers gtest gmock)
+
+target_link_libraries(shm_client state drivers)
+
+install(TARGETS tests shm_client DESTINATION bin)
