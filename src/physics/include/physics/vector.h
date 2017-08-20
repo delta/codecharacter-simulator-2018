@@ -29,6 +29,15 @@ public:
 	bool operator==(const Vector& rhs) const;
 
 	/**
+	 * Not equal to operator for vectors
+	 *
+	 * @param[in]  rhs   The vector to be compared against
+	 *
+	 * @return     true if the vectors are not equal, else false
+	 */
+	bool operator!=(const Vector& rhs) const;
+
+	/**
 	 * Addition operator for vectors
 	 *
 	 * @param[in]  rhs   The vector to be added with
