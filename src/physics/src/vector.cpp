@@ -16,6 +16,10 @@ bool Vector::operator==(const Vector& rhs) const {
 	return(x == rhs.x && y == rhs.y);
 }
 
+bool Vector::operator!=(const Vector& rhs) const {
+	return(x != rhs.x || y != rhs.y);
+}
+
 Vector Vector::operator+(const Vector& rhs) const {
 	return Vector(x + rhs.x, y + rhs.y);
 }
