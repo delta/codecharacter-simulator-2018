@@ -13,6 +13,7 @@ set(SOURCE_FILES
 	src/money_manager/money_manager.cpp
 	src/tower_manager/tower_manager.cpp
 	src/state_syncer/state_syncer.cpp
+	src/path_planner/path_planner.cpp
 )
 
 set(INCLUDE_PATH include)
