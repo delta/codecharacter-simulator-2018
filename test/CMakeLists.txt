@@ -12,6 +12,7 @@ set(SOURCE_FILES
 	state/tower_manager_test.cpp
 	state/soldier_test.cpp
 	drivers/shared_memory/shm_test.cpp
+	drivers/timer_test.cpp
 )
 
 if(NOT BUILD_PROJECT STREQUAL "all")
