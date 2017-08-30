@@ -8,30 +8,13 @@
 
 namespace drivers {
 
-SharedMemoryPlayer::SharedMemoryPlayer(std::string shared_memory_name) {
-	using namespace boost::interprocess;
+using namespace boost::interprocess;
 
-	//Open a shared memory object, throws if does not exist
-	shared_memory_object shm(open_only, shared_memory_name.c_str(), read_write);
+SharedMemoryPlayer::SharedMemoryPlayer(std::string shared_memory_name) :
+	shared_memory(open_only, shared_memory_name.c_str()) {}
 
-	//Map whole shared memory in this process
-	this->shared_memory_region = mapped_region(shm, read_write);
-}
-
-void SharedMemoryPlayer::Write(const SharedBuffer& shared_buffer) {
-	std::memcpy(
-		this->shared_memory_region.get_address(),
-		&shared_buffer,
-		sizeof(SharedBuffer)
-	);
-}
-
-void SharedMemoryPlayer::Read(SharedBuffer& shared_buffer) {
-	std::memcpy(
-		&shared_buffer,
-		this->shared_memory_region.get_address(),
-		sizeof(SharedBuffer)
-	);
+SharedBuffer * SharedMemoryPlayer::GetBuffer() {
+	return this->shared_memory.find<SharedBuffer>(unique_instance).first;
 }
 
 }

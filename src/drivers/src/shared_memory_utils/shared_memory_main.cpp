@@ -8,39 +8,34 @@
 
 namespace drivers {
 
-SharedMemoryMain::SharedMemoryMain(std::string shared_memory_name)
-: shared_memory_name(shared_memory_name) {
-	using namespace boost::interprocess;
+using namespace boost::interprocess;
 
-	//Create a shared memory object, throws if already created
-	shared_memory_object shm(create_only, this->shared_memory_name.c_str(), read_write);
-
-	//Set size of shared memory
-	shm.truncate(sizeof(SharedBuffer));
-
-	//Map whole shared memory in this process
-	this->shared_memory_region = mapped_region(shm, read_write);
-}
-
-void SharedMemoryMain::Write(const SharedBuffer& shared_buffer) {
-	std::memcpy(
-		this->shared_memory_region.get_address(),
-		&shared_buffer,
-		sizeof(SharedBuffer)
+SharedMemoryMain::SharedMemoryMain(
+	std::string shared_memory_name,
+	bool is_player_running,
+	int64_t instruction_counter,
+	const state::PlayerState& player_state
+	) :
+	shared_memory_name(shared_memory_name),
+	// Creating shared memory
+	shared_memory(create_only, shared_memory_name.c_str(), 65536)
+{
+	// Constructing unique instance of SharedBuffer in shared memory
+	this->shared_memory.construct<SharedBuffer>(unique_instance)(
+		is_player_running,
+		instruction_counter,
+		player_state
 	);
 }
 
-void SharedMemoryMain::Read(SharedBuffer& shared_buffer) {
-	std::memcpy(
-		&shared_buffer,
-		this->shared_memory_region.get_address(),
-		sizeof(SharedBuffer)
-	);
+SharedBuffer * SharedMemoryMain::GetBuffer() {
+	return this->shared_memory.find<SharedBuffer>(unique_instance).first;
 }
+
 
 SharedMemoryMain::~SharedMemoryMain() {
-	boost::interprocess::shared_memory_object::remove(
-		shared_memory_name.c_str());
+	this->shared_memory.destroy<SharedBuffer>(unique_instance);
+	shared_memory_object::remove(shared_memory_name.c_str());
 }
 
 }

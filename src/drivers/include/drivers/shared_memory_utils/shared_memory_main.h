@@ -8,10 +8,10 @@
 
 #define BOOST_DATE_TIME_NO_LIB
 
-#include <boost/interprocess/shared_memory_object.hpp>
-#include <boost/interprocess/mapped_region.hpp>
+#include "boost/interprocess/managed_shared_memory.hpp"
 #include "drivers/drivers_export.h"
 #include "drivers/shared_memory_utils/shared_buffer.h"
+#include "state/player_state.h"
 
 namespace drivers {
 
@@ -29,7 +29,7 @@ private:
 	/**
 	 * Mapped region to write to and read from
 	 */
-	boost::interprocess::mapped_region shared_memory_region;
+	boost::interprocess::managed_shared_memory shared_memory;
 
 public:
 
@@ -40,7 +40,12 @@ public:
 	 *
 	 * @throw      std::exception      If shm already exists
 	 */
-	SharedMemoryMain(std::string shared_memory_name);
+	SharedMemoryMain(
+		std::string shared_memory_name,
+		bool is_player_running,
+		int64_t instruction_counter,
+		const state::PlayerState& player_state
+	);
 
 	/**
 	 * Removes shm
@@ -48,18 +53,11 @@ public:
 	~SharedMemoryMain();
 
 	/**
-	 * Writes buffer into shared memory
+	 * Gets pointer to shared memory
 	 *
-	 * @param[in]  shared_buffer  The buffer
+	 * @return     The pointer
 	 */
-	void Write(const SharedBuffer& shared_buffer);
-
-	/**
-	 * Reads from shared memory into buffer
-	 *
-	 * @param      shared_buffer  The buffer
-	 */
-	void Read(SharedBuffer& shared_buffer);
+	SharedBuffer * GetBuffer();
 };
 
 }

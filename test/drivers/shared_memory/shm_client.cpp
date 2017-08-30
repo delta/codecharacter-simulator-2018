@@ -11,11 +11,9 @@ int main(int argc, char * argv[]) {
 		return 0;
 
 	SharedMemoryPlayer shm((std::string(argv[1])));
-	SharedBuffer buf(false, 0, (state::PlayerState()));
+	SharedBuffer * buf = shm.GetBuffer();
 
-	shm.Read(buf);
-
-	if (buf.is_player_running && buf.instruction_counter == 1)
+	if (buf->is_player_running && buf->instruction_counter == 1)
 		return 0;
 	else
 		return 1;
