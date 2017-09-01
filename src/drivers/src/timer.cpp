@@ -2,6 +2,8 @@
 
 namespace drivers {
 
+Timer::Timer() : is_running(false) {}
+
 bool Timer::Start(
 	Interval total_timer_duration,
 	const Callback& callback)
@@ -9,6 +11,8 @@ bool Timer::Start(
 	if (this->is_running) {
 		return false;
 	}
+
+	this->is_running = true;
 
 	std::thread([this](Interval total_timer_duration, const Callback& callback){
 		std::this_thread::sleep_for(total_timer_duration);

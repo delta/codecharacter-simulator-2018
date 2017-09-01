@@ -38,6 +38,11 @@ public:
 	typedef std::function<void(void)> Callback;
 
 	/**
+	 * Constructor for Timer
+	 */
+	Timer();
+
+	/**
 	 * Starts this timer. Works only if is_running is false.
 	 *
 	 * Spawns a separate thread for the timer
