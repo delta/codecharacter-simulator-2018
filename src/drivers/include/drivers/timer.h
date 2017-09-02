@@ -52,7 +52,7 @@ public:
 	 *
 	 * @return     false if is_running is true, else true
 	 */
-	bool Start(Interval total_timer_duration, const Callback& callback);
+	bool Start(Interval total_timer_duration, Callback callback);
 };
 
 }
