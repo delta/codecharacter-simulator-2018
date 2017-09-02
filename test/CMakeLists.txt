@@ -13,6 +13,7 @@ set(SOURCE_FILES
 	state/soldier_test.cpp
 	drivers/shared_memory/shm_test.cpp
 	drivers/timer_test.cpp
+	drivers/main_driver_test.cpp
 )
 
 if(NOT BUILD_PROJECT STREQUAL "all")
@@ -25,8 +26,12 @@ add_executable(tests ${SOURCE_FILES})
 
 add_executable(shm_client drivers/shared_memory/shm_client.cpp)
 
+add_executable(main_driver_test_player drivers/main_driver_test_player)
+
 target_link_libraries(tests physics state drivers gtest gmock)
 
 target_link_libraries(shm_client state drivers)
 
-install(TARGETS tests shm_client DESTINATION bin)
+target_link_libraries(main_driver_test_player drivers)
+
+install(TARGETS tests shm_client main_driver_test_player DESTINATION bin)

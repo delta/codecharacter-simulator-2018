@@ -6,6 +6,7 @@ set(SOURCE_FILES
 	src/shared_memory_utils/shared_memory_player.cpp
 	src/shared_memory_utils/shared_buffer.cpp
 	src/timer.cpp
+	src/main_driver.cpp
 )
 
 set(INCLUDE_PATH include)
