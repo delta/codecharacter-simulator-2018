@@ -8,6 +8,8 @@
 
 #include "state/state_export.h"
 
+namespace state {
+
 /**
  * IUpdatable interface to define the Update method
  */
@@ -16,5 +18,7 @@ public:
 	virtual ~IUpdatable() {};
 	virtual void Update() = 0;
 };
+
+}
 
 #endif
