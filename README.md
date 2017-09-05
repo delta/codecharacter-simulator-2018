@@ -4,7 +4,7 @@
 
 1. Download [Boost 1.64](https://dl.bintray.com/boostorg/release/1.64.0/source/)
 
-1. `git clone --recursive https://gitlab.com/codecharacter/simulator.git`
+1. `git clone --recursive https://github.com/delta/codecharacter-simulator.git`
 
 2. Install [CMake](https://cmake.org/download/) (> v3.6.2)
 
