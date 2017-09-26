@@ -1,0 +1,28 @@
+language: cpp
+env:
+  - BUILD_TYPE=Debug
+  - BUILD_TYPE=Release
+install:
+  - sudo apt-get update -y
+  - sudo apt-get install -y libc++-dev
+  - wget https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz
+  - tar xf boost_1_64_0.tar.gz
+  - export BOOST_PATH=/home/travis/build/delta/codecharacter-simulator/boost_1_64_0
+  - wget https://cmake.org/files/v3.9/cmake-3.9.0-Linux-x86_64.tar.gz
+  - tar xf cmake-3.9.0-Linux-x86_64.tar.gz
+  - cp cmake-3.9.0-Linux-x86_64/* -r /home/travis
+  - export PATH=/home/travis/bin:$PATH
+  - export LD_LIBRARY_PATH=/home/travis/lib:$LD_LIBRARY_PATH
+  - export LD_LIBRARY_PATH=/home/travis/build/delta/codecharacter-simulator/simulator/lib:$LD_LIBRARY_PATH
+  - export CXXFLAGS="-stdlib=libc++"
+  - export CXX=clang++
+  - mkdir build
+  - mkdir simulator
+  - cd build
+
+script:
+  - cmake .. -DCMAKE_INSTALL_PREFIX=/home/travis/build/delta/codecharacter-simulator/simulator -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+  - make -j
+  - make install
+  - cd /home/travis/build/delta/codecharacter-simulator/simulator/bin
+  - ./tests
