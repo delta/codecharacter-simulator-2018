@@ -12,6 +12,7 @@ set(SOURCE_FILES
 	src/map/map_element.cpp
 	src/money_manager/money_manager.cpp
 	src/tower_manager/tower_manager.cpp
+	src/state_syncer/state_syncer.cpp
 )
 
 set(INCLUDE_PATH include)
