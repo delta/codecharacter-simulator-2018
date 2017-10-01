@@ -127,10 +127,10 @@ public:
 	 * Also checks player moves and rejects them if invalid
 	 * Calls corresponding action functions on valid moves
 	 *
-	 * @param[in]   player_states              list of player states to
-	 *                                         read and execute moves from
-	 * @param[in]  skip_player_commands_flags  if true at an index, skip that
-	 *                                         player_id's turn
+	 * @param[in]   player_states               list of player states to
+	 *                                          read and execute moves from
+	 * @param[in]   skip_player_commands_flags  if true at an index, skip that
+	 *                                          player_id's turn
 	 */
 	void ExecutePlayerCommands(
 		const std::vector<PlayerState *>& player_states,
@@ -140,6 +140,8 @@ public:
 	/**
 	 * Call updates on the main state to update state values
 	 * This effectively finishes a turn and refreshes the state
+	 *
+	 * @return  list of player scores
 	 */
 	std::vector<int64_t> UpdateMainState();
 
