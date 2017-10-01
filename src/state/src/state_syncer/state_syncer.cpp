@@ -37,7 +37,7 @@ void StateSyncer::MoveSoldier(
 	// TODO: Define function
 }
 
-void StateSyncer::RazeTower(
+void StateSyncer::AttackTower(
 	PlayerId player_id,
 	int64_t soldier_id,
 	int64_t tower_id
