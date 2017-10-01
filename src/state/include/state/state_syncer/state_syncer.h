@@ -26,8 +26,6 @@ private:
 	ICommandTaker* state;
 
 	// The functions below call corresponding action functions in State
-	// State an instance of ICommandTaker implements wrappers for all
-	// player actions
 
 	/**
 	 * Handles soldier movement commands
