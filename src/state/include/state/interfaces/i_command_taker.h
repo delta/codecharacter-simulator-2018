@@ -39,7 +39,7 @@ public:
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	virtual void RazeTower(
+	virtual void AttackTower(
 		PlayerId player_id,
 		int64_t soldier_id,
 		int64_t tower_id
