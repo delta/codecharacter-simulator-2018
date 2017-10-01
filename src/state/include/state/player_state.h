@@ -13,6 +13,12 @@
 
 namespace state {
 
+// The members of each struct marked 'Writable' can be written to
+// by the player. They carry information about the player's current move
+
+/**
+ * Struct holding information about each map grid element
+ */
 struct PlayerMapElement {
 	TerrainType terrain;
 	physics::Vector position;
@@ -22,6 +28,9 @@ struct PlayerMapElement {
 	bool build_tower;
 };
 
+/**
+ * Struct holding information about a particular soldier
+ */
 struct PlayerSoldier {
 	int64_t id;
 	physics::Vector position;
@@ -33,6 +42,9 @@ struct PlayerSoldier {
 	physics::Vector destination;
 };
 
+/**
+ * Struct holding information about a particular tower
+ */
 struct PlayerTower {
 	int64_t id;
 	physics::Vector position;
