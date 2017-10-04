@@ -61,6 +61,23 @@ std::vector<int64_t> State::GetMoney() {
 	return ret_balance;
 }
 
+std::vector<std::vector<MapElement*> > State::GetMap() {
+	int map_size = this->map->GetSize();
+	std::vector<std::vector<MapElement*> > ret_map;
+	std::vector<MapElement*> map_row;
+
+	for (int i = 0; i < map_size; ++i) {
+		for (int j = 0; j < map_size; ++j) {
+			map_row.push_back(
+				&this->map->GetElementByOffset(physics::Vector(i, j))
+			);
+		}
+		ret_map.push_back(map_row);
+		map_row.clear();
+	}
+	return ret_map;
+}
+
 void State::MoveSoldier(
 	PlayerId player_id,
 	int64_t soldier_id,
