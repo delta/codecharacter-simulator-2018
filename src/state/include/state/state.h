@@ -35,7 +35,7 @@ protected:
 	/**
 	 * MoneyManager object to handle player currency
 	 */
-	MoneyManager money_manager;
+	std::unique_ptr<MoneyManager> money_manager;
 
 	/**
 	 * TowerManager objects to handle game Towers, indexed by PlayerId
@@ -52,7 +52,7 @@ public:
 	State(
 		std::vector<std::vector<Soldier*> > soldiers,
 		IMap* map,
-		MoneyManager money_manager,
+		MoneyManager* money_manager,
 		std::vector<TowerManager*> tower_managers
 	);
 
@@ -71,6 +71,13 @@ public:
 	 * @return      Vector of all towers in state
 	 */
 	std::vector<std::vector<Tower*> > GetAllTowers();
+
+	/**
+	 * Get money for both players
+	 *
+	 * @return      Vector of integers with players' money
+	 */
+	std::vector<int64_t> GetMoney();
 
 	/**
 	 * Handles soldier movement
