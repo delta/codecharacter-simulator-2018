@@ -23,9 +23,9 @@ namespace state {
 class STATE_EXPORT State : public ICommandTaker {
 protected:
 	/**
-	 * List of all soldiers in the game
+	 * List of all soldiers in the game, indexed by PlayerId
 	 */
-	std::vector<std::unique_ptr<Soldier> > soldiers;
+	std::vector<std::vector<std::unique_ptr<Soldier> > > soldiers;
 
 	/**
 	 * Map of the game
@@ -50,7 +50,7 @@ public:
 	State(const State& other) = delete;
 
 	State(
-		std::vector<Soldier*> soldiers,
+		std::vector<std::vector<Soldier*> > soldiers,
 		IMap* map,
 		MoneyManager money_manager,
 		std::vector<TowerManager*> tower_managers
@@ -59,11 +59,11 @@ public:
 	~State() = default;
 
 	/**
-	 * Get all soldiers
+	 * Get all soldiers, indexed by PlayerId
 	 *
 	 * @return      Vector of all soldiers in state
 	 */
-	std::vector<Soldier*> GetAllSoldiers();
+	std::vector<std::vector<Soldier*> > GetAllSoldiers();
 
 	/**
 	 * Get all towers, indexed by PlayerId

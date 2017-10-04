@@ -12,14 +12,16 @@ State::State() {
 }
 
 State::State(
-	std::vector<Soldier*> p_soldiers,
+	std::vector<std::vector<Soldier*> > p_soldiers,
 	IMap* map,
 	MoneyManager money_manager,
 	std::vector<TowerManager*> p_tower_managers
 	): map(map),
 	money_manager(money_manager) {
 	for(int i = 0; i < p_soldiers.size(); ++i) {
-		soldiers.emplace_back(std::move(p_soldiers[i]));
+		for(int j = 0; j < p_soldiers[i].size(); ++j) {
+			soldiers[i].emplace_back(std::move(p_soldiers[i][j]));
+		}
 	}
 
 	for(int i = 0; i < p_tower_managers.size(); ++i) {
@@ -27,11 +29,18 @@ State::State(
 	}
 }
 
-std::vector<Soldier*> State::GetAllSoldiers() {
-	std::vector<Soldier*> ret_soldiers;
-	for(int i = 0; i < soldiers.size(); ++i) {
-		ret_soldiers.push_back(soldiers[i].get());
+std::vector<std::vector<Soldier*> > State::GetAllSoldiers() {
+	std::vector<Soldier*> player_soldiers;
+	std::vector<std::vector<Soldier*> > ret_soldiers;
+
+	for (int i = 0; i < soldiers.size(); ++i) {
+		for (int j = 0; j < soldiers[i].size(); ++j) {
+			player_soldiers.push_back(soldiers[i][j].get());
+		}
+		ret_soldiers.push_back(player_soldiers);
+		player_soldiers.clear();
 	}
+
 	return ret_soldiers;
 }
 
