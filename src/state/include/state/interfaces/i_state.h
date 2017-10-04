@@ -1,19 +1,53 @@
 /**
- * @file i_command_taker.h
- * Interface that takes player command actions
+ * @file i_state.h
+ * Interface for state methods
  */
-#ifndef STATE_INTERFACES_I_COMMAND_TAKER_H
-#define STATE_INTERFACES_I_COMMAND_TAKER_H
+#ifndef STATE_INTERFACES_I_STATE_H
+#define STATE_INTERFACES_I_STATE_H
 
 #include <vector>
-#include <cmath>
-#include "physics/vector.h"
+#include "state/actor/soldier.h"
+#include "state/actor/tower.h"
+#include "state/map/interfaces/i_map.h"
+#include "state/map/map_element.h"
 #include "state/state_export.h"
 
 namespace state {
 
-class STATE_EXPORT ICommandTaker {
+/**
+ * Declarations for the IState interface, which declares methods to get
+ * state values and modify the state
+ */
+class STATE_EXPORT IState {
 public:
+
+	/**
+	 * Get all soldiers, indexed by PlayerId
+	 *
+	 * @return      Vector of all soldiers in state
+	 */
+	virtual const std::vector<std::vector<Soldier*> > GetAllSoldiers() = 0;
+
+	/**
+	 * Get all towers, indexed by PlayerId
+	 *
+	 * @return      Vector of all towers in state
+	 */
+	virtual const std::vector<std::vector<Tower*> > GetAllTowers() = 0;
+
+	/**
+	 * Get money for both players
+	 *
+	 * @return      Vector of integers with players' money
+	 */
+	virtual std::vector<int64_t> GetMoney() = 0;
+
+	/**
+	 * Get the map
+	 *
+	 * @return      Grid of MapElements
+	 */
+	virtual const IMap* GetMap() = 0;
 
 	/**
 	 * Handles soldier movement

@@ -14,14 +14,14 @@
 #include "state/actor/tower.h"
 #include "state/map/interfaces/i_map.h"
 #include "state/map/map_element.h"
-#include "state/interfaces/i_command_taker.h"
+#include "state/interfaces/i_state.h"
 #include "state/money_manager/money_manager.h"
 #include "state/tower_manager/tower_manager.h"
 #include "state/state_export.h"
 
 namespace state {
 
-class STATE_EXPORT State : public ICommandTaker {
+class STATE_EXPORT State : public IState {
 protected:
 	/**
 	 * List of all soldiers in the game, indexed by PlayerId
@@ -44,134 +44,95 @@ protected:
 	std::vector<std::unique_ptr<TowerManager> > tower_managers;
 
 public:
+	/**
+	 * Constructors for State
+	 */
+	State(
+		std::vector<std::vector<std::unique_ptr<Soldier> > > soldiers,
+		std::unique_ptr<IMap> map,
+		std::unique_ptr<MoneyManager> money_manager,
+		std::vector<std::unique_ptr<TowerManager> > tower_managers
+	);
+
 	State();
 
+	// Explicitly delete copy constructors to State
 	State& operator=(const State& other) = delete;
-
 	State(const State& other) = delete;
-
-	State(
-		std::vector<std::vector<Soldier*> > soldiers,
-		IMap* map,
-		MoneyManager* money_manager,
-		std::vector<TowerManager*> tower_managers
-	);
 
 	~State() = default;
 
 	/**
-	 * Get all soldiers, indexed by PlayerId
-	 *
-	 * @return      Vector of all soldiers in state
+	 * @see IIState#GetAllSoldiers
 	 */
-	std::vector<std::vector<Soldier*> > GetAllSoldiers();
+	const std::vector<std::vector<Soldier*> > GetAllSoldiers() override;
 
 	/**
-	 * Get all towers, indexed by PlayerId
-	 *
-	 * @return      Vector of all towers in state
+	 * @see IState#GetAllTowers
 	 */
-	std::vector<std::vector<Tower*> > GetAllTowers();
+	const std::vector<std::vector<Tower*> > GetAllTowers() override;
 
 	/**
-	 * Get money for both players
-	 *
-	 * @return      Vector of integers with players' money
+	 * @see IState#GetMoney
 	 */
-	std::vector<int64_t> GetMoney();
+	std::vector<int64_t> GetMoney() override;
 
 	/**
-	 * Get the map
-	 *
-	 * @return      Grid of MapElements
+	 * @see IState#GetMap
 	 */
-	std::vector<std::vector<MapElement*> > GetMap();
+	const IMap* GetMap() override;
 
 	/**
-	 * Handles soldier movement
-	 *
-	 * @param[in]  player_id     player to act upon
-	 * @param[in]  soldier_id    soldier to act upon
-	 * @param[in]  position      new position to move the soldier to
-	 *
-	 * @throw      std::exception  if the operation was not possible
+	 * @see IState#MoveSoldier
 	 */
 	void MoveSoldier(
 		PlayerId player_id,
 		int64_t soldier_id,
 		physics::Vector position
-	);
+	) override;
 
 	/**
-	 * Handles enemy tower attacks
-	 *
-	 * @param[in]  player_id     player to act upon
-	 * @param[in]  soldier_id    soldier who is attacking
-	 * @param[in]  tower_id      opponent tower to attack
-	 *
-	 * @throw      std::exception  if the operation was not possible
+	 * @see IState#AttackTower
 	 */
 	void AttackTower(
 		PlayerId player_id,
 		int64_t soldier_id,
 		int64_t tower_id
-	);
+	) override;
 
 	/**
-	 * Handles enemy soldier attacks
-	 *
-	 * @param[in]  player_id           player to act upon
-	 * @param[in]  soldier_id          soldier who is attacking
-	 * @param[in]  enemy_soldier_id    soldier who is to be attacked
-	 *
-	 * @throw      std::exception  if the operation was not possible
+	 * @see IState#AttackSoldier
 	 */
 	void AttackSoldier(
 		PlayerId player_id,
 		int64_t soldier_id,
 		int64_t enemy_soldier_id
-	);
+	) override;
 
 	/**
-	 * Handles tower builds
-	 *
-	 * @param[in]  player_id     player to act upon
-	 * @param[in]  tower_id      tower to act upon
-	 * @param[in]  position      position to build the tower at
-	 *
-	 * @throw      std::exception  if the operation was not possible
+	 * @see IState#BuildTower
 	 */
 	void BuildTower(
 		PlayerId player_id,
 		int64_t tower_id,
 		physics::Vector position
-	);
+	) override;
 
 	/**
-	 * Handles tower upgrades
-	 *
-	 * @param[in]  player_id     player to act upon
-	 * @param[in]  tower_id      tower to act upon
-	 *
-	 * @throw      std::exception  if the operation was not possible
+	 * @see IState#UpgradeTower
 	 */
 	void UpgradeTower(
 		PlayerId player_id,
 		int64_t tower_id
-	);
+	) override;
 
 	/**
-	 * Handles tower self destructs
-	 *
-	 * @param[in]  player_id     player to act upon
-	 * @param[in]  tower_id      opponent tower to attack
-	 *
-	 * @throw      std::exception if the operation was not possible
+	 * @see IState#SuicideTower
 	 */
 	void SuicideTower(
 		PlayerId player_id,
 		int64_t tower_id
-	);
+	) override;
 };
 
 }
