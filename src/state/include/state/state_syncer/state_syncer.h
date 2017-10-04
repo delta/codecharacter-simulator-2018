@@ -9,7 +9,7 @@
 #include "state/state.h"
 #include "state/player_state.h"
 #include "state/interfaces/i_state_syncer.h"
-#include "state/interfaces/i_command_taker.h"
+#include "state/interfaces/i_state.h"
 #include "state/state_export.h"
 
 namespace state {
@@ -23,7 +23,7 @@ private:
 	/**
 	 * Pointer to the main state
 	 */
-	ICommandTaker* state;
+	IState* state;
 
 	// The functions below call corresponding action functions in State
 
@@ -119,7 +119,7 @@ public:
 	 * Constructor for StateSyncer class
 	 */
 	StateSyncer(
-		ICommandTaker* state
+		IState* state
 	);
 
 	/**
@@ -135,7 +135,7 @@ public:
 	void ExecutePlayerCommands(
 		const std::vector<PlayerState *>& player_states,
 		const std::vector<bool>& skip_player_commands_flags
-	);
+	) override;
 
 	/**
 	 * Call updates on the main state to update state values
@@ -143,7 +143,7 @@ public:
 	 *
 	 * @return  list of player scores
 	 */
-	std::vector<int64_t> UpdateMainState();
+	std::vector<int64_t> UpdateMainState() override;
 
 	/**
 	 * After the state has been updated, refresh the player states
@@ -153,7 +153,7 @@ public:
 	 */
 	void UpdatePlayerStates(
 		std::vector<PlayerState *>& player_states
-	);
+	) override;
 
 };
 

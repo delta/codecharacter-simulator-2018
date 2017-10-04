@@ -12,39 +12,28 @@ State::State() {
 }
 
 State::State(
-	std::vector<std::vector<Soldier*> > p_soldiers,
-	IMap* map,
-	MoneyManager* money_manager,
-	std::vector<TowerManager*> p_tower_managers
-	): map(map),
-	money_manager(money_manager) {
-	for(int i = 0; i < p_soldiers.size(); ++i) {
-		for(int j = 0; j < p_soldiers[i].size(); ++j) {
-			soldiers[i].emplace_back(std::move(p_soldiers[i][j]));
-		}
-	}
+	std::vector<std::vector<std::unique_ptr<Soldier> > > soldiers,
+	std::unique_ptr<IMap> map,
+	std::unique_ptr<MoneyManager> money_manager,
+	std::vector<std::unique_ptr<TowerManager> > tower_managers
+	): soldiers(std::move(soldiers)),
+	map(std::move(map)),
+	money_manager(std::move(money_manager)),
+	tower_managers(std::move(tower_managers)) {}
 
-	for(int i = 0; i < p_tower_managers.size(); ++i) {
-		this->tower_managers.emplace_back(std::move(p_tower_managers[i]));
-	}
-}
-
-std::vector<std::vector<Soldier*> > State::GetAllSoldiers() {
-	std::vector<Soldier*> player_soldiers;
+const std::vector<std::vector<Soldier*> > State::GetAllSoldiers() {
 	std::vector<std::vector<Soldier*> > ret_soldiers;
-
 	for (int i = 0; i < soldiers.size(); ++i) {
+		std::vector<Soldier*> player_soldiers;
 		for (int j = 0; j < soldiers[i].size(); ++j) {
 			player_soldiers.push_back(soldiers[i][j].get());
 		}
 		ret_soldiers.push_back(player_soldiers);
-		player_soldiers.clear();
 	}
-
 	return ret_soldiers;
 }
 
-std::vector<std::vector<Tower*> > State::GetAllTowers() {
+const std::vector<std::vector<Tower*> > State::GetAllTowers() {
 	std::vector<std::vector<Tower*> > ret_towers;
 	for (int i = 0; i < this->tower_managers.size(); ++i) {
 		ret_towers.push_back(this->tower_managers[i]->GetTowers());
@@ -61,21 +50,8 @@ std::vector<int64_t> State::GetMoney() {
 	return ret_balance;
 }
 
-std::vector<std::vector<MapElement*> > State::GetMap() {
-	int map_size = this->map->GetSize();
-	std::vector<std::vector<MapElement*> > ret_map;
-	std::vector<MapElement*> map_row;
-
-	for (int i = 0; i < map_size; ++i) {
-		for (int j = 0; j < map_size; ++j) {
-			map_row.push_back(
-				&this->map->GetElementByOffset(physics::Vector(i, j))
-			);
-		}
-		ret_map.push_back(map_row);
-		map_row.clear();
-	}
-	return ret_map;
+const IMap* State::GetMap() {
+	return this->map.get();
 }
 
 void State::MoveSoldier(

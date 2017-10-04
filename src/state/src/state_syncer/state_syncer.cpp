@@ -8,7 +8,7 @@
 namespace state {
 
 StateSyncer::StateSyncer(
-	ICommandTaker* state
+	IState* state
 ) : state(state) {}
 
 void StateSyncer::ExecutePlayerCommands(
