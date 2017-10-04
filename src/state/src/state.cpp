@@ -14,7 +14,7 @@ State::State() {
 State::State(
 	std::vector<std::vector<Soldier*> > p_soldiers,
 	IMap* map,
-	MoneyManager money_manager,
+	MoneyManager* money_manager,
 	std::vector<TowerManager*> p_tower_managers
 	): map(map),
 	money_manager(money_manager) {
@@ -50,6 +50,15 @@ std::vector<std::vector<Tower*> > State::GetAllTowers() {
 		ret_towers.push_back(this->tower_managers[i]->GetTowers());
 	}
 	return ret_towers;
+}
+
+std::vector<int64_t> State::GetMoney() {
+	std::vector<int64_t> ret_balance;
+	int player_count = static_cast<int>(PlayerId::PLAYER_COUNT);
+	for (int i = 0; i < player_count; ++i) {
+		ret_balance.push_back(money_manager->GetBalance(PlayerId(i)));
+	}
+	return ret_balance;
 }
 
 void State::MoveSoldier(
