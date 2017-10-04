@@ -13,6 +13,7 @@
 #include "state/actor/soldier.h"
 #include "state/actor/tower.h"
 #include "state/map/interfaces/i_map.h"
+#include "state/map/map_element.h"
 #include "state/interfaces/i_command_taker.h"
 #include "state/money_manager/money_manager.h"
 #include "state/tower_manager/tower_manager.h"
@@ -78,6 +79,13 @@ public:
 	 * @return      Vector of integers with players' money
 	 */
 	std::vector<int64_t> GetMoney();
+
+	/**
+	 * Get the map
+	 *
+	 * @return      Grid of MapElements
+	 */
+	std::vector<std::vector<MapElement*> > GetMap();
 
 	/**
 	 * Handles soldier movement
