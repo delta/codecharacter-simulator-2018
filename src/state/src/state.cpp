@@ -14,11 +14,16 @@ State::State() {
 State::State(
 	std::vector<Soldier*> p_soldiers,
 	IMap* map,
-	MoneyManager money_manager
+	MoneyManager money_manager,
+	std::vector<TowerManager*> p_tower_managers
 	): map(map),
 	money_manager(money_manager) {
 	for(int i = 0; i < p_soldiers.size(); ++i) {
 		soldiers.emplace_back(std::move(p_soldiers[i]));
+	}
+
+	for(int i = 0; i < p_tower_managers.size(); ++i) {
+		this->tower_managers.emplace_back(std::move(p_tower_managers[i]));
 	}
 }
 
@@ -28,6 +33,14 @@ std::vector<Soldier*> State::GetAllSoldiers() {
 		ret_soldiers.push_back(soldiers[i].get());
 	}
 	return ret_soldiers;
+}
+
+std::vector<std::vector<Tower*> > State::GetAllTowers() {
+	std::vector<std::vector<Tower*> > ret_towers;
+	for (int i = 0; i < this->tower_managers.size(); ++i) {
+		ret_towers.push_back(this->tower_managers[i]->GetTowers());
+	}
+	return ret_towers;
 }
 
 void State::MoveSoldier(

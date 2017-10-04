@@ -70,10 +70,6 @@ public:
 	 */
 	TowerManager();
 
-	TowerManager& operator=(const TowerManager& other) = delete;
-
-	TowerManager(const TowerManager& other) = delete;
-
 	TowerManager(
 		std::vector<Tower*> towers,
 		PlayerId player_id,

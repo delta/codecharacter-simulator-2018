@@ -11,9 +11,11 @@
 #include <memory>
 #include "physics/vector.h"
 #include "state/actor/soldier.h"
+#include "state/actor/tower.h"
 #include "state/map/interfaces/i_map.h"
 #include "state/interfaces/i_command_taker.h"
 #include "state/money_manager/money_manager.h"
+#include "state/tower_manager/tower_manager.h"
 #include "state/state_export.h"
 
 namespace state {
@@ -35,6 +37,11 @@ protected:
 	 */
 	MoneyManager money_manager;
 
+	/**
+	 * TowerManager objects to handle game Towers, indexed by PlayerId
+	 */
+	std::vector<std::unique_ptr<TowerManager> > tower_managers;
+
 public:
 	State();
 
@@ -45,7 +52,8 @@ public:
 	State(
 		std::vector<Soldier*> soldiers,
 		IMap* map,
-		MoneyManager money_manager
+		MoneyManager money_manager,
+		std::vector<TowerManager*> tower_managers
 	);
 
 	~State() = default;
@@ -56,6 +64,13 @@ public:
 	 * @return      Vector of all soldiers in state
 	 */
 	std::vector<Soldier*> GetAllSoldiers();
+
+	/**
+	 * Get all towers, indexed by PlayerId
+	 *
+	 * @return      Vector of all towers in state
+	 */
+	std::vector<std::vector<Tower*> > GetAllTowers();
 
 	/**
 	 * Handles soldier movement
