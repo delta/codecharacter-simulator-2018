@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 include(GenerateExportHeader)
+include(clang-format.cmake)
 
 set(CMAKE_CXX_STANDARD 14)
 
