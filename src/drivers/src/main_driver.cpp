@@ -38,7 +38,8 @@ MainDriver::MainDriver(
 const std::vector<PlayerResult> MainDriver::Start() {
 	// Initialize contents of shared memory
 	for (int cur_player_id = 0; cur_player_id < this->player_count; ++cur_player_id) {
-		this->shared_buffers[cur_player_id]->is_player_running = false;
+		this->shared_buffers[cur_player_id]->player_lock.TryLock();
+		this->shared_buffers[cur_player_id]->main_lock.TryLock();
 		this->shared_buffers[cur_player_id]->instruction_counter = 0;
 	}
 
@@ -65,10 +66,12 @@ const std::vector<PlayerResult> MainDriver::Run() {
 		// Loop over each player
 		for (int cur_player_id = 0; cur_player_id < this->player_count; ++cur_player_id) {
 			// Let player do his updates
-			this->shared_buffers[cur_player_id]->is_player_running = true;
+			// this->shared_buffers[cur_player_id]->is_player_running = true;
+			this->shared_buffers[cur_player_id]->player_lock.Unlock();
 
 			// Wait for updates (or the timer)
-			while (this->shared_buffers[cur_player_id]->is_player_running && this->is_game_timed_out);
+			// while (this->shared_buffers[cur_player_id]->is_player_running && this->is_game_timed_out);
+			while(!this->shared_buffers[cur_player_id]->main_lock.TryLock() && this->is_game_timed_out);
 
 			// Check for instruction counter to see if player has exceeded some limit
 			if (this->shared_buffers[cur_player_id]->instruction_counter >

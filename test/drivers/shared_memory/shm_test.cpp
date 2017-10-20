@@ -22,7 +22,7 @@ TEST(SharedMemoryUtilsTest, ValidWriteRead) {
 
 	// Write to shm
 	SharedBuffer * buf = shm_main.GetBuffer();
-	buf->is_player_running = true;
+	// buf->is_player_running = true;
 	buf->instruction_counter = 1;
 
 	// Spawn shm client to read from shm

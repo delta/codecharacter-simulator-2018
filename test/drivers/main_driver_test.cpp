@@ -195,16 +195,18 @@ TEST_F(MainDriverTest, InstructionLimitReached) {
 	for (const auto &shm_name : shared_memory_names) {
 		SharedMemoryPlayer shm_player(shm_name);
 		SharedBuffer * buf = shm_player.GetBuffer();
+		while (!buf->player_lock.TryLock());
 		buf->instruction_counter = game_instruction_limit;
-		buf->is_player_running = false;
+		buf->main_lock.Unlock();
 	}
 
 	// Simulating instruction limit exceeding on n/2 + 1 turn by all players
 	for (const auto &shm_name : shared_memory_names) {
 		SharedMemoryPlayer shm_player(shm_name);
 		SharedBuffer * buf = shm_player.GetBuffer();
+		while (!buf->player_lock.TryLock());
 		buf->instruction_counter = game_instruction_limit + 1;
-		buf->is_player_running = false;
+		buf->main_lock.Unlock();
 	}
 
 	main_runner.join();
