@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.6.2)
 project(tests)
 
 include_directories(.)
+include_directories(${BOOST_INCLUDE_PATH})
 
 set(SOURCE_FILES
 	test_main.cpp
