@@ -59,7 +59,7 @@ public:
 const vector<string> MainDriverTest::shared_memory_names = {"ShmTest1", "ShmTest2"};
 const int MainDriverTest::player_count = 2;
 const int MainDriverTest::num_turns = pow(10, 4);
-const int MainDriverTest::time_limit_ms = 1000;
+const int MainDriverTest::time_limit_ms = 400000;
 const int MainDriverTest::turn_instruction_limit = 5;
 const int MainDriverTest::game_instruction_limit = 10;
 
@@ -195,16 +195,18 @@ TEST_F(MainDriverTest, InstructionLimitReached) {
 	for (const auto &shm_name : shared_memory_names) {
 		SharedMemoryPlayer shm_player(shm_name);
 		SharedBuffer * buf = shm_player.GetBuffer();
+		while (!buf->player_lock.TryLock());
 		buf->instruction_counter = game_instruction_limit;
-		buf->is_player_running = false;
+		buf->main_lock.Unlock();
 	}
 
 	// Simulating instruction limit exceeding on n/2 + 1 turn by all players
 	for (const auto &shm_name : shared_memory_names) {
 		SharedMemoryPlayer shm_player(shm_name);
 		SharedBuffer * buf = shm_player.GetBuffer();
+		while (!buf->player_lock.TryLock());
 		buf->instruction_counter = game_instruction_limit + 1;
-		buf->is_player_running = false;
+		buf->main_lock.Unlock();
 	}
 
 	main_runner.join();

@@ -8,6 +8,7 @@
 
 #include <atomic>
 #include "drivers/drivers_export.h"
+#include "drivers/spin_lock.h"
 #include "state/player_state.h"
 
 namespace drivers {
@@ -25,8 +26,10 @@ struct DRIVERS_EXPORT SharedBuffer {
 	/**
 	 * True if the player process is executing its turn, false otherwise
 	 */
-	std::atomic_bool is_player_running;
-
+	// std::atomic_bool is_player_running;
+	
+	SpinLock main_lock;
+	SpinLock player_lock;
 	/**
 	 * Count of the number of instructions executed in the present turn
 	 */

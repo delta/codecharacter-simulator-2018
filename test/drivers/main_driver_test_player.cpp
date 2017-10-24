@@ -40,12 +40,12 @@ int main(int argc, char* argv[]) {
 	// Run player updates for num_turns
 	for (int i = 0; i < num_turns && !is_time_over; ++i) {
 		// cout << i << endl;
-		while (!buf->is_player_running && !is_time_over);
+		while (!buf->player_lock.TryLock() && !is_time_over);
 		if (i < num_turns / 2)
 			buf->instruction_counter = turn_instruction_limit;
 		else
 			buf->instruction_counter = turn_instruction_limit + 1;
-		buf->is_player_running = false;
+		buf->main_lock.Unlock();
 	}
 
 	return 0;

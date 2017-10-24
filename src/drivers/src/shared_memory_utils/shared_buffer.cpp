@@ -12,7 +12,8 @@ SharedBuffer::SharedBuffer(
 	int64_t instruction_counter,
 	const state::PlayerState& player_state
 	) :
-	is_player_running(is_player_running),
+	main_lock(),
+	player_lock(),
 	instruction_counter(instruction_counter),
 	player_state(player_state) {}
 

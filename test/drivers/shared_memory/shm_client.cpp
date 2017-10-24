@@ -13,7 +13,7 @@ int main(int argc, char * argv[]) {
 	SharedMemoryPlayer shm((std::string(argv[1])));
 	SharedBuffer * buf = shm.GetBuffer();
 
-	if (buf->is_player_running && buf->instruction_counter == 1)
+	if (buf->instruction_counter == 1)
 		return 0;
 	else
 		return 1;

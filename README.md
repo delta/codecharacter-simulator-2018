@@ -1,5 +1,7 @@
 # Code Character Simulator
 
+[![Build Status](https://travis-ci.com/delta/codecharacter-simulator.svg?token=AbNxYBvow6wszNAonGy5&branch=dev)](https://travis-ci.com/delta/codecharacter-simulator)
+
 ## Setup Instructions
 
 1. Download [Boost 1.64](https://dl.bintray.com/boostorg/release/1.64.0/source/)
