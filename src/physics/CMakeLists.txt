@@ -18,7 +18,7 @@ generate_export_header(physics EXPORT_FILE_NAME ${EXPORTS_FILE_PATH})
 target_include_directories(physics PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${INCLUDE_PATH}>
 	$<BUILD_INTERFACE:${EXPORTS_DIR}>
-	$<INSTALL_INTERFACE:include/physics>
+	$<INSTALL_INTERFACE:include>
 )
 
 install(TARGETS physics EXPORT physics_config

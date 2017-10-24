@@ -33,7 +33,7 @@ target_include_directories(drivers PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${INCLUDE_PATH}>
 	$<BUILD_INTERFACE:${EXPORTS_DIR}>
 	$<BUILD_INTERFACE:${BOOST_INCLUDE_PATH}>
-	$<INSTALL_INTERFACE:include/drivers>
+	$<INSTALL_INTERFACE:include>
 )
 
 install(TARGETS drivers EXPORT drivers_config
