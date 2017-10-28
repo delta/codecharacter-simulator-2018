@@ -6,18 +6,17 @@
 #ifndef STATE_MONEY_MANAGER_MONEY_MANAGER_H
 #define STATE_MONEY_MANAGER_MONEY_MANAGER_H
 
+#include "state/state_export.h"
+#include "state/utilities.h"
 #include <cstdint>
 #include <vector>
-#include "state/utilities.h"
-#include "state/state_export.h"
 
 namespace state {
 /**
  * MoneyManager class
  */
 class STATE_EXPORT MoneyManager {
-private:
-
+  private:
 	/**
 	 * Vector representing the amount of money each player has
 	 */
@@ -28,17 +27,13 @@ private:
 	 */
 	int64_t max_money;
 
-public:
-
+  public:
 	/**
 	 * Constructor for MoneyManager class
 	 */
 	MoneyManager();
 
-	MoneyManager(
-			std::vector<int64_t> player_money,
-			int64_t max_money
-			);
+	MoneyManager(std::vector<int64_t> player_money, int64_t max_money);
 
 	/**
 	 * Method to increase player money
@@ -57,7 +52,7 @@ public:
 	 *
 	 * @param[in]  player_id  The player identifier
 	 * @param[in]  amount     The amount of money to deduct
-	 * 
+	 *
 	 * @throw      std::out_of_range If the amount is not positive
 	 *                               player has insufficuent balance
 	 */
@@ -78,9 +73,7 @@ public:
 	 * @return     The maximum possible balance.
 	 */
 	int64_t GetMaxMoney();
-
 };
-
 }
 
 #endif

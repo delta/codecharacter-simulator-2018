@@ -1,13 +1,13 @@
-#include <iostream>
+#include "drivers/main_driver.h"
+#include "drivers/shared_memory_utils/shared_memory_player.h"
+#include "drivers/timer.h"
+#include "state/mocks/state_syncer_mock.h"
+#include "gtest/gtest.h"
 #include <atomic>
 #include <cmath>
-#include <thread>
+#include <iostream>
 #include <memory>
-#include "drivers/main_driver.h"
-#include "drivers/timer.h"
-#include "drivers/shared_memory_utils/shared_memory_player.h"
-#include "gtest/gtest.h"
-#include "state/mocks/state_syncer_mock.h"
+#include <thread>
 
 using namespace ::testing;
 using namespace std;
@@ -15,8 +15,7 @@ using namespace state;
 using namespace drivers;
 
 class MainDriverTest : public testing::Test {
-protected:
-
+  protected:
 	unique_ptr<MainDriver> driver;
 
 	const static vector<string> shared_memory_names;
@@ -32,31 +31,29 @@ protected:
 	const static int game_instruction_limit;
 
 	// Returns a new mock main driver
-	static unique_ptr<MainDriver> CreateMockMainDriver(unique_ptr<StateSyncerMock> state_syncer_mock) {
+	static unique_ptr<MainDriver>
+	CreateMockMainDriver(unique_ptr<StateSyncerMock> state_syncer_mock) {
 		vector<unique_ptr<SharedMemoryMain>> shm;
-		for (const auto &shm_name: shared_memory_names) {
+		for (const auto &shm_name : shared_memory_names) {
 			// Remove shm if it already exists
 			boost::interprocess::shared_memory_object::remove(shm_name.c_str());
 			// Create new shm
-			shm.emplace_back(new SharedMemoryMain(shm_name, false, 0, PlayerState()));
+			shm.emplace_back(
+			    new SharedMemoryMain(shm_name, false, 0, PlayerState()));
 		}
 
 		return unique_ptr<MainDriver>(new MainDriver(
-			move(state_syncer_mock),
-			move(shm),
-			turn_instruction_limit,
-			game_instruction_limit,
-			num_turns,
-			player_count,
-			Timer::Interval(time_limit_ms)
-		));
+		    move(state_syncer_mock), move(shm), turn_instruction_limit,
+		    game_instruction_limit, num_turns, player_count,
+		    Timer::Interval(time_limit_ms)));
 	}
 
-public:
+  public:
 	MainDriverTest() : driver(nullptr) {}
 };
 
-const vector<string> MainDriverTest::shared_memory_names = {"ShmTest1", "ShmTest2"};
+const vector<string> MainDriverTest::shared_memory_names = {"ShmTest1",
+                                                            "ShmTest2"};
 const int MainDriverTest::player_count = 2;
 const int MainDriverTest::num_turns = pow(10, 4);
 const int MainDriverTest::time_limit_ms = 1000;
@@ -65,41 +62,44 @@ const int MainDriverTest::game_instruction_limit = 10;
 
 TEST_F(MainDriverTest, CleanRun) {
 	// Expect a lock-free atomic_bool as only they will definitely work in shm.
-	// TODO: find some way to use atomic_flag, or something else that's fast and lock-free.
+	// TODO: find some way to use atomic_flag, or something else that's fast and
+	// lock-free.
 	EXPECT_EQ(ATOMIC_BOOL_LOCK_FREE, 2);
 
 	// Declaring mock state syncer and setting expectations
 	unique_ptr<StateSyncerMock> state_syncer_mock(new StateSyncerMock());
 
 	// Skip first half of turns...
-	EXPECT_CALL(*state_syncer_mock, ExecutePlayerCommands(_, vector<bool>(player_count, false)))
-	.Times(num_turns / 2);
+	EXPECT_CALL(*state_syncer_mock,
+	            ExecutePlayerCommands(_, vector<bool>(player_count, false)))
+	    .Times(num_turns / 2);
 
 	// ... and run the second half of turns
-	EXPECT_CALL(*state_syncer_mock, ExecutePlayerCommands(_, vector<bool>(player_count, true)))
-	.Times(num_turns / 2);
+	EXPECT_CALL(*state_syncer_mock,
+	            ExecutePlayerCommands(_, vector<bool>(player_count, true)))
+	    .Times(num_turns / 2);
 
 	EXPECT_CALL(*state_syncer_mock, UpdateMainState())
-	.Times(num_turns).WillRepeatedly(Return(vector<int64_t>(player_count, 0)));
-	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_))
-	.Times(num_turns);
+	    .Times(num_turns)
+	    .WillRepeatedly(Return(vector<int64_t>(player_count, 0)));
+	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_)).Times(num_turns);
 
 	driver = CreateMockMainDriver(move(state_syncer_mock));
 
 	// Start main driver on new thread
 	vector<PlayerResult> player_results;
-	thread main_runner([this, &player_results] { player_results = driver->Start(); });
+	thread main_runner(
+	    [this, &player_results] { player_results = driver->Start(); });
 
 	vector<thread> player_runners;
 	for (int i = 0; i < player_count; ++i) {
 		ostringstream command_stream;
-		command_stream << "./main_driver_test_player " <<
-			shared_memory_names[i] << ' ' <<
-			time_limit_ms << ' ' <<
-			num_turns << ' ' <<
-			turn_instruction_limit;
+		command_stream << "./main_driver_test_player " << shared_memory_names[i]
+		               << ' ' << time_limit_ms << ' ' << num_turns << ' '
+		               << turn_instruction_limit;
 		string command = command_stream.str();
-		player_runners.emplace_back([command] { EXPECT_EQ(system(command.c_str()), 0); });
+		player_runners.emplace_back(
+		    [command] { EXPECT_EQ(system(command.c_str()), 0); });
 	}
 
 	// Wait for player processes to wrap up
@@ -123,27 +123,27 @@ TEST_F(MainDriverTest, EarlyPlayerExit) {
 
 	// Expect only half the number of turns to be run
 	EXPECT_CALL(*state_syncer_mock, ExecutePlayerCommands(_, _))
-	.Times(num_turns / 2);
+	    .Times(num_turns / 2);
 	EXPECT_CALL(*state_syncer_mock, UpdateMainState())
-	.Times(num_turns / 2).WillRepeatedly(Return(vector<int64_t>(player_count, 0)));
-	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_))
-	.Times(num_turns / 2);
+	    .Times(num_turns / 2)
+	    .WillRepeatedly(Return(vector<int64_t>(player_count, 0)));
+	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_)).Times(num_turns / 2);
 
 	driver = CreateMockMainDriver(move(state_syncer_mock));
 
 	vector<PlayerResult> player_results;
-	thread main_runner([this, &player_results] { player_results = driver->Start(); });
+	thread main_runner(
+	    [this, &player_results] { player_results = driver->Start(); });
 
 	vector<thread> player_runners;
 	for (int i = 0; i < player_count; ++i) {
 		ostringstream command_stream;
-		command_stream << "./main_driver_test_player " <<
-			shared_memory_names[i] << ' ' <<
-			time_limit_ms << ' ' <<
-			num_turns / 2 << ' ' <<
-			turn_instruction_limit;
+		command_stream << "./main_driver_test_player " << shared_memory_names[i]
+		               << ' ' << time_limit_ms << ' ' << num_turns / 2 << ' '
+		               << turn_instruction_limit;
 		string command = command_stream.str();
-		player_runners.emplace_back([command] { EXPECT_EQ(system(command.c_str()), 0); });
+		player_runners.emplace_back(
+		    [command] { EXPECT_EQ(system(command.c_str()), 0); });
 	}
 
 	for (auto &runner : player_runners) {
@@ -164,27 +164,27 @@ TEST_F(MainDriverTest, InstructionLimitReached) {
 
 	// Expect only half the turns to run
 	EXPECT_CALL(*state_syncer_mock, ExecutePlayerCommands(_, _))
-	.Times(num_turns / 2);
+	    .Times(num_turns / 2);
 	EXPECT_CALL(*state_syncer_mock, UpdateMainState())
-	.Times(num_turns / 2).WillRepeatedly(Return(vector<int64_t>(player_count, 0)));
-	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_))
-	.Times(num_turns / 2);
+	    .Times(num_turns / 2)
+	    .WillRepeatedly(Return(vector<int64_t>(player_count, 0)));
+	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_)).Times(num_turns / 2);
 
 	driver = CreateMockMainDriver(move(state_syncer_mock));
 
 	vector<PlayerResult> player_results;
-	thread main_runner([this, &player_results] { player_results = driver->Start(); });
+	thread main_runner(
+	    [this, &player_results] { player_results = driver->Start(); });
 
 	vector<thread> player_runners;
 	for (int i = 0; i < player_count; ++i) {
 		ostringstream command_stream;
-		command_stream << "./main_driver_test_player " <<
-			shared_memory_names[i] << ' ' <<
-			time_limit_ms << ' ' <<
-			num_turns / 2 - 1 << ' ' <<
-			turn_instruction_limit;
+		command_stream << "./main_driver_test_player " << shared_memory_names[i]
+		               << ' ' << time_limit_ms << ' ' << num_turns / 2 - 1
+		               << ' ' << turn_instruction_limit;
 		string command = command_stream.str();
-		player_runners.emplace_back([command] { EXPECT_EQ(system(command.c_str()), 0); });
+		player_runners.emplace_back(
+		    [command] { EXPECT_EQ(system(command.c_str()), 0); });
 	}
 
 	for (auto &runner : player_runners) {
@@ -194,7 +194,7 @@ TEST_F(MainDriverTest, InstructionLimitReached) {
 	// Simulating just being under instruction limit on n/2 turn by all players
 	for (const auto &shm_name : shared_memory_names) {
 		SharedMemoryPlayer shm_player(shm_name);
-		SharedBuffer * buf = shm_player.GetBuffer();
+		SharedBuffer *buf = shm_player.GetBuffer();
 		buf->instruction_counter = game_instruction_limit;
 		buf->is_player_running = false;
 	}
@@ -202,7 +202,7 @@ TEST_F(MainDriverTest, InstructionLimitReached) {
 	// Simulating instruction limit exceeding on n/2 + 1 turn by all players
 	for (const auto &shm_name : shared_memory_names) {
 		SharedMemoryPlayer shm_player(shm_name);
-		SharedBuffer * buf = shm_player.GetBuffer();
+		SharedBuffer *buf = shm_player.GetBuffer();
 		buf->instruction_counter = game_instruction_limit + 1;
 		buf->is_player_running = false;
 	}
@@ -210,6 +210,7 @@ TEST_F(MainDriverTest, InstructionLimitReached) {
 	main_runner.join();
 
 	for (auto result : player_results) {
-		EXPECT_EQ(result.status, PlayerResult::Status::EXCEEDED_INSTRUCTION_LIMIT);
+		EXPECT_EQ(result.status,
+		          PlayerResult::Status::EXCEEDED_INSTRUCTION_LIMIT);
 	}
 }

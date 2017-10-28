@@ -3,7 +3,6 @@
  * Interface for the player AI
  */
 
-
 #ifndef PLAYER_INTERFACES_I_PLAYER_CODE_H
 #define PLAYER_INTERFACES_I_PLAYER_CODE_H
 
@@ -15,7 +14,7 @@ namespace player {
  * Player AI interface
  */
 class PLAYER_WRAPPER_EXPORT IPlayerCode {
-public:
+  public:
 	/**
 	 * Player AI update function (main logic of the AI)
 	 */

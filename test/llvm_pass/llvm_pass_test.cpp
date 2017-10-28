@@ -17,15 +17,15 @@ using namespace std;
 const string shm_name = "LLVMInstTest";
 
 void CheckPass(unique_ptr<IPlayerCode> player_code,
-    unique_ptr<SharedMemoryPlayer> shm_player) {
+               unique_ptr<SharedMemoryPlayer> shm_player) {
 
-	SharedBuffer* buf = shm_player->GetBuffer();
+	SharedBuffer *buf = shm_player->GetBuffer();
 	buf->instruction_counter = 0;
 
 	unique_ptr<PlayerCodeWrapper> player_code_wrapper(
 	    new PlayerCodeWrapper(move(player_code)));
-	PlayerDriver* driver
-	    = new PlayerDriver(move(player_code_wrapper), move(shm_player));
+	PlayerDriver *driver =
+	    new PlayerDriver(move(player_code_wrapper), move(shm_player));
 
 	// Skip the first loop: The pass increments count for initialization
 	// of variables and header includes which is a one time thing

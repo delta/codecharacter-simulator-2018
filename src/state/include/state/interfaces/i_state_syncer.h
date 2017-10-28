@@ -5,9 +5,9 @@
 #ifndef STATE_INTERFACES_I_STATE_SYNCER_H
 #define STATE_INTERFACES_I_STATE_SYNCER_H
 
-#include <vector>
 #include "state/player_state.h"
 #include "state/state_export.h"
+#include <vector>
 
 namespace state {
 
@@ -15,11 +15,10 @@ namespace state {
  * Interface for a state syncer
  */
 class STATE_EXPORT IStateSyncer {
-public:
-
+  public:
 	/**
 	 * Runs a player's commands.
-	 * 
+	 *
 	 * Skips running a player's commands if their flag is true.
 	 *
 	 * @param[in]  player_states               The player states
@@ -27,9 +26,8 @@ public:
 	 *                                         indexed by player ID
 	 */
 	virtual void ExecutePlayerCommands(
-		const std::vector<PlayerState *>& player_states,
-		const std::vector<bool>& skip_player_commands_flags
-	) = 0;
+	    const std::vector<PlayerState *> &player_states,
+	    const std::vector<bool> &skip_player_commands_flags) = 0;
 
 	/**
 	 * Updates the main state
@@ -43,16 +41,14 @@ public:
 	 *
 	 * @param      player_states  The player states
 	 */
-	virtual void UpdatePlayerStates(
-		std::vector<PlayerState *>& player_states
-	) = 0;
+	virtual void
+	UpdatePlayerStates(std::vector<PlayerState *> &player_states) = 0;
 
 	/**
 	 * Destructor
 	 */
 	virtual ~IStateSyncer() {}
 };
-
 }
 
 #endif

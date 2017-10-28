@@ -15,13 +15,13 @@ namespace player {
  * Class that wraps the players' code
  */
 class PLAYER_WRAPPER_EXPORT PlayerCodeWrapper {
-private:
+  private:
 	/**
 	 * An instance of the player code
 	 */
 	std::unique_ptr<IPlayerCode> player_code;
 
-public:
+  public:
 	/**
 	 * Constructor
 	 *

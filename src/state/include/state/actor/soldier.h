@@ -6,11 +6,11 @@
 #ifndef STATE_ACTOR_SOLDIER_H
 #define STATE_ACTOR_SOLDIER_H
 
-#include <cstdint>
 #include "physics/vector.h"
 #include "state/actor/actor.h"
-#include "state/state_export.h"
 #include "state/actor/respawn_system/respawn_system.h"
+#include "state/state_export.h"
+#include <cstdint>
 
 namespace state {
 
@@ -18,7 +18,7 @@ namespace state {
  * Soldier class that defines properties of a single soldier
  */
 class STATE_EXPORT Soldier : public Actor {
-protected:
+  protected:
 	/**
 	 * Maximum possible soldier speed
 	 */
@@ -34,22 +34,15 @@ protected:
 	 */
 	RespawnSystem respawn_system;
 
-public:
+  public:
 	/**
 	 * Soldier Constructor
 	 */
 	Soldier();
 
-	Soldier(
-		ActorId id,
-		PlayerId player_id,
-		ActorType actor_type,
-		int64_t hp,
-		int64_t max_hp,
-		physics::Vector position,
-		int64_t max_speed,
-		physics::Vector velocity
-	);
+	Soldier(ActorId id, PlayerId player_id, ActorType actor_type, int64_t hp,
+	        int64_t max_hp, physics::Vector position, int64_t max_speed,
+	        physics::Vector velocity);
 
 	/**
 	 * Get the soldier's current velocity
@@ -70,7 +63,6 @@ public:
 	 */
 	void Update() override;
 };
-
 }
 
 #endif

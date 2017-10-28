@@ -5,12 +5,12 @@
 #ifndef STATE_SYNCER_STATE_SYNCER_H
 #define STATE_SYNCER_STATE_SYNCER_H
 
-#include <vector>
-#include "state/state.h"
-#include "state/player_state.h"
-#include "state/interfaces/i_state_syncer.h"
 #include "state/interfaces/i_state.h"
+#include "state/interfaces/i_state_syncer.h"
+#include "state/player_state.h"
+#include "state/state.h"
 #include "state/state_export.h"
+#include <vector>
 
 namespace state {
 
@@ -18,12 +18,11 @@ namespace state {
  * Declaration for a state syncer class
  */
 class STATE_EXPORT StateSyncer : public IStateSyncer {
-private:
-
+  private:
 	/**
 	 * Pointer to the main state
 	 */
-	IState* state;
+	IState *state;
 
 	// The functions below call corresponding action functions in State
 
@@ -36,11 +35,8 @@ private:
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	void MoveSoldier(
-		PlayerId player_id,
-		int64_t soldier_id,
-		physics::Vector position
-	);
+	void MoveSoldier(PlayerId player_id, int64_t soldier_id,
+	                 physics::Vector position);
 
 	/**
 	 * Handles enemy tower attack commands
@@ -51,11 +47,7 @@ private:
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	void AttackTower(
-		PlayerId player_id,
-		int64_t soldier_id,
-		int64_t tower_id
-	);
+	void AttackTower(PlayerId player_id, int64_t soldier_id, int64_t tower_id);
 
 	/**
 	 * Handles enemy soldier attack commands
@@ -66,11 +58,8 @@ private:
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	void AttackSoldier(
-		PlayerId player_id,
-		int64_t soldier_id,
-		int64_t enemy_soldier_id
-	);
+	void AttackSoldier(PlayerId player_id, int64_t soldier_id,
+	                   int64_t enemy_soldier_id);
 
 	/**
 	 * Handles tower build commands
@@ -81,11 +70,8 @@ private:
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	void BuildTower(
-		PlayerId player_id,
-		int64_t tower_id,
-		physics::Vector position
-	);
+	void BuildTower(PlayerId player_id, int64_t tower_id,
+	                physics::Vector position);
 
 	/**
 	 * Handles tower upgrade commands
@@ -95,10 +81,7 @@ private:
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	void UpgradeTower(
-		PlayerId player_id,
-		int64_t tower_id
-	);
+	void UpgradeTower(PlayerId player_id, int64_t tower_id);
 
 	/**
 	 * Handles tower self destruct commands
@@ -108,19 +91,13 @@ private:
 	 *
 	 * @throw      std::exception if the operation was not possible
 	 */
-	void SuicideTower(
-		PlayerId player_id,
-		int64_t tower_id
-	);
+	void SuicideTower(PlayerId player_id, int64_t tower_id);
 
-public:
-
+  public:
 	/**
 	 * Constructor for StateSyncer class
 	 */
-	StateSyncer(
-		IState* state
-	);
+	StateSyncer(IState *state);
 
 	/**
 	 * Function that takes the player states and exeutes commands
@@ -133,9 +110,8 @@ public:
 	 *                                          player_id's turn
 	 */
 	void ExecutePlayerCommands(
-		const std::vector<PlayerState *>& player_states,
-		const std::vector<bool>& skip_player_commands_flags
-	) override;
+	    const std::vector<PlayerState *> &player_states,
+	    const std::vector<bool> &skip_player_commands_flags) override;
 
 	/**
 	 * Call updates on the main state to update state values
@@ -151,12 +127,8 @@ public:
 	 *
 	 * @param[inout]  player_states  list of player states to update
 	 */
-	void UpdatePlayerStates(
-		std::vector<PlayerState *>& player_states
-	) override;
-
+	void UpdatePlayerStates(std::vector<PlayerState *> &player_states) override;
 };
-
 }
 
 #endif

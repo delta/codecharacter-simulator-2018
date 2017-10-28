@@ -18,7 +18,7 @@ namespace drivers {
  * Drives the game by syncing states
  */
 class DRIVERS_EXPORT PlayerDriver {
-private:
+  private:
 	/**
 	 * Number of LLVM IR instructions executed by the player
 	 */
@@ -39,15 +39,16 @@ private:
 	 */
 	void WriteCountToShm();
 
-public:
+  public:
 	/**
 	 * Constructor
 	 *
 	 * @param      player_code_wrapper  The player code wrapper
-	 * @param      shm_player           The player's shared memory to write the count to
+	 * @param      shm_player           The player's shared memory to write the
+	 * count to
 	 */
 	PlayerDriver(std::unique_ptr<player::PlayerCodeWrapper> player_code_wrapper,
-	    std::unique_ptr<SharedMemoryPlayer> shm_player);
+	             std::unique_ptr<SharedMemoryPlayer> shm_player);
 
 	/**
 	 * Increment instruction_count by count

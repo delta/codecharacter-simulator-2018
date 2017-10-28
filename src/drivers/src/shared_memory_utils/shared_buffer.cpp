@@ -7,13 +7,8 @@
 
 namespace drivers {
 
-SharedBuffer::SharedBuffer(
-	bool is_player_running,
-	int64_t instruction_counter,
-	const state::PlayerState& player_state
-	) :
-	is_player_running(is_player_running),
-	instruction_counter(instruction_counter),
-	player_state(player_state) {}
-
+SharedBuffer::SharedBuffer(bool is_player_running, int64_t instruction_counter,
+                           const state::PlayerState &player_state)
+    : is_player_running(is_player_running),
+      instruction_counter(instruction_counter), player_state(player_state) {}
 }

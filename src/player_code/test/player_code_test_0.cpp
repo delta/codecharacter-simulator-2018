@@ -2,15 +2,14 @@
 
 namespace player {
 
-PlayerCode0::PlayerCode0(state::PlayerState* player_state)
+PlayerCode0::PlayerCode0(state::PlayerState *player_state)
     : player_state(player_state) {}
 
 void PlayerCode0::Update() {
 	int a = 0;
-	for(unsigned i = 0; i < 10E5; ++i) {
+	for (unsigned i = 0; i < 10E5; ++i) {
 		a = a + i;
 		a = a - i;
 	}
 }
-
 }

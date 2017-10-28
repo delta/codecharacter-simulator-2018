@@ -5,12 +5,12 @@
 #ifndef STATE_INTERFACES_I_STATE_H
 #define STATE_INTERFACES_I_STATE_H
 
-#include <vector>
 #include "state/actor/soldier.h"
 #include "state/actor/tower.h"
 #include "state/map/interfaces/i_map.h"
 #include "state/map/map_element.h"
 #include "state/state_export.h"
+#include <vector>
 
 namespace state {
 
@@ -19,21 +19,20 @@ namespace state {
  * state values and modify the state
  */
 class STATE_EXPORT IState {
-public:
-
+  public:
 	/**
 	 * Get all soldiers, indexed by PlayerId
 	 *
 	 * @return      Vector of all soldiers in state
 	 */
-	virtual const std::vector<std::vector<Soldier*> > GetAllSoldiers() = 0;
+	virtual const std::vector<std::vector<Soldier *>> GetAllSoldiers() = 0;
 
 	/**
 	 * Get all towers, indexed by PlayerId
 	 *
 	 * @return      Vector of all towers in state
 	 */
-	virtual const std::vector<std::vector<Tower*> > GetAllTowers() = 0;
+	virtual const std::vector<std::vector<Tower *>> GetAllTowers() = 0;
 
 	/**
 	 * Get money for both players
@@ -47,7 +46,7 @@ public:
 	 *
 	 * @return      Grid of MapElements
 	 */
-	virtual const IMap* GetMap() = 0;
+	virtual const IMap *GetMap() = 0;
 
 	/**
 	 * Handles soldier movement
@@ -58,11 +57,8 @@ public:
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	virtual void MoveSoldier(
-		PlayerId player_id,
-		int64_t soldier_id,
-		physics::Vector position
-	) = 0;
+	virtual void MoveSoldier(PlayerId player_id, int64_t soldier_id,
+	                         physics::Vector position) = 0;
 
 	/**
 	 * Handles enemy tower attacks
@@ -73,11 +69,8 @@ public:
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	virtual void AttackTower(
-		PlayerId player_id,
-		int64_t soldier_id,
-		int64_t tower_id
-	) = 0;
+	virtual void AttackTower(PlayerId player_id, int64_t soldier_id,
+	                         int64_t tower_id) = 0;
 
 	/**
 	 * Handles enemy soldier attacks
@@ -88,11 +81,8 @@ public:
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	virtual void AttackSoldier(
-		PlayerId player_id,
-		int64_t soldier_id,
-		int64_t enemy_soldier_id
-	) = 0;
+	virtual void AttackSoldier(PlayerId player_id, int64_t soldier_id,
+	                           int64_t enemy_soldier_id) = 0;
 
 	/**
 	 * Handles tower builds
@@ -103,11 +93,8 @@ public:
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	virtual void BuildTower(
-		PlayerId player_id,
-		int64_t tower_id,
-		physics::Vector position
-	) = 0;
+	virtual void BuildTower(PlayerId player_id, int64_t tower_id,
+	                        physics::Vector position) = 0;
 
 	/**
 	 * Handles tower upgrades
@@ -117,10 +104,7 @@ public:
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	virtual void UpgradeTower(
-		PlayerId player_id,
-		int64_t tower_id
-	) = 0;
+	virtual void UpgradeTower(PlayerId player_id, int64_t tower_id) = 0;
 
 	/**
 	 * Handles tower self destructs
@@ -130,13 +114,8 @@ public:
 	 *
 	 * @throw      std::exception if the operation was not possible
 	 */
-	virtual void SuicideTower(
-		PlayerId player_id,
-		int64_t tower_id
-	) = 0;
-
+	virtual void SuicideTower(PlayerId player_id, int64_t tower_id) = 0;
 };
-
 }
 
 #endif

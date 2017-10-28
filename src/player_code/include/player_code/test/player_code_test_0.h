@@ -8,16 +8,15 @@ namespace player {
  * Class where player defines AI code
  */
 class PLAYER_CODE_EXPORT PlayerCode0 : public IPlayerCode {
-private:
-	state::PlayerState* player_state;
+  private:
+	state::PlayerState *player_state;
 
-public:
-	PlayerCode0(state::PlayerState* player_state);
+  public:
+	PlayerCode0(state::PlayerState *player_state);
 
 	/**
 	 * Player AI update function (main logic of the AI)
 	 */
 	void Update() override;
 };
-
 }

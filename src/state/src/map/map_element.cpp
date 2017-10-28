@@ -7,27 +7,17 @@
 
 namespace state {
 
-MapElement::MapElement(
-	physics::Vector position,
-	TerrainType terrain_type) :
-	position(position),
-	terrain_type(terrain_type),
-	ownership(static_cast<int>(PlayerId::PLAYER_COUNT), false) {}
+MapElement::MapElement(physics::Vector position, TerrainType terrain_type)
+    : position(position), terrain_type(terrain_type),
+      ownership(static_cast<int>(PlayerId::PLAYER_COUNT), false) {}
 
-physics::Vector MapElement::GetPosition() {
-	return this->position;
-}
+physics::Vector MapElement::GetPosition() { return this->position; }
 
-TerrainType MapElement::GetTerrainType() {
-	return this->terrain_type;
-}
+TerrainType MapElement::GetTerrainType() { return this->terrain_type; }
 
-std::vector<bool> MapElement::GetOwnership() {
-	return this->ownership;
-}
+std::vector<bool> MapElement::GetOwnership() { return this->ownership; }
 
 void MapElement::SetOwnership(PlayerId player_id, bool ownership) {
 	this->ownership[static_cast<int>(player_id)] = ownership;
 }
-
 }

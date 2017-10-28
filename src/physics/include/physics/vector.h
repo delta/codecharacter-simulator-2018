@@ -6,8 +6,8 @@
 #ifndef PHYSICS_VECTOR_H
 #define PHYSICS_VECTOR_H
 
-#include <iostream>
 #include "physics/physics_export.h"
+#include <iostream>
 
 namespace physics {
 
@@ -15,7 +15,7 @@ namespace physics {
  * Class for 2D vectors
  */
 class PHYSICS_EXPORT Vector {
-public:
+  public:
 	Vector();
 	Vector(double x, double y);
 
@@ -26,7 +26,7 @@ public:
 	 *
 	 * @return     true if the vectors are equal, else false
 	 */
-	bool operator==(const Vector& rhs) const;
+	bool operator==(const Vector &rhs) const;
 
 	/**
 	 * Not equal to operator for vectors
@@ -35,7 +35,7 @@ public:
 	 *
 	 * @return     true if the vectors are not equal, else false
 	 */
-	bool operator!=(const Vector& rhs) const;
+	bool operator!=(const Vector &rhs) const;
 
 	/**
 	 * Addition operator for vectors
@@ -44,7 +44,7 @@ public:
 	 *
 	 * @return     Sum of the vectors
 	 */
-	Vector operator+(const Vector& rhs) const;
+	Vector operator+(const Vector &rhs) const;
 
 	/**
 	 * Minus operator for vectors
@@ -54,7 +54,7 @@ public:
 	 *
 	 * @return     Difference of the vectors
 	 */
-	Vector operator-(const Vector& rhs) const;
+	Vector operator-(const Vector &rhs) const;
 
 	/**
 	 * Scalar Addition operator
@@ -64,7 +64,7 @@ public:
 	 *
 	 * @return     The new vector
 	 */
-	Vector operator+(const double& scalar) const;
+	Vector operator+(const double &scalar) const;
 
 	/**
 	 * Scalar Subtraction operator
@@ -74,7 +74,7 @@ public:
 	 *
 	 * @return     The new vector
 	 */
-	Vector operator-(const double& scalar) const;
+	Vector operator-(const double &scalar) const;
 
 	/**
 	 * Scalar multiplication operator
@@ -83,7 +83,7 @@ public:
 	 *
 	 * @return     The scaled vector
 	 */
-	Vector operator*(const double& scalar) const;
+	Vector operator*(const double &scalar) const;
 
 	/**
 	 * Scalar division operator
@@ -92,12 +92,10 @@ public:
 	 *
 	 * @return     The scaled vector
 	 */
-	Vector operator/(const double& scalar) const;
+	Vector operator/(const double &scalar) const;
 
-	PHYSICS_EXPORT friend std::ostream& operator<<(
-		std::ostream& ostream,
-		const Vector& vector
-	);
+	PHYSICS_EXPORT friend std::ostream &operator<<(std::ostream &ostream,
+	                                               const Vector &vector);
 
 	/**
 	 * Dot product of vectors
@@ -106,7 +104,7 @@ public:
 	 *
 	 * @return     The result of the dot product
 	 */
-	double dot(const Vector& rhs) const;
+	double dot(const Vector &rhs) const;
 
 	/**
 	 * The magnitude of the vector
@@ -122,12 +120,11 @@ public:
 	 *
 	 * @return     The distance between the two vectors
 	 */
-	double distance(const Vector& other) const;
+	double distance(const Vector &other) const;
 
 	double x;
 	double y;
 };
-
 }
 
 #endif

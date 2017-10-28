@@ -6,22 +6,21 @@
 #ifndef STATE_PATH_PLANNER_PATH_GRAPH_H
 #define STATE_PATH_PLANNER_PATH_GRAPH_H
 
-#include <cstdint>
-#include <vector>
-#include <list>
-#include <queue>
 #include "physics/vector.h"
 #include "state/interfaces/i_path_planner.h"
-#include "state/state_export.h"
 #include "state/map/map.h"
+#include "state/state_export.h"
+#include <cstdint>
+#include <list>
+#include <queue>
+#include <vector>
 
 namespace state {
 
 /**
  * 2D matrix
  */
-template<typename T>
-using matrix = std::vector<std::vector<T> >;
+template <typename T> using matrix = std::vector<std::vector<T>>;
 
 /**
  * Initializes matrix with elements of the given value and returns it
@@ -34,8 +33,7 @@ using matrix = std::vector<std::vector<T> >;
  *
  * @return     The initialized 2D matrix
  */
-template<typename T>
-matrix<T> init_matrix(T init_value, int64_t size) {
+template <typename T> matrix<T> init_matrix(T init_value, int64_t size) {
 	std::vector<T> row(size, init_value);
 	matrix<T> a(size, row);
 	return a;
@@ -45,12 +43,11 @@ matrix<T> init_matrix(T init_value, int64_t size) {
  * PathPlanner class
  */
 class STATE_EXPORT PathPlanner : public IPathPlanner {
-private:
-
+  private:
 	/**
 	 * Reference to the map object
 	 */
-	Map* map;
+	Map *map;
 
 	/**
 	 * Size of the map for easy access
@@ -60,12 +57,12 @@ private:
 	/**
 	 * Adjacency list with node neighbours, obtained from map
 	 */
-	matrix<std::list<physics::Vector> > adjacency_list;
+	matrix<std::list<physics::Vector>> adjacency_list;
 
 	/**
 	 * Final computed paths from all nodes to all nodes
 	 */
-	matrix<matrix<physics::Vector> > paths;
+	matrix<matrix<physics::Vector>> paths;
 
 	/**
 	 * Add a connection between the two vertices
@@ -76,7 +73,7 @@ private:
 	 * Returns a list of adjacent elements to an element on the map
 	 * Helper function used to build the adjacency list from the map
 	 */
-	std::list<physics::Vector> FindNeighbors(physics::Vector elem, Map* map);
+	std::list<physics::Vector> FindNeighbors(physics::Vector elem, Map *map);
 
 	/**
 	 * Given a node, find the shortest path to it from all other nodes
@@ -84,11 +81,11 @@ private:
 	 */
 	matrix<physics::Vector> ComputeAllPathsFromNode(physics::Vector node);
 
-public:
+  public:
 	/**
 	 * Constructor for PathPlanner class
 	 */
-	PathPlanner(Map* map);
+	PathPlanner(Map *map);
 
 	/**
 	 * Given a source node and a destination node, return the next node
@@ -102,13 +99,9 @@ public:
 	 * @throw         std::out_of_range When source or destination are out of
 	 *                                  bounds or have an invalid terrain type
 	 */
-	physics::Vector GetNextNode(
-		const physics::Vector &source,
-		const physics::Vector &dest
-	) override;
-
+	physics::Vector GetNextNode(const physics::Vector &source,
+	                            const physics::Vector &dest) override;
 };
-
 }
 
 #endif
