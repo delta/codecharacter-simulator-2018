@@ -54,3 +54,14 @@ target_include_directories(${PLAYER_NAME}_code PUBLIC
 install(EXPORT ${PLAYER_NAME}_code_config DESTINATION lib)
 install(DIRECTORY ${INCLUDE_PATH}/ DESTINATION include)
 install(FILES ${EXPORTS_FILE_PATH} DESTINATION include/player_code)
+
+if(NOT BUILD_PROJECT STREQUAL "player_code")
+	set(PLAYER_CODE_TEST_COUNT 0)
+	file(GLOB TEST_FILES test/*.cpp)
+
+	foreach(FILE ${TEST_FILES})
+		add_library(player_code_test_${PLAYER_CODE_TEST_COUNT} SHARED ${FILE})
+		instrument_and_install_lib(player_code_test_${PLAYER_CODE_TEST_COUNT})
+		math(EXPR PLAYER_CODE_TEST_COUNT "${PLAYER_CODE_TEST_COUNT} + 1")
+	endforeach()
+endif()
