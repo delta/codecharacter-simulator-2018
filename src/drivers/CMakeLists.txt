@@ -7,6 +7,7 @@ set(SOURCE_FILES
 	src/shared_memory_utils/shared_buffer.cpp
 	src/timer.cpp
 	src/main_driver.cpp
+	src/player_driver.cpp
 )
 
 set(INCLUDE_PATH include)
@@ -16,15 +17,16 @@ set(EXPORTS_FILE_PATH ${EXPORTS_DIR}/drivers/drivers_export.h)
 
 if((NOT BUILD_PROJECT STREQUAL "all") AND (NOT BUILD_PROJECT STREQUAL "no_tests"))
 	include(${CMAKE_INSTALL_PREFIX}/lib/physics_config.cmake)
+	include(${CMAKE_INSTALL_PREFIX}/lib/player_wrapper_config.cmake)
 	include(${CMAKE_INSTALL_PREFIX}/lib/state_config.cmake)
 endif()
 
 add_library(drivers SHARED ${SOURCE_FILES})
 
 if(UNIX AND NOT APPLE)
-	target_link_libraries(drivers physics state rt)
+	target_link_libraries(drivers physics player_wrapper state rt)
 else()
-	target_link_libraries(drivers physics state)
+	target_link_libraries(drivers physics player_wrapper state)
 endif()
 
 generate_export_header(drivers EXPORT_FILE_NAME ${EXPORTS_FILE_PATH})
