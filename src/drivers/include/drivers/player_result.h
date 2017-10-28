@@ -5,10 +5,10 @@
 #ifndef DRIVERS_PLAYER_RESULT_H
 #define DRIVERS_PLAYER_RESULT_H
 
-#include <cstdint>
-#include <vector>
 #include "drivers/drivers_export.h"
 #include "state/utilities.h"
+#include <cstdint>
+#include <vector>
 
 namespace drivers {
 
@@ -21,19 +21,19 @@ struct DRIVERS_EXPORT PlayerResult {
 	 */
 	enum class Status {
 		/**
-		 * The player's result is not valid (possible due to game timeout)
-		 */
+	     * The player's result is not valid (possible due to game timeout)
+	     */
 		UNDEFINED,
 
 		/**
-		 * Normal result
-		 */
+	     * Normal result
+	     */
 		NORMAL,
 
 		/**
-		 * The player has exceeded the game instruction limit and thus
-		 * forfeited the game
-		 */
+	     * The player has exceeded the game instruction limit and thus
+	     * forfeited the game
+	     */
 		EXCEEDED_INSTRUCTION_LIMIT
 	};
 
@@ -47,7 +47,6 @@ struct DRIVERS_EXPORT PlayerResult {
 	 */
 	Status status;
 };
-
 }
 
 #endif

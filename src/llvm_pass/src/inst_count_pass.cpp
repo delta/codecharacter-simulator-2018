@@ -15,8 +15,7 @@ struct DynamicInstructionCountPass : public llvm::FunctionPass {
 	 */
 	static const std::string increment_function_name;
 
-	DynamicInstructionCountPass()
-	    : FunctionPass(ID) {}
+	DynamicInstructionCountPass() : FunctionPass(ID) {}
 
 	/**
 	 * Inserts a call to a function after every basic block in
@@ -26,18 +25,17 @@ struct DynamicInstructionCountPass : public llvm::FunctionPass {
 	 * @param F function under inspection
 	 * @return true if function is modified, false otherwise
 	 */
-	virtual bool runOnFunction(llvm::Function& F)
-	{
+	virtual bool runOnFunction(llvm::Function &F) {
 		// Get the function to call from our runtime library.
-		llvm::LLVMContext& Ctx = F.getContext();
+		llvm::LLVMContext &Ctx = F.getContext();
 
-		llvm::Constant* resultFunc
-		    = F.getParent()->getOrInsertFunction(increment_function_name,
-		        llvm::Type::getVoidTy(Ctx), llvm::Type::getInt32Ty(Ctx), NULL);
+		llvm::Constant *resultFunc = F.getParent()->getOrInsertFunction(
+		    increment_function_name, llvm::Type::getVoidTy(Ctx),
+		    llvm::Type::getInt32Ty(Ctx), NULL);
 
 		bool flag = false;
 
-		for (auto& B : F) {
+		for (auto &B : F) {
 
 			int count = 0;
 			count += B.size();
@@ -45,7 +43,7 @@ struct DynamicInstructionCountPass : public llvm::FunctionPass {
 			llvm::IRBuilder<> builder(&B);
 			builder.SetInsertPoint(&B, ++builder.GetInsertPoint());
 
-			llvm::Value* args[] = { builder.getInt32(count) };
+			llvm::Value *args[] = {builder.getInt32(count)};
 			builder.CreateCall(resultFunc, args);
 			flag = true;
 		}
@@ -57,18 +55,18 @@ struct DynamicInstructionCountPass : public llvm::FunctionPass {
 
 // Ugly function name because of c++ function name mangling
 // TODO: Find workaround
-const std::string DynamicInstructionCountPass::increment_function_name
-    = "_ZN7drivers12PlayerDriver14IncrementCountEm";
+const std::string DynamicInstructionCountPass::increment_function_name =
+    "_ZN7drivers12PlayerDriver14IncrementCountEm";
 
 char DynamicInstructionCountPass::ID = 0;
 
 // Automatically enable the pass.
-static void registerDynamicInstructionCountPass(
-    const llvm::PassManagerBuilder&, llvm::legacy::PassManagerBase& PM)
-{
+static void
+registerDynamicInstructionCountPass(const llvm::PassManagerBuilder &,
+                                    llvm::legacy::PassManagerBase &PM) {
 	PM.add(new DynamicInstructionCountPass());
 }
 
-static llvm::RegisterStandardPasses RegisterMyPass(
-    llvm::PassManagerBuilder::EP_EarlyAsPossible,
-    registerDynamicInstructionCountPass);
+static llvm::RegisterStandardPasses
+    RegisterMyPass(llvm::PassManagerBuilder::EP_EarlyAsPossible,
+                   registerDynamicInstructionCountPass);

@@ -1,19 +1,18 @@
-#include <stdexcept>
 #include "physics/vector.h"
 #include "state/map/map.h"
 #include "state/utilities.h"
 #include "gtest/gtest.h"
+#include <stdexcept>
 
 using namespace std;
 using namespace state;
 using namespace physics;
 
 class MapTest : public testing::Test {
-protected:
-
+  protected:
 	Map map;
 
-	vector<vector<MapElement> > grid;
+	vector<vector<MapElement>> grid;
 
 	int map_size;
 
@@ -27,9 +26,9 @@ protected:
 			vector<MapElement> row;
 
 			for (int j = 0; j < map_size; ++j) {
-				row.push_back(MapElement(
-					Vector(i * elt_size, j * elt_size),
-					(j % 2 == 0) ? TerrainType::LAND : TerrainType::WATER));
+				row.push_back(MapElement(Vector(i * elt_size, j * elt_size),
+				                         (j % 2 == 0) ? TerrainType::LAND
+				                                      : TerrainType::WATER));
 			}
 
 			grid.push_back(row);
@@ -56,7 +55,8 @@ TEST_F(MapTest, InvalidGetElementByXY) {
 TEST_F(MapTest, ValidGetElementByOffset) {
 	Vector position(map_size / 2, map_size / 2);
 
-	ASSERT_EQ(position, map.GetElementByOffset(position).GetPosition() / elt_size);
+	ASSERT_EQ(position,
+	          map.GetElementByOffset(position).GetPosition() / elt_size);
 }
 
 TEST_F(MapTest, InvalidGetElementByOffset) {
@@ -67,9 +67,7 @@ TEST_F(MapTest, InvalidGetElementByOffset) {
 	EXPECT_THROW(map.GetElementByOffset(lack_pos), std::out_of_range);
 }
 
-TEST_F(MapTest, ValidGetSize) {
-	ASSERT_EQ(map_size, map.GetSize());
-}
+TEST_F(MapTest, ValidGetSize) { ASSERT_EQ(map_size, map.GetSize()); }
 
 TEST_F(MapTest, ValidGetElementSize) {
 	ASSERT_EQ(elt_size, map.GetElementSize());
@@ -81,10 +79,10 @@ TEST_F(MapTest, SetOwnership) {
 	map.GetElementByOffset(pos).SetOwnership(PlayerId::PLAYER1, true);
 
 	EXPECT_EQ(map.GetElementByOffset(pos)
-		.GetOwnership()[static_cast<int>(PlayerId::PLAYER1)], true);
+	              .GetOwnership()[static_cast<int>(PlayerId::PLAYER1)],
+	          true);
 
-	EXPECT_EQ(
-		map.GetElementByOffset(pos)
-			.GetOwnership()[static_cast<int>(PlayerId::PLAYER2)],
-		false);
+	EXPECT_EQ(map.GetElementByOffset(pos)
+	              .GetOwnership()[static_cast<int>(PlayerId::PLAYER2)],
+	          false);
 }

@@ -18,15 +18,13 @@ namespace drivers {
  * Wrapper for shared memory class that will be used by players (a client)
  */
 class DRIVERS_EXPORT SharedMemoryPlayer {
-private:
-
+  private:
 	/**
 	 * Mapped region to write to and read from
 	 */
 	boost::interprocess::managed_shared_memory shared_memory;
 
-public:
-
+  public:
 	/**
 	 * Opens existing shm with given name
 	 *
@@ -41,9 +39,8 @@ public:
 	 *
 	 * @return     The pointer
 	 */
-	SharedBuffer * GetBuffer();
+	SharedBuffer *GetBuffer();
 };
-
 }
 
 #endif

@@ -14,25 +14,22 @@
 namespace state {
 
 class STATE_EXPORT Map : public IMap {
-private:
-
+  private:
 	/**
 	 * 2D grid of elements of the map
 	 */
-	std::vector<std::vector<MapElement> > map_elements;
+	std::vector<std::vector<MapElement>> map_elements;
 
 	/**
 	 * Size of one map_element (width/height)
 	 */
 	int64_t element_size;
 
-public:
+  public:
+	Map(){};
 
-	Map() {};
-
-	Map(
-		std::vector<std::vector<MapElement> > &map_elements,
-		int64_t element_size);
+	Map(std::vector<std::vector<MapElement>> &map_elements,
+	    int64_t element_size);
 
 	/**
 	 * Gets an element by x, y co-ordinates
@@ -44,7 +41,7 @@ public:
 	 * @throw      std::out_of_range If position does not
 	 *                               point to a valid element
 	 */
-	MapElement& GetElementByXY(physics::Vector position) override;
+	MapElement &GetElementByXY(physics::Vector position) override;
 
 	/**
 	 * Gets an element by its offset in the 2D grid of elements
@@ -56,7 +53,7 @@ public:
 	 * @throw      std::out_of_range If position does not
 	 *                               point to a valid element
 	 */
-	MapElement& GetElementByOffset(physics::Vector position) override;
+	MapElement &GetElementByOffset(physics::Vector position) override;
 
 	/**
 	 * Gets the size of the map (width/height) in offsets
@@ -72,7 +69,6 @@ public:
 	 */
 	int64_t GetElementSize() override;
 };
-
 }
 
 #endif

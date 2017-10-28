@@ -6,19 +6,19 @@
 #ifndef STATE_ACTOR_ACTOR_H
 #define STATE_ACTOR_ACTOR_H
 
+#include "physics/vector.h"
+#include "state/interfaces/i_updatable.h"
+#include "state/state_export.h"
+#include "state/utilities.h"
 #include <cstdint>
 #include <memory>
-#include "state/utilities.h"
-#include "physics/vector.h"
-#include "state/state_export.h"
-#include "state/interfaces/i_updatable.h"
 
 namespace state {
 /**
  * Actor base class
  */
 class STATE_EXPORT Actor : public IUpdatable {
-protected:
+  protected:
 	/**
 	 * Unique ID of the actor
 	 */
@@ -55,17 +55,11 @@ protected:
 	 */
 	physics::Vector position;
 
-public:
+  public:
 	Actor();
 
-	Actor(
-		ActorId id,
-		PlayerId player_id,
-		ActorType actor_type,
-		int64_t hp,
-		int64_t max_hp,
-		physics::Vector position
-	);
+	Actor(ActorId id, PlayerId player_id, ActorType actor_type, int64_t hp,
+	      int64_t max_hp, physics::Vector position);
 
 	virtual ~Actor();
 
@@ -84,7 +78,7 @@ public:
 	 *
 	 * @throw       std::out_of_range If actor_id is negative
 	 */
-	static void SetActorIdIncrement(ActorId actor_id=0);
+	static void SetActorIdIncrement(ActorId actor_id = 0);
 
 	/**
 	 * Get actor id
@@ -138,7 +132,6 @@ public:
 	 */
 	physics::Vector GetPosition();
 };
-
 }
 
 #endif

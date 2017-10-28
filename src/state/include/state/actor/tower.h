@@ -6,11 +6,11 @@
 #ifndef STATE_ACTOR_TOWER_H
 #define STATE_ACTOR_TOWER_H
 
-#include <cstdint>
 #include "physics/vector.h"
-#include "state/utilities.h"
 #include "state/actor/actor.h"
 #include "state/state_export.h"
+#include "state/utilities.h"
+#include <cstdint>
 
 namespace state {
 
@@ -23,7 +23,7 @@ typedef int64_t TowerLevel;
  * Tower class that defines a tower's properties
  */
 class STATE_EXPORT Tower : public Actor {
-protected:
+  protected:
 	/**
 	 * If true, the tower is the player's home base tower
 	 */
@@ -34,22 +34,15 @@ protected:
 	 */
 	TowerLevel tower_level;
 
-public:
+  public:
 	/**
 	 * Tower Constructor
 	 */
 	Tower();
 
-	Tower(
-		ActorId id,
-		PlayerId player_id,
-		ActorType actor_type,
-		int64_t hp,
-		int64_t max_hp,
-		physics::Vector position,
-		bool is_base,
-		TowerLevel tower_level
-	);
+	Tower(ActorId id, PlayerId player_id, ActorType actor_type, int64_t hp,
+	      int64_t max_hp, physics::Vector position, bool is_base,
+	      TowerLevel tower_level);
 
 	/**
 	 * Get if the tower is a base tower
@@ -77,7 +70,6 @@ public:
 	 */
 	void Update() override;
 };
-
 }
 
 #endif

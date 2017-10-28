@@ -6,12 +6,12 @@
 #ifndef STATE_ACTOR_RESPAWN_SYSTEM_RESPAWN_SYSTEM_H
 #define STATE_ACTOR_RESPAWN_SYSTEM_RESPAWN_SYSTEM_H
 
-#include <cstdint>
 #include "physics/vector.h"
-#include "state/interfaces/i_updatable.h"
 #include "state/actor/actor.h"
 #include "state/actor/soldier.fwd.h"
+#include "state/interfaces/i_updatable.h"
 #include "state/state_export.h"
+#include <cstdint>
 
 namespace state {
 
@@ -19,12 +19,11 @@ namespace state {
  * Respawn System class that adds respawn functionality to troops
  */
 class STATE_EXPORT RespawnSystem : public IUpdatable {
-private:
-
+  private:
 	/**
 	 * Pointer to actor that this respawn system controls
 	 */
-	Soldier* soldier;
+	Soldier *soldier;
 
 	/**
 	 * Number of remaining turns this actor must wait to respawn
@@ -43,7 +42,7 @@ private:
 	 */
 	bool is_ready_to_respawn;
 
-public:
+  public:
 	/**
 	 * Public Member -
 	 * Position where the actors will respawn
@@ -59,9 +58,7 @@ public:
 	 * Constructors
 	 */
 	RespawnSystem();
-	RespawnSystem(
-		Soldier* soldier
-	);
+	RespawnSystem(Soldier *soldier);
 
 	~RespawnSystem();
 
@@ -81,9 +78,7 @@ public:
 	 * Update method of the respawn system
 	 */
 	void Update() override;
-
 };
-
 }
 
 #endif

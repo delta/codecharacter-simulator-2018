@@ -31,7 +31,6 @@ enum class PlayerId : int {
 	PLAYER2 = 1,
 	PLAYER_COUNT = 2,
 };
-
 }
 
 #endif

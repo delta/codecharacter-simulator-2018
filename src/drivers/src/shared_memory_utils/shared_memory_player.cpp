@@ -3,18 +3,17 @@
  * Definitions for shared memory client
  */
 
-#include <cstring>
 #include "drivers/shared_memory_utils/shared_memory_player.h"
+#include <cstring>
 
 namespace drivers {
 
 using namespace boost::interprocess;
 
-SharedMemoryPlayer::SharedMemoryPlayer(std::string shared_memory_name) :
-	shared_memory(open_only, shared_memory_name.c_str()) {}
+SharedMemoryPlayer::SharedMemoryPlayer(std::string shared_memory_name)
+    : shared_memory(open_only, shared_memory_name.c_str()) {}
 
-SharedBuffer * SharedMemoryPlayer::GetBuffer() {
+SharedBuffer *SharedMemoryPlayer::GetBuffer() {
 	return this->shared_memory.find<SharedBuffer>(unique_instance).first;
 }
-
 }

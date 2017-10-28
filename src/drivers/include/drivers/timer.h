@@ -5,12 +5,12 @@
 #ifndef DRIVERS_TIMER_H
 #define DRIVERS_TIMER_H
 
+#include "drivers/drivers_export.h"
 #include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <functional>
 #include <thread>
-#include "drivers/drivers_export.h"
 
 namespace drivers {
 
@@ -18,15 +18,13 @@ namespace drivers {
  * An asynchronous timer class
  */
 class DRIVERS_EXPORT Timer {
-private:
-
+  private:
 	/**
 	 * true if this timer is running, false otherwise
 	 */
 	std::atomic_bool is_running;
 
-public:
-
+  public:
 	/**
 	 * Interval of time that timer operates for
 	 */
@@ -54,7 +52,6 @@ public:
 	 */
 	bool Start(Interval total_timer_duration, Callback callback);
 };
-
 }
 
 #endif

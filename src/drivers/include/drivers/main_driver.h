@@ -6,14 +6,14 @@
 #ifndef DRIVERS_MAIN_DRIVER_H
 #define DRIVERS_MAIN_DRIVER_H
 
-#include <atomic>
-#include <thread>
 #include "drivers/drivers_export.h"
 #include "drivers/player_result.h"
 #include "drivers/shared_memory_utils/shared_buffer.h"
 #include "drivers/shared_memory_utils/shared_memory_main.h"
 #include "drivers/timer.h"
 #include "state/interfaces/i_state_syncer.h"
+#include <atomic>
+#include <thread>
 
 namespace drivers {
 
@@ -21,8 +21,7 @@ namespace drivers {
  * Drives the game by syncing states
  */
 class DRIVERS_EXPORT MainDriver {
-private:
-
+  private:
 	/**
 	 * Syncs the player's copy of the state with the main one
 	 */
@@ -62,7 +61,8 @@ private:
 	int64_t player_count;
 
 	/**
-	 * false if the game has timed out without completing and Start has been called, true otherwise
+	 * false if the game has timed out without completing and Start has been
+	 * called, true otherwise
 	 */
 	std::atomic_bool is_game_timed_out;
 
@@ -85,20 +85,15 @@ private:
 	 */
 	const std::vector<PlayerResult> Run();
 
-public:
-
+  public:
 	/**
 	 * Constructor
 	 */
-	MainDriver(
-		std::unique_ptr<state::IStateSyncer> state_syncer,
-		std::vector<std::unique_ptr<SharedMemoryMain>> shared_memories,
-		int64_t player_instruction_limit_turn,
-		int64_t player_instruction_limit_game,
-		int64_t max_no_turns,
-		int64_t player_count,
-		Timer::Interval game_duration
-	);
+	MainDriver(std::unique_ptr<state::IStateSyncer> state_syncer,
+	           std::vector<std::unique_ptr<SharedMemoryMain>> shared_memories,
+	           int64_t player_instruction_limit_turn,
+	           int64_t player_instruction_limit_game, int64_t max_no_turns,
+	           int64_t player_count, Timer::Interval game_duration);
 
 	/**
 	 * Blocking function that starts the game.
@@ -108,9 +103,7 @@ public:
 	 * @return     Results of the game indexed by player ID
 	 */
 	const std::vector<PlayerResult> Start();
-
 };
-
 }
 
 #endif

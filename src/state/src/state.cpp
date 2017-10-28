@@ -11,20 +11,18 @@ State::State() {
 	// Init None
 }
 
-State::State(
-	std::vector<std::vector<std::unique_ptr<Soldier> > > soldiers,
-	std::unique_ptr<IMap> map,
-	std::unique_ptr<MoneyManager> money_manager,
-	std::vector<std::unique_ptr<TowerManager> > tower_managers
-	): soldiers(std::move(soldiers)),
-	map(std::move(map)),
-	money_manager(std::move(money_manager)),
-	tower_managers(std::move(tower_managers)) {}
+State::State(std::vector<std::vector<std::unique_ptr<Soldier>>> soldiers,
+             std::unique_ptr<IMap> map,
+             std::unique_ptr<MoneyManager> money_manager,
+             std::vector<std::unique_ptr<TowerManager>> tower_managers)
+    : soldiers(std::move(soldiers)), map(std::move(map)),
+      money_manager(std::move(money_manager)),
+      tower_managers(std::move(tower_managers)) {}
 
-const std::vector<std::vector<Soldier*> > State::GetAllSoldiers() {
-	std::vector<std::vector<Soldier*> > ret_soldiers;
+const std::vector<std::vector<Soldier *>> State::GetAllSoldiers() {
+	std::vector<std::vector<Soldier *>> ret_soldiers;
 	for (int i = 0; i < soldiers.size(); ++i) {
-		std::vector<Soldier*> player_soldiers;
+		std::vector<Soldier *> player_soldiers;
 		for (int j = 0; j < soldiers[i].size(); ++j) {
 			player_soldiers.push_back(soldiers[i][j].get());
 		}
@@ -33,8 +31,8 @@ const std::vector<std::vector<Soldier*> > State::GetAllSoldiers() {
 	return ret_soldiers;
 }
 
-const std::vector<std::vector<Tower*> > State::GetAllTowers() {
-	std::vector<std::vector<Tower*> > ret_towers;
+const std::vector<std::vector<Tower *>> State::GetAllTowers() {
+	std::vector<std::vector<Tower *>> ret_towers;
 	for (int i = 0; i < this->tower_managers.size(); ++i) {
 		ret_towers.push_back(this->tower_managers[i]->GetTowers());
 	}
@@ -50,54 +48,33 @@ std::vector<int64_t> State::GetMoney() {
 	return ret_balance;
 }
 
-const IMap* State::GetMap() {
-	return this->map.get();
-}
+const IMap *State::GetMap() { return this->map.get(); }
 
-void State::MoveSoldier(
-	PlayerId player_id,
-	int64_t soldier_id,
-	physics::Vector position
-) {
+void State::MoveSoldier(PlayerId player_id, int64_t soldier_id,
+                        physics::Vector position) {
 	// TODO: Define Function
 }
 
-void State::AttackTower(
-	PlayerId player_id,
-	int64_t soldier_id,
-	int64_t tower_id
-) {
+void State::AttackTower(PlayerId player_id, int64_t soldier_id,
+                        int64_t tower_id) {
 	// TODO: Define Function
 }
 
-void State::AttackSoldier(
-	PlayerId player_id,
-	int64_t soldier_id,
-	int64_t enemy_soldier_id
-) {
+void State::AttackSoldier(PlayerId player_id, int64_t soldier_id,
+                          int64_t enemy_soldier_id) {
 	// TODO: Define Function
 }
 
-void State::BuildTower(
-	PlayerId player_id,
-	int64_t tower_id,
-	physics::Vector position
-) {
+void State::BuildTower(PlayerId player_id, int64_t tower_id,
+                       physics::Vector position) {
 	// TODO: Define Function
 }
 
-void State::UpgradeTower(
-	PlayerId player_id,
-	int64_t tower_id
-) {
+void State::UpgradeTower(PlayerId player_id, int64_t tower_id) {
 	// TODO: Define Function
 }
 
-void State::SuicideTower(
-	PlayerId player_id,
-	int64_t tower_id
-) {
+void State::SuicideTower(PlayerId player_id, int64_t tower_id) {
 	// TODO: Define Function
 }
-
 }

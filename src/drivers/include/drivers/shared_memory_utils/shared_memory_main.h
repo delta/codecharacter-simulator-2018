@@ -19,8 +19,7 @@ namespace drivers {
  * Wrapper for shared memory owner
  */
 class DRIVERS_EXPORT SharedMemoryMain {
-private:
-
+  private:
 	/**
 	 * Name associated with this shared memory
 	 */
@@ -31,8 +30,7 @@ private:
 	 */
 	boost::interprocess::managed_shared_memory shared_memory;
 
-public:
-
+  public:
 	/**
 	 * Creates new shm with given name
 	 *
@@ -40,12 +38,9 @@ public:
 	 *
 	 * @throw      std::exception      If shm already exists
 	 */
-	SharedMemoryMain(
-		std::string shared_memory_name,
-		bool is_player_running,
-		int64_t instruction_counter,
-		const state::PlayerState& player_state
-	);
+	SharedMemoryMain(std::string shared_memory_name, bool is_player_running,
+	                 int64_t instruction_counter,
+	                 const state::PlayerState &player_state);
 
 	/**
 	 * Removes shm
@@ -57,9 +52,8 @@ public:
 	 *
 	 * @return     The pointer
 	 */
-	SharedBuffer * GetBuffer();
+	SharedBuffer *GetBuffer();
 };
-
 }
 
 #endif

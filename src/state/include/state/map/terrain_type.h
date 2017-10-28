@@ -17,7 +17,6 @@ enum class TerrainType {
 	LAND,
 	WATER,
 };
-
 }
 
 #endif

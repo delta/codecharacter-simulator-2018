@@ -8,26 +8,20 @@
 namespace drivers {
 
 MainDriver::MainDriver(
-	std::unique_ptr<state::IStateSyncer> state_syncer,
-	std::vector<std::unique_ptr<SharedMemoryMain>> shared_memories,
-	int64_t player_instruction_limit_turn,
-	int64_t player_instruction_limit_game,
-	int64_t max_no_turns,
-	int64_t player_count,
-	Timer::Interval game_duration) :
-	state_syncer(std::move(state_syncer)),
-	shared_memories(std::move(shared_memories)),
-	player_instruction_limit_turn(player_instruction_limit_turn),
-	player_instruction_limit_game(player_instruction_limit_game),
-	max_no_turns(max_no_turns),
-	player_count(player_count),
-	is_game_timed_out(false),
-	game_timer(),
-	game_duration(game_duration)
-{
-	for (auto& shared_memory : this->shared_memories) {
+    std::unique_ptr<state::IStateSyncer> state_syncer,
+    std::vector<std::unique_ptr<SharedMemoryMain>> shared_memories,
+    int64_t player_instruction_limit_turn,
+    int64_t player_instruction_limit_game, int64_t max_no_turns,
+    int64_t player_count, Timer::Interval game_duration)
+    : state_syncer(std::move(state_syncer)),
+      shared_memories(std::move(shared_memories)),
+      player_instruction_limit_turn(player_instruction_limit_turn),
+      player_instruction_limit_game(player_instruction_limit_game),
+      max_no_turns(max_no_turns), player_count(player_count),
+      is_game_timed_out(false), game_timer(), game_duration(game_duration) {
+	for (auto &shared_memory : this->shared_memories) {
 		// Get pointers to shared memory and store
-		SharedBuffer * shared_buffer = shared_memory->GetBuffer();
+		SharedBuffer *shared_buffer = shared_memory->GetBuffer();
 		shared_buffers.push_back(shared_buffer);
 
 		// Store pointers to player state
@@ -37,17 +31,17 @@ MainDriver::MainDriver(
 
 const std::vector<PlayerResult> MainDriver::Start() {
 	// Initialize contents of shared memory
-	for (int cur_player_id = 0; cur_player_id < this->player_count; ++cur_player_id) {
+	for (int cur_player_id = 0; cur_player_id < this->player_count;
+	     ++cur_player_id) {
 		this->shared_buffers[cur_player_id]->is_player_running = false;
 		this->shared_buffers[cur_player_id]->instruction_counter = 0;
 	}
 
-	// Start a timer. Game is invalid if it does not complete within the timer limit
+	// Start a timer. Game is invalid if it does not complete within the timer
+	// limit
 	this->is_game_timed_out = true;
-	this->game_timer.Start(
-		this->game_duration,
-		[this]() { this->is_game_timed_out = false; }
-	);
+	this->game_timer.Start(this->game_duration,
+	                       [this]() { this->is_game_timed_out = false; });
 
 	// Run the game and return results
 	return this->Run();
@@ -56,36 +50,42 @@ const std::vector<PlayerResult> MainDriver::Start() {
 const std::vector<PlayerResult> MainDriver::Run() {
 	// Initializing stuff...
 	std::vector<bool> skip_player_turn(this->player_count, false);
-	std::vector<PlayerResult> player_results(this->player_count, PlayerResult{0, PlayerResult::Status::UNDEFINED});
+	std::vector<PlayerResult> player_results(
+	    this->player_count, PlayerResult{0, PlayerResult::Status::UNDEFINED});
 	std::vector<int64_t> player_scores(this->player_count, 0);
 	bool instruction_count_exceeded = false;
 
 	// Main loop that runs every turn
 	for (int i = 0; i < this->max_no_turns; ++i) {
 		// Loop over each player
-		for (int cur_player_id = 0; cur_player_id < this->player_count; ++cur_player_id) {
+		for (int cur_player_id = 0; cur_player_id < this->player_count;
+		     ++cur_player_id) {
 			// Let player do his updates
 			this->shared_buffers[cur_player_id]->is_player_running = true;
 
 			// Wait for updates (or the timer)
-			while (this->shared_buffers[cur_player_id]->is_player_running && this->is_game_timed_out);
+			while (this->shared_buffers[cur_player_id]->is_player_running &&
+			       this->is_game_timed_out)
+				;
 
-			// Check for instruction counter to see if player has exceeded some limit
+			// Check for instruction counter to see if player has exceeded some
+			// limit
 			if (this->shared_buffers[cur_player_id]->instruction_counter >
-				this->player_instruction_limit_game) {
-				player_results[cur_player_id].status = PlayerResult::Status::EXCEEDED_INSTRUCTION_LIMIT;
+			    this->player_instruction_limit_game) {
+				player_results[cur_player_id].status =
+				    PlayerResult::Status::EXCEEDED_INSTRUCTION_LIMIT;
 				instruction_count_exceeded = true;
-			}
-			else if (this->shared_buffers[cur_player_id]->instruction_counter >
-				this->player_instruction_limit_turn) {
+			} else if (this->shared_buffers[cur_player_id]
+			               ->instruction_counter >
+			           this->player_instruction_limit_turn) {
 				skip_player_turn[cur_player_id] = true;
-			}
-			else {
+			} else {
 				skip_player_turn[cur_player_id] = false;
 			}
 		}
 
-		// If the game instruction count has been exceeded by some player, game is forfeit
+		// If the game instruction count has been exceeded by some player, game
+		// is forfeit
 		// If the game timer has expired, the game has to stop
 		if (instruction_count_exceeded || !this->is_game_timed_out) {
 			return player_results;
@@ -93,8 +93,10 @@ const std::vector<PlayerResult> MainDriver::Run() {
 
 		// If we're here, the game is not yet over
 
-		// Validate and run the player's commands. Skips a player if they have exceeded turn instruction limit
-		this->state_syncer->ExecutePlayerCommands(this->player_states, skip_player_turn);
+		// Validate and run the player's commands. Skips a player if they have
+		// exceeded turn instruction limit
+		this->state_syncer->ExecutePlayerCommands(this->player_states,
+		                                          skip_player_turn);
 		// Update the main state and get the player's scores
 		player_scores = this->state_syncer->UpdateMainState();
 		// Write the updated main state back to the player's state copies
@@ -105,10 +107,10 @@ const std::vector<PlayerResult> MainDriver::Run() {
 
 	// Write the player results
 	for (int i = 0; i < this->player_count; ++i) {
-		player_results[i] = PlayerResult{player_scores[i], PlayerResult::Status::NORMAL};
+		player_results[i] =
+		    PlayerResult{player_scores[i], PlayerResult::Status::NORMAL};
 	}
 
 	return player_results;
 }
-
 }

@@ -13,8 +13,7 @@
 namespace state {
 
 class STATE_EXPORT IMap {
-public:
-
+  public:
 	virtual ~IMap() {}
 
 	/**
@@ -24,7 +23,7 @@ public:
 	 *
 	 * @return     The element by xy
 	 */
-	virtual MapElement& GetElementByXY(physics::Vector position) = 0;
+	virtual MapElement &GetElementByXY(physics::Vector position) = 0;
 
 	/**
 	 * Gets an element by its offset in the 2D grid of elements
@@ -33,7 +32,7 @@ public:
 	 *
 	 * @return     The element by offset
 	 */
-	virtual MapElement& GetElementByOffset(physics::Vector position) = 0;
+	virtual MapElement &GetElementByOffset(physics::Vector position) = 0;
 
 	/**
 	 * Gets the size of the map (width/height) in offsets
@@ -49,7 +48,6 @@ public:
 	 */
 	virtual int64_t GetElementSize() = 0;
 };
-
 }
 
 #endif

@@ -6,17 +6,16 @@
 #ifndef STATE_MAP_MAP_ELEMENT_H
 #define STATE_MAP_MAP_ELEMENT_H
 
-#include <vector>
 #include "physics/vector.h"
 #include "state/map/terrain_type.h"
 #include "state/state_export.h"
 #include "state/utilities.h"
+#include <vector>
 
 namespace state {
 
 class STATE_EXPORT MapElement {
-private:
-
+  private:
 	/**
 	 * X, Y co-ordinates of this element
 	 */
@@ -35,11 +34,8 @@ private:
 	 */
 	std::vector<bool> ownership;
 
-public:
-
-	MapElement(
-		physics::Vector position,
-		TerrainType terrain_type);
+  public:
+	MapElement(physics::Vector position, TerrainType terrain_type);
 
 	/**
 	 * Gets the element's x, y co-ordinates
@@ -70,7 +66,6 @@ public:
 	 */
 	void SetOwnership(PlayerId player_id, bool ownership);
 };
-
 }
 
 #endif

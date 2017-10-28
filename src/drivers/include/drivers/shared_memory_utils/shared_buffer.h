@@ -6,9 +6,9 @@
 #ifndef DRIVERS_SHARED_MEMORY_UTILS_SHARED_BUFFER_H
 #define DRIVERS_SHARED_MEMORY_UTILS_SHARED_BUFFER_H
 
-#include <atomic>
 #include "drivers/drivers_export.h"
 #include "state/player_state.h"
+#include <atomic>
 
 namespace drivers {
 
@@ -16,11 +16,8 @@ namespace drivers {
  * Struct for using as buffer in shared memory
  */
 struct DRIVERS_EXPORT SharedBuffer {
-	SharedBuffer(
-		bool is_player_running,
-		int64_t instruction_counter,
-		const state::PlayerState& player_state
-	);
+	SharedBuffer(bool is_player_running, int64_t instruction_counter,
+	             const state::PlayerState &player_state);
 
 	/**
 	 * True if the player process is executing its turn, false otherwise
@@ -37,7 +34,6 @@ struct DRIVERS_EXPORT SharedBuffer {
 	 */
 	state::PlayerState player_state;
 };
-
 }
 
 #endif

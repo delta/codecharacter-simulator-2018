@@ -7,10 +7,8 @@
 
 namespace player {
 
-PlayerCodeWrapper::PlayerCodeWrapper(std::unique_ptr<IPlayerCode> player_code) :
-	player_code(std::move(player_code)) {}
+PlayerCodeWrapper::PlayerCodeWrapper(std::unique_ptr<IPlayerCode> player_code)
+    : player_code(std::move(player_code)) {}
 
-void PlayerCodeWrapper::Update() {
-	player_code->Update();
-}
+void PlayerCodeWrapper::Update() { player_code->Update(); }
 }

@@ -6,10 +6,10 @@
 #ifndef STATE_PLAYER_STATE_H
 #define STATE_PLAYER_STATE_H
 
-#include <vector>
 #include "physics/vector.h"
 #include "state/map/terrain_type.h"
 #include "state/state_export.h"
+#include <vector>
 
 namespace state {
 
@@ -61,15 +61,14 @@ struct PlayerTower {
  */
 struct STATE_EXPORT PlayerState {
 	// Grid of map elements
-	std::vector<std::vector<PlayerMapElement> > map;
+	std::vector<std::vector<PlayerMapElement>> map;
 
 	// Lists of soldiers, indexed by player_id
-	std::vector<std::vector<PlayerSoldier> > soldiers;
+	std::vector<std::vector<PlayerSoldier>> soldiers;
 
 	// Lists of towers, indexed by player_id
-	std::vector<std::vector<PlayerTower> > towers;
+	std::vector<std::vector<PlayerTower>> towers;
 };
-
 }
 
 #endif

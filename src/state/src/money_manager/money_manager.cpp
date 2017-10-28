@@ -3,9 +3,9 @@
  * Defines the methods of the MoneyManager Class
  */
 
-#include <stdexcept>
-#include "physics/vector.h"
 #include "state/money_manager/money_manager.h"
+#include "physics/vector.h"
+#include <stdexcept>
 
 namespace state {
 
@@ -13,16 +13,10 @@ MoneyManager::MoneyManager() {
 	// Init None
 }
 
-MoneyManager::MoneyManager(
-	std::vector<int64_t> player_money,
-	int64_t max_money
-	): player_money(player_money),
-	max_money(max_money) {}
+MoneyManager::MoneyManager(std::vector<int64_t> player_money, int64_t max_money)
+    : player_money(player_money), max_money(max_money) {}
 
-void MoneyManager::Increase(
-	state::PlayerId player_id,
-	int64_t amount
-) {
+void MoneyManager::Increase(state::PlayerId player_id, int64_t amount) {
 
 	int64_t current_player_id = static_cast<int>(player_id);
 
@@ -37,10 +31,7 @@ void MoneyManager::Increase(
 	}
 }
 
-void MoneyManager::Decrease(
-	state::PlayerId player_id,
-	int64_t amount
-) {
+void MoneyManager::Decrease(state::PlayerId player_id, int64_t amount) {
 
 	int64_t current_player_id = static_cast<int>(player_id);
 
@@ -59,8 +50,5 @@ int64_t MoneyManager::GetBalance(state::PlayerId player_id) {
 	return player_money[static_cast<int>(player_id)];
 }
 
-int64_t MoneyManager::GetMaxMoney() {
-	return max_money;
-}
-
+int64_t MoneyManager::GetMaxMoney() { return max_money; }
 }

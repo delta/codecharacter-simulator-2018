@@ -14,8 +14,8 @@
  * IPathPlanner interface to define the ReturnNextNode method
  */
 class STATE_EXPORT IPathPlanner {
-public:
-	virtual ~IPathPlanner() {};
+  public:
+	virtual ~IPathPlanner(){};
 
 	/**
 	 * Gets the subsequent node in a path, given a source and a destination
@@ -25,10 +25,8 @@ public:
 	 *
 	 * @return      A Vector element, with the next node to traverse to
 	 */
-	virtual physics::Vector GetNextNode(
-		const physics::Vector &source,
-		const physics::Vector &destination
-	) = 0;
+	virtual physics::Vector GetNextNode(const physics::Vector &source,
+	                                    const physics::Vector &destination) = 0;
 };
 
 #endif

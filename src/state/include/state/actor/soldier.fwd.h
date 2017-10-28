@@ -4,7 +4,6 @@
 namespace state {
 
 class Soldier;
-
 }
 
 #endif
