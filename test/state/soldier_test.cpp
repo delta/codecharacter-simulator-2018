@@ -16,7 +16,7 @@ class SoldierTest : public Test {
 	unique_ptr<Soldier> soldier;
 
 	SoldierTest()
-	    : soldier(make_unique<Soldier>(
-	          1, state::PlayerId::PLAYER1, state::ActorType::SOLDIER, 100, 100,
-	          physics::Vector(10, 10), 50, physics::Vector(15, 15))) {}
+	    : soldier(make_unique<Soldier>(1, state::PlayerId::PLAYER1,
+	                                   state::ActorType::SOLDIER, 100, 100,
+	                                   physics::Vector(10, 10), 5, 20, 5)) {}
 };
