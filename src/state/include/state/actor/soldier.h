@@ -19,14 +19,37 @@ namespace state {
 class STATE_EXPORT Soldier : public Actor {
   protected:
 	/**
-	 * Maximum possible soldier speed
+	 * Soldier speed, in map-units/turn
 	 */
-	int64_t max_speed;
+	int64_t speed;
 
 	/**
-	 * Current soldier velocity
+	 * Distance in units around the soldier where actors can be attacked
 	 */
-	physics::Vector velocity;
+	int64_t attack_range;
+
+	/**
+	 * Damage to inflict in one attack
+	 */
+	int64_t attack_damage;
+
+	/**
+	 * Actor that this soldier targets to attack
+	 * nullptr if unset
+	 */
+	Actor *attack_target;
+
+	/**
+	 * Destination that the soldier needs to navigate to
+	 * Valid only if is_destination_set is true
+	 */
+	physics::Vector destination;
+
+	/**
+	 * true if the Soldier is currently moving to the set destination
+	 * false otherwise
+	 */
+	bool is_destination_set;
 
   public:
 	/**
@@ -35,22 +58,101 @@ class STATE_EXPORT Soldier : public Actor {
 	Soldier();
 
 	Soldier(ActorId id, PlayerId player_id, ActorType actor_type, int64_t hp,
-	        int64_t max_hp, physics::Vector position, int64_t max_speed,
-	        physics::Vector velocity);
+	        int64_t max_hp, physics::Vector position, int64_t speed,
+	        int64_t attack_range, int64_t attack_damage);
 
 	/**
-	 * Get the soldier's current velocity
-	 *
-	 * @return     Soldier Velocity
+	 * Position where the actors will respawn
 	 */
-	physics::Vector GetVelocity();
+	static physics::Vector respawn_position;
 
 	/**
-	 * Get the soldier's max speed stat
-	 *
-	 * @return     Soldier MaxSpeed
+	 * Number of turns to wait before respawning
 	 */
-	int64_t GetMaxSpeed();
+	static int64_t total_turns_to_respawn;
+
+	/**
+	 * Get the soldier's speed stat
+	 *
+	 * @return     Soldier Speed
+	 */
+	int64_t GetSpeed();
+
+	/**
+	 * Get the soldier's attack range
+	 *
+	 * @return     Soldier's Attack Range
+	 */
+	int64_t GetAttackRange();
+
+	/**
+	 * Get the soldier's attack damage
+	 *
+	 * @return     Soldier's Attack Damage
+	 */
+	int64_t GetAttackDamage();
+
+	/**
+	 * Get the soldier's attack target
+	 *
+	 * @return     attack_target  Soldier's Attack Target
+	 */
+	Actor *GetAttackTarget();
+
+	/**
+	 * Set the soldier's attack target
+	 *
+	 * @param[in]  attack_target  Soldier's Attack Target
+	 */
+	void SetAttackTarget(Actor *attack_target);
+
+	/**
+	 * Check if the attack target is in range
+	 *
+	 * @return  true if target is in range, false otherwise
+	 */
+	bool IsAttackTargetInRange();
+
+	/**
+	 * Get the soldier's destination
+	 *
+	 * @return     Soldier's Destination
+	 */
+	physics::Vector GetDestination();
+
+	/**
+	 * Set the soldier's destination
+	 *
+	 * @param[in]  Soldier's Destination
+	 */
+	void SetDestination(physics::Vector destination);
+
+	/**
+	 * Check if the destination parameter is set
+	 *
+	 * @return     the destination_set field
+	 */
+	bool IsDestinationSet();
+
+	/**
+	 * Clear the current destination
+	 * Set destination_set to false
+	 */
+	void ClearDestination();
+
+	/**
+	 * Check if the attack target is set
+	 *
+	 * @return     the attack_target field
+	 */
+	bool IsAttackTargetSet();
+
+	/**
+	 * Set the soldier's position
+	 *
+	 * @param[in]  Soldier's new position
+	 */
+	void SetPosition(physics::Vector position);
 
 	/**
 	 * Update function of the soldier
