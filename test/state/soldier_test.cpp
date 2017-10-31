@@ -2,6 +2,7 @@
 #include "state/actor/actor.h"
 #include "state/actor/respawn_system/respawn_system.h"
 #include "state/actor/soldier.h"
+#include "state/actor/soldier_state.h"
 #include "state/map/map.h"
 #include "state/utilities.h"
 #include "gtest/gtest.h"
@@ -18,11 +19,9 @@ class SoldierTest : public Test {
 	unique_ptr<Soldier> soldier;
 
 	SoldierTest()
-	    : soldier(make_unique<Soldier>(1, state::PlayerId::PLAYER1,
-	                                   state::ActorType::SOLDIER, 100, 100,
-	                                   physics::Vector(10, 10), 50,
-	                                   physics::Vector(15, 15)) // make_unique
-	              ) {
+	    : soldier(make_unique<Soldier>(
+	          1, state::PlayerId::PLAYER1, state::ActorType::SOLDIER, 100, 100,
+	          physics::Vector(10, 10), 5, state::SoldierState::IDLE, 20, 5)) {
 		this->respawn_system = make_unique<RespawnSystem>(soldier.get());
 	}
 };
