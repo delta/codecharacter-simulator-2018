@@ -48,7 +48,7 @@ std::vector<int64_t> State::GetMoney() {
 	return ret_balance;
 }
 
-const IMap *State::GetMap() { return this->map.get(); }
+IMap *State::GetMap() { return this->map.get(); }
 
 void State::MoveSoldier(PlayerId player_id, int64_t soldier_id,
                         physics::Vector position) {
