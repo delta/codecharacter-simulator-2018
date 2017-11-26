@@ -46,7 +46,7 @@ class STATE_EXPORT IState {
 	 *
 	 * @return      Grid of MapElements
 	 */
-	virtual const IMap *GetMap() = 0;
+	virtual IMap *GetMap() = 0;
 
 	/**
 	 * Handles soldier movement

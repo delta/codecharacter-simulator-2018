@@ -78,7 +78,7 @@ class STATE_EXPORT State : public IState {
 	/**
 	 * @see IState#GetMap
 	 */
-	const IMap *GetMap() override;
+	IMap *GetMap() override;
 
 	/**
 	 * @see IState#MoveSoldier
