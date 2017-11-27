@@ -68,6 +68,9 @@ struct STATE_EXPORT PlayerState {
 
 	// Lists of towers, indexed by player_id
 	std::vector<std::vector<PlayerTower>> towers;
+
+	// Money
+	int64_t money;
 };
 }
 
