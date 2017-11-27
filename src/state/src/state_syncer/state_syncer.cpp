@@ -25,6 +25,19 @@ void StateSyncer::UpdatePlayerStates(
 	// TODO: Define function
 }
 
+void StateSyncer::FlipMap(
+    std::vector<std::vector<PlayerMapElement>> &player_map) {
+	for (int i = 0; i < (player_map.size() / 2) + 1; ++i) {
+		for (int j = 0; j < player_map[i].size(); ++j) {
+			PlayerMapElement temp = player_map[i][j];
+			player_map[i][j] = player_map[player_map[i].size() - 1 - i]
+			                             [player_map[i].size() - 1 - j];
+			player_map[player_map[i].size() - 1 - i]
+			          [player_map[i].size() - 1 - j] = temp;
+		}
+	}
+}
+
 void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
                               physics::Vector position) {
 	// TODO: Define function
