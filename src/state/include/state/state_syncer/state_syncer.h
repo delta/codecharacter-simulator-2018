@@ -93,6 +93,16 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 */
 	void SuicideTower(PlayerId player_id, int64_t tower_id);
 
+	/**
+	 * Changes orientation of map such that there is a
+	 * commom point of origin for all player states for all
+	 * map related activities
+	 *
+	 * @param[in]	player_map		map to be inverted
+	 *
+	 */
+	void FlipMap(std::vector<std::vector<PlayerMapElement>> &player_map);
+
   public:
 	/**
 	 * Constructor for StateSyncer class
