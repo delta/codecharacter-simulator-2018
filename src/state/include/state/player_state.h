@@ -23,6 +23,7 @@ struct PlayerMapElement {
 	TerrainType terrain;
 	physics::Vector position;
 	std::vector<bool> territory;
+	bool valid_territory;
 
 	// Writable
 	bool build_tower;
