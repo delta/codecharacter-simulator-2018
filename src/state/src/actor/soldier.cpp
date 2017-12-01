@@ -40,6 +40,7 @@ void Soldier::Update() {
 	if (this->respawn_system.IsReadyToRespawn()) {
 		this->hp = this->max_hp;
 		this->position = RespawnSystem::respawn_position;
+		this->SetState(SoldierState::IDLE);
 	}
 }
 }

@@ -46,6 +46,7 @@ void RespawnSystem::Update() {
 		}
 
 	} else if (this->soldier->GetHp() == 0) {
+		this->soldier->SetState(SoldierState::DEAD);
 		StartRespawnTimer();
 	}
 }

@@ -36,10 +36,12 @@ TEST_F(SoldierTest, RespawnTest) {
 	for (int i = 0; i < RespawnSystem::total_turns_to_respawn; ++i) {
 		soldier->Update();
 		ASSERT_EQ(soldier->GetHp(), 0);
+		ASSERT_EQ(soldier->GetState(), SoldierState::DEAD);
 	}
 
 	// Soldier should respawn
 	soldier->Update();
 	ASSERT_EQ(soldier->GetHp(), 100);
 	ASSERT_EQ(soldier->GetPosition(), Vector(40, 40));
+	ASSERT_EQ(soldier->GetState(), SoldierState::IDLE);
 }
