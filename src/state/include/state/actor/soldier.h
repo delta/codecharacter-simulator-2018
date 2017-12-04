@@ -27,8 +27,9 @@ class STATE_EXPORT Soldier : public Actor {
 
 	/**
 	 * Respawn System member for soldier
+	 * Handles soldier respawn after death
 	 */
-	RespawnSystem respawn_system;
+	std::unique_ptr<RespawnSystem> respawn_system;
 
 	/**
 	 * State of the soldier
