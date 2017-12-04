@@ -4,6 +4,8 @@
 #include "state/actor/soldier.h"
 #include "state/actor/soldier_state.h"
 #include "state/map/map.h"
+#include "state/mocks/path_planner_mock.h"
+#include "state/path_planner/path_planner.h"
 #include "state/utilities.h"
 #include "gtest/gtest.h"
 #include <cstdint>
@@ -15,19 +17,19 @@ using namespace testing;
 
 class SoldierTest : public Test {
   protected:
-	unique_ptr<RespawnSystem> respawn_system;
+	unique_ptr<PathPlannerMock> path_planner;
 	unique_ptr<Soldier> soldier;
 
+  public:
 	SoldierTest()
-	    : soldier(make_unique<Soldier>(
+	    : path_planner(make_unique<PathPlannerMock>()),
+	      soldier(make_unique<Soldier>(
 	          1, state::PlayerId::PLAYER1, state::ActorType::SOLDIER, 100, 100,
-	          physics::Vector(10, 10), 5, state::SoldierState::IDLE, 20, 5)) {
-		this->respawn_system = make_unique<RespawnSystem>(soldier.get());
-	}
+	          Vector(10, 10), 5, SoldierState::IDLE, 20, 5,
+	          this->path_planner.get())) {}
 };
 
 TEST_F(SoldierTest, RespawnTest) {
-
 	// Kill the soldier
 	soldier->SetHp(0);
 

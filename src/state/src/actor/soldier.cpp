@@ -14,11 +14,12 @@ Soldier::Soldier() {
 Soldier::Soldier(ActorId id, PlayerId player_id, ActorType actor_type,
                  int64_t hp, int64_t max_hp, physics::Vector position,
                  int64_t speed, SoldierState soldier_state,
-                 int64_t attack_range, int64_t attack_damage)
+                 int64_t attack_range, int64_t attack_damage,
+                 IPathPlanner *path_planner)
     : Actor(id, player_id, actor_type, hp, max_hp, position), speed(speed),
       respawn_system(std::make_unique<RespawnSystem>(this)),
       soldier_state(soldier_state), attack_range(attack_range),
-      attack_damage(attack_damage) {}
+      attack_damage(attack_damage), path_planner(path_planner) {}
 
 int64_t Soldier::GetSpeed() { return speed; }
 

@@ -10,6 +10,7 @@
 #include "state/actor/actor.h"
 #include "state/actor/respawn_system/respawn_system.h"
 #include "state/actor/soldier_state.h"
+#include "state/path_planner/path_planner.h"
 #include "state/state_export.h"
 #include <cstdint>
 
@@ -55,7 +56,12 @@ class STATE_EXPORT Soldier : public Actor {
 	Soldier(ActorId id, PlayerId player_id, ActorType actor_type, int64_t hp,
 	        int64_t max_hp, physics::Vector position, int64_t speed,
 	        SoldierState soldier_state, int64_t attack_range,
-	        int64_t attack_damage);
+	        int64_t attack_damage, IPathPlanner *path_planner);
+
+	/**
+	 * Pointer to Path Planner instance for movement calculations
+	 */
+	IPathPlanner *path_planner;
 
 	/**
 	 * Get the soldier's speed stat
