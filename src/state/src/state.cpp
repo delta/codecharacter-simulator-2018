@@ -14,10 +14,12 @@ State::State() {
 State::State(std::vector<std::vector<std::unique_ptr<Soldier>>> soldiers,
              std::unique_ptr<IMap> map,
              std::unique_ptr<MoneyManager> money_manager,
-             std::vector<std::unique_ptr<TowerManager>> tower_managers)
+             std::vector<std::unique_ptr<TowerManager>> tower_managers,
+             std::unique_ptr<PathPlanner> path_planner)
     : soldiers(std::move(soldiers)), map(std::move(map)),
       money_manager(std::move(money_manager)),
-      tower_managers(std::move(tower_managers)) {}
+      tower_managers(std::move(tower_managers)),
+      path_planner(std::move(path_planner)) {}
 
 const std::vector<std::vector<Soldier *>> State::GetAllSoldiers() {
 	std::vector<std::vector<Soldier *>> ret_soldiers;

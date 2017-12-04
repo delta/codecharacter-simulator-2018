@@ -13,6 +13,7 @@
 #include "state/map/interfaces/i_map.h"
 #include "state/map/map_element.h"
 #include "state/money_manager/money_manager.h"
+#include "state/path_planner/path_planner.h"
 #include "state/state_export.h"
 #include "state/tower_manager/tower_manager.h"
 #include <iostream>
@@ -43,6 +44,11 @@ class STATE_EXPORT State : public IState {
 	 */
 	std::vector<std::unique_ptr<TowerManager>> tower_managers;
 
+	/**
+	 * Path planner object, for movement and path computations
+	 */
+	std::unique_ptr<PathPlanner> path_planner;
+
   public:
 	/**
 	 * Constructors for State
@@ -50,7 +56,8 @@ class STATE_EXPORT State : public IState {
 	State(std::vector<std::vector<std::unique_ptr<Soldier>>> soldiers,
 	      std::unique_ptr<IMap> map,
 	      std::unique_ptr<MoneyManager> money_manager,
-	      std::vector<std::unique_ptr<TowerManager>> tower_managers);
+	      std::vector<std::unique_ptr<TowerManager>> tower_managers,
+	      std::unique_ptr<PathPlanner> path_planner);
 
 	State();
 
