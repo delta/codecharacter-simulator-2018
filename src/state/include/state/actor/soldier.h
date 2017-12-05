@@ -8,8 +8,10 @@
 
 #include "physics/vector.h"
 #include "state/actor/actor.h"
+#include "state/actor/mobility_system/mobility_system.h"
 #include "state/actor/respawn_system/respawn_system.h"
 #include "state/actor/soldier_state.h"
+#include "state/map/interfaces/i_map.h"
 #include "state/path_planner/path_planner.h"
 #include "state/state_export.h"
 #include <cstdint>
@@ -31,6 +33,12 @@ class STATE_EXPORT Soldier : public Actor {
 	 * Handles soldier respawn after death
 	 */
 	std::unique_ptr<RespawnSystem> respawn_system;
+
+	/**
+	 * Mobility System member for soldier
+	 * Handles soldier movement and attacks
+	 */
+	std::unique_ptr<MobilitySystem> mobility_system;
 
 	/**
 	 * State of the soldier
@@ -56,7 +64,7 @@ class STATE_EXPORT Soldier : public Actor {
 	Soldier(ActorId id, PlayerId player_id, ActorType actor_type, int64_t hp,
 	        int64_t max_hp, physics::Vector position, int64_t speed,
 	        SoldierState soldier_state, int64_t attack_range,
-	        int64_t attack_damage, IPathPlanner *path_planner);
+	        int64_t attack_damage, IPathPlanner *path_planner, IMap *map);
 
 	/**
 	 * Move soldier to a position
