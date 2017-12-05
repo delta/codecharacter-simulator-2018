@@ -59,6 +59,18 @@ class STATE_EXPORT Soldier : public Actor {
 	        int64_t attack_damage, IPathPlanner *path_planner);
 
 	/**
+	 * Move soldier to a position
+	 * Wrapper function over MobilitySystem
+	 */
+	void Move(physics::Vector Position);
+
+	/**
+	 * Attack a particular actor
+	 * Wrapper function over MobilitySystem
+	 */
+	void Attack(Actor *attack_target);
+
+	/**
 	 * Pointer to Path Planner instance for movement calculations
 	 */
 	IPathPlanner *path_planner;

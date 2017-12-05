@@ -37,6 +37,14 @@ void Soldier::SetPosition(physics::Vector position) {
 	this->position = position;
 }
 
+void Soldier::Move(physics::Vector position) {
+    this->mobility_system->MoveTo(position);
+}
+
+void Soldier::Attack(Actor *attack_target) {
+    this->mobility_system->AttackActor(attack_target);
+}
+
 void Soldier::Update() {
 	this->respawn_system->Update();
 	if (this->respawn_system->IsReadyToRespawn()) {
