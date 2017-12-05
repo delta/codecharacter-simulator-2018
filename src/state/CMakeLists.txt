@@ -14,6 +14,7 @@ set(SOURCE_FILES
 	src/tower_manager/tower_manager.cpp
 	src/state_syncer/state_syncer.cpp
 	src/path_planner/path_planner.cpp
+	src/actor/mobility_system/mobility_system.cpp
 )
 
 set(INCLUDE_PATH include)

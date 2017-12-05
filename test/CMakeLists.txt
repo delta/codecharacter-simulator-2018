@@ -13,10 +13,10 @@ set(SOURCE_FILES
 	state/tower_manager_test.cpp
 	state/soldier_test.cpp
 	state/path_planner_test.cpp
-	drivers/shared_memory/shm_test.cpp
-	drivers/timer_test.cpp
-	drivers/main_driver_test.cpp
-	llvm_pass/llvm_pass_test.cpp
+	#drivers/shared_memory/shm_test.cpp
+	#drivers/timer_test.cpp
+	#drivers/main_driver_test.cpp
+	#llvm_pass/llvm_pass_test.cpp
 )
 
 if(NOT BUILD_PROJECT STREQUAL "all")
