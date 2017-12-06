@@ -15,23 +15,36 @@ namespace state {
  * The dead soldier state class
  */
 class STATE_EXPORT DeadState : public SoldierState {
+  private:
+	/**
+	 * Number of remaining turns this soldier must wait to respawn
+	 */
+	int64_t remaining_turns_to_respawn;
+
   public:
 	DeadState(Soldier *soldier);
 
 	/**
 	 * Called right after the soldier switches to this state
+	 *
+	 * Clear any attack target or destination, and start the respawn timer
 	 */
 	void Enter();
 
 	/**
-	 * Executes state code when called
-	 * Returns the next soldier state
+	 * Performs state transitions
+	 *
+	 * If respawn timer is complete, switch to idle state
+	 * Else, remain in deadstate. Move towards the destination
+	 *
 	 * @return      A pointer to the new state
 	 */
 	std::unique_ptr<SoldierState> Update();
 
 	/**
 	 * Called before the Soldier switches to another state
+	 *
+	 * Reset soldier's stats
 	 */
 	void Exit();
 };

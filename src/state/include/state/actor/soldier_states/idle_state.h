@@ -20,12 +20,19 @@ class STATE_EXPORT IdleState : public SoldierState {
 
 	/**
 	 * Called right after the soldier switches to this state
+	 *
+	 * Clear any attack target or destination
 	 */
 	void Enter();
 
 	/**
-	 * Executes state code when called
-	 * Returns the next soldier state
+	 * Performs state transitions
+	 *
+	 * If soldier is dead, switch to dead state
+	 * If there's a destination set, switch to move state
+	 * If there's an attack target in range, switch to attack state
+	 * If it's not in range, switch to pursuit state
+	 * Else, remain in idle state. Do nothing
 	 *
 	 * @return      A pointer to the new state
 	 */
