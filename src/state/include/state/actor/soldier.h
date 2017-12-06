@@ -8,7 +8,6 @@
 
 #include "physics/vector.h"
 #include "state/actor/actor.h"
-#include "state/actor/respawn_system/respawn_system.h"
 #include "state/state_export.h"
 #include <cstdint>
 
@@ -28,11 +27,6 @@ class STATE_EXPORT Soldier : public Actor {
 	 * Current soldier velocity
 	 */
 	physics::Vector velocity;
-
-	/**
-	 * Respawn System member for soldier
-	 */
-	RespawnSystem respawn_system;
 
   public:
 	/**
