@@ -13,6 +13,12 @@ set(SOURCE_FILES
 	src/tower_manager/tower_manager.cpp
 	src/state_syncer/state_syncer.cpp
 	src/path_planner/path_planner.cpp
+	src/actor/soldier_states/soldier_state.cpp
+	src/actor/soldier_states/idle_state.cpp
+	src/actor/soldier_states/attack_state.cpp
+	src/actor/soldier_states/move_state.cpp
+	src/actor/soldier_states/dead_state.cpp
+	src/actor/soldier_states/pursuit_state.cpp
 )
 
 set(INCLUDE_PATH include)
