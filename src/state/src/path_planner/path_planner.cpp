@@ -4,6 +4,8 @@
  */
 
 #include "state/path_planner/path_planner.h"
+#include <algorithm>
+#include <cmath>
 #include <exception>
 #include <memory>
 
@@ -132,5 +134,64 @@ physics::Vector PathPlanner::GetNextNode(const physics::Vector &source,
 
 	// Return the next node in the list
 	return paths[destination.x][destination.y][source.x][source.y];
+}
+
+physics::Vector PathPlanner::GetNextPosition(const physics::Vector &source,
+                                             const physics::Vector &dest,
+                                             int64_t speed) {
+
+	int64_t element_size = map->GetElementSize();
+
+	// The actual destination to move towards (final result)
+	physics::Vector new_position;
+
+	// If the soldier is close enough to the destination simply move it there.
+	if (source.distance(dest) <= speed) {
+		new_position = dest;
+	} else {
+		// A temporary destination that is set to get the reference direction
+		physics::Vector next_dest;
+
+		// Check if the current source and the destination are in the same grid
+		if (floor(source.x / element_size) == floor(dest.x / element_size) &&
+		    floor(source.y / element_size) == floor(dest.y / element_size)) {
+			// Destination is in the same grid space. Set it as next_dest
+			next_dest = dest;
+
+		} else {
+			// Convert the position and destination to offsets
+			physics::Vector position_node(floor(source.x / element_size),
+			                              floor(source.y / element_size));
+			physics::Vector dest_node(floor(dest.x / element_size),
+			                          floor(dest.y / element_size));
+
+			physics::Vector next_node = GetNextNode(position_node, dest_node);
+
+			// Convert next_dest to position from offset
+			next_dest.x =
+			    floor((next_node.x * element_size) + (element_size / 2));
+			next_dest.y =
+			    floor((next_node.y * element_size) + (element_size / 2));
+		}
+
+		// Find the unit vector along the direction of next_dest
+		physics::Vector direction_vector = next_dest - source;
+		physics::Vector unit_vector =
+		    direction_vector / direction_vector.magnitude();
+
+		// Multiply speed with the unit vector to get the displacement vector.
+		// Add the displacement with the current position to get position
+		new_position = source + (unit_vector * speed);
+	}
+
+	// Bounds checks
+	new_position.x = ceil(std::max(0.0, new_position.x));
+	new_position.y = ceil(std::max(0.0, new_position.y));
+	new_position.x =
+	    ceil(std::min((double)(element_size * map->GetSize()), new_position.x));
+	new_position.y =
+	    ceil(std::min((double)(element_size * map->GetSize()), new_position.y));
+
+	return new_position;
 }
 }

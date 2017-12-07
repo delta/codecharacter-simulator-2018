@@ -88,19 +88,17 @@ class STATE_EXPORT PathPlanner : public IPathPlanner {
 	PathPlanner(Map *map);
 
 	/**
-	 * Given a source node and a destination node, return the next node
-	 * that must be taken
-	 *
-	 * @param[in]     source      The node from which the traversal begins
-	 * @param[in]     destination The node to which the traversal is headed
-	 *
-	 * @return        The next node in the traversal from the source
-	 *
-	 * @throw         std::out_of_range When source or destination are out of
-	 *                                  bounds or have an invalid terrain type
+	 * @see IPathPlanner#GetNextNode
 	 */
 	physics::Vector GetNextNode(const physics::Vector &source,
 	                            const physics::Vector &dest) override;
+
+	/**
+	 * @see IPathPlanner#GetNextPosition
+	 */
+	physics::Vector GetNextPosition(const physics::Vector &source,
+	                                const physics::Vector &dest,
+	                                int64_t speed) override;
 };
 }
 
