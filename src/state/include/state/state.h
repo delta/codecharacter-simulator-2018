@@ -9,6 +9,7 @@
 #include "physics/vector.h"
 #include "state/actor/soldier.h"
 #include "state/actor/tower.h"
+#include "state/interfaces/i_path_planner.h"
 #include "state/interfaces/i_state.h"
 #include "state/map/interfaces/i_map.h"
 #include "state/map/map_element.h"
@@ -43,6 +44,11 @@ class STATE_EXPORT State : public IState {
 	 */
 	std::vector<std::unique_ptr<TowerManager>> tower_managers;
 
+	/**
+	 * PathPlanner to perform movement and map calculations
+	 */
+	std::unique_ptr<IPathPlanner> path_planner;
+
   public:
 	/**
 	 * Constructors for State
@@ -50,7 +56,8 @@ class STATE_EXPORT State : public IState {
 	State(std::vector<std::vector<std::unique_ptr<Soldier>>> soldiers,
 	      std::unique_ptr<IMap> map,
 	      std::unique_ptr<MoneyManager> money_manager,
-	      std::vector<std::unique_ptr<TowerManager>> tower_managers);
+	      std::vector<std::unique_ptr<TowerManager>> tower_managers,
+	      std::unique_ptr<IPathPlanner> path_planner);
 
 	State();
 
