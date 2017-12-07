@@ -5,6 +5,8 @@
 
 #include "state/actor/soldier.h"
 #include "physics/vector.h"
+#include "state/actor/soldier_states/soldier_state.h"
+#include "state/actor/soldier_states/idle_state.h"
 
 namespace state {
 
@@ -19,7 +21,8 @@ Soldier::Soldier(ActorId id, PlayerId player_id, ActorType actor_type,
       attack_range(attack_range), attack_damage(attack_damage),
       path_planner(path_planner), attack_target(nullptr),
       destination(physics::Vector(0, 0)), is_destination_set(false),
-      new_position(physics::Vector(0, 0)), is_new_position_set(false) {}
+      new_position(physics::Vector(0, 0)), is_new_position_set(false),
+      state(std::make_unique<IdleState>(this)) {}
 
 int64_t Soldier::GetSpeed() { return speed; }
 
@@ -76,5 +79,28 @@ void Soldier::SetPosition(physics::Vector position) {
 
 IPathPlanner *Soldier::GetPathPlanner() { return path_planner; }
 
-void Soldier::Update() {}
+SoldierStateName Soldier::GetState() { return state->GetName(); }
+
+void Soldier::Move(physics::Vector destination) {
+	this->destination = destination;
+	this->is_destination_set = true;
+	this->attack_target = nullptr;
+}
+
+void Soldier::Attack(Actor *attack_target) {
+	this->attack_target = attack_target;
+	this->is_destination_set = false;
+}
+
+void Soldier::Update() {
+	auto new_state = std::move(state->Update());
+
+	while (new_state != nullptr) {
+		// State transition has occured
+		state->Exit();
+		state = std::move(new_state);
+		state->Enter();
+		new_state = std::move(state->Update());
+	}
+}
 }

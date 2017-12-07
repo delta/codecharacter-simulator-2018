@@ -8,6 +8,7 @@
 
 #include "physics/vector.h"
 #include "state/actor/actor.h"
+#include "state/actor/soldier_states/soldier_state.h"
 #include "state/interfaces/i_path_planner.h"
 #include "state/state_export.h"
 #include <cstdint>
@@ -63,6 +64,11 @@ class STATE_EXPORT Soldier : public Actor {
 	 * false otherwise
 	 */
 	bool is_new_position_set;
+
+	/*
+	 * State class that controls logic for soldier's current state
+	 */
+	std::unique_ptr<SoldierState> state;
 
 	/**
 	 * Pointer to PathPlanner instance
@@ -206,6 +212,27 @@ class STATE_EXPORT Soldier : public Actor {
 	 * @return     Pointer to PathPlanner instance
 	 */
 	IPathPlanner *GetPathPlanner();
+
+	/**
+	 * Get the name of the current state
+	 *
+	 * @return     Name of current state of type SoldierStateName
+	 */
+	SoldierStateName GetState();
+
+	/**
+	 * Method to give the move command to this soldier
+	 *
+	 * @param[in]     destination    The destination to go to
+	 */
+	void Move(physics::Vector destination);
+
+	/**
+	 * Method to give the attack command to this soldier
+	 *
+	 * @param[in]     attack_target  The target to attack
+	 */
+	void Attack(Actor *attack_target);
 
 	/**
 	 * Update function of the soldier
