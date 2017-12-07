@@ -8,6 +8,7 @@
 
 #include "physics/vector.h"
 #include "state/actor/actor.h"
+#include "state/interfaces/i_path_planner.h"
 #include "state/state_export.h"
 #include <cstdint>
 
@@ -51,6 +52,11 @@ class STATE_EXPORT Soldier : public Actor {
 	 */
 	bool is_destination_set;
 
+	/**
+	 * Pointer to PathPlanner instance
+	 */
+	IPathPlanner *path_planner;
+
   public:
 	/**
 	 * Soldier Constructor
@@ -59,7 +65,8 @@ class STATE_EXPORT Soldier : public Actor {
 
 	Soldier(ActorId id, PlayerId player_id, ActorType actor_type, int64_t hp,
 	        int64_t max_hp, physics::Vector position, int64_t speed,
-	        int64_t attack_range, int64_t attack_damage);
+	        int64_t attack_range, int64_t attack_damage,
+	        IPathPlanner *path_planner);
 
 	/**
 	 * Position where the actors will respawn
@@ -153,6 +160,13 @@ class STATE_EXPORT Soldier : public Actor {
 	 * @param[in]  Soldier's new position
 	 */
 	void SetPosition(physics::Vector position);
+
+	/**
+	 * Get the pointer to the path planner
+	 *
+	 * @return     Pointer to PathPlanner instance
+	 */
+	IPathPlanner *GetPathPlanner();
 
 	/**
 	 * Update function of the soldier
