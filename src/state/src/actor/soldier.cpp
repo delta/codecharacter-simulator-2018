@@ -5,8 +5,8 @@
 
 #include "state/actor/soldier.h"
 #include "physics/vector.h"
-#include "state/actor/soldier_states/soldier_state.h"
 #include "state/actor/soldier_states/idle_state.h"
+#include "state/actor/soldier_states/soldier_state.h"
 
 namespace state {
 
@@ -90,6 +90,14 @@ void Soldier::Move(physics::Vector destination) {
 void Soldier::Attack(Actor *attack_target) {
 	this->attack_target = attack_target;
 	this->is_destination_set = false;
+}
+
+void Soldier::LateUpdate() {
+	// If a move was performed, copy new_position into position
+	if (IsNewPositionSet()) {
+		SetPosition(new_position);
+		ClearNewPosition();
+	}
 }
 
 void Soldier::Update() {

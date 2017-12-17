@@ -235,6 +235,11 @@ class STATE_EXPORT Soldier : public Actor {
 	void Attack(Actor *attack_target);
 
 	/**
+	 * Executes code that should be run only after all other actor updates
+	 */
+	void LateUpdate();
+
+	/**
 	 * Update function of the soldier
 	 */
 	void Update() override;
