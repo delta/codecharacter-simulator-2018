@@ -53,6 +53,18 @@ class STATE_EXPORT Soldier : public Actor {
 	bool is_destination_set;
 
 	/**
+	 * Position where the soldier should move to, if the soldier must move
+	 * Serves as a temp for updating soldier positions
+	 */
+	physics::Vector new_position;
+
+	/**
+	 * true if new_position is set
+	 * false otherwise
+	 */
+	bool is_new_position_set;
+
+	/**
 	 * Pointer to PathPlanner instance
 	 */
 	IPathPlanner *path_planner;
@@ -146,6 +158,33 @@ class STATE_EXPORT Soldier : public Actor {
 	 * Set destination_set to false
 	 */
 	void ClearDestination();
+
+	/**
+	 * Get the soldier's new_position
+	 *
+	 * @return     Soldier's new_position
+	 */
+	physics::Vector GetNewPosition();
+
+	/**
+	 * Set the soldier's new_position
+	 *
+	 * @param[in]  Soldier's new_position
+	 */
+	void SetNewPosition(physics::Vector new_position);
+
+	/**
+	 * Check if the new_position parameter is set
+	 *
+	 * @return     the is_new_position_set field
+	 */
+	bool IsNewPositionSet();
+
+	/**
+	 * Clear the current new_position
+	 * Set is_new_position_set to false
+	 */
+	void ClearNewPosition();
 
 	/**
 	 * Check if the attack target is set
