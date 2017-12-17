@@ -18,7 +18,8 @@ Soldier::Soldier(ActorId id, PlayerId player_id, ActorType actor_type,
     : Actor(id, player_id, actor_type, hp, max_hp, position), speed(speed),
       attack_range(attack_range), attack_damage(attack_damage),
       path_planner(path_planner), attack_target(nullptr),
-      destination(physics::Vector(0, 0)), is_destination_set(false) {}
+      destination(physics::Vector(0, 0)), is_destination_set(false),
+      new_position(physics::Vector(0, 0)), is_new_position_set(false) {}
 
 int64_t Soldier::GetSpeed() { return speed; }
 
@@ -53,6 +54,17 @@ void Soldier::SetDestination(physics::Vector destination) {
 void Soldier::ClearDestination() { this->is_destination_set = false; }
 
 bool Soldier::IsDestinationSet() { return is_destination_set; }
+
+physics::Vector Soldier::GetNewPosition() { return new_position; }
+
+void Soldier::SetNewPosition(physics::Vector new_position) {
+	this->new_position = new_position;
+	this->is_new_position_set = true;
+}
+
+void Soldier::ClearNewPosition() { this->is_new_position_set = false; }
+
+bool Soldier::IsNewPositionSet() { return is_new_position_set; }
 
 bool Soldier::IsAttackTargetSet() {
 	return attack_target == nullptr ? false : true;
