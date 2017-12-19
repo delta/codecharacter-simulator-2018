@@ -1,0 +1,114 @@
+/**
+ * @file game.proto
+ * Define message format for representing one game
+ */
+
+syntax = "proto3";
+package proto;
+
+/**
+ * Represents the state of a game at a particular frame
+ */
+message GameState {
+	message Vector {
+		double x = 1;
+		double y = 2;
+	}
+
+	message TerrainElement {
+		enum TERRAIN_TYPE {
+			WATER = 0;
+			LAND = 1;
+		};
+		TERRAIN_TYPE type = 1;
+	}
+
+	message TerrainRow { repeated TerrainElement elements = 1; }
+
+	message Terrain { repeated TerrainRow rows = 1; }
+
+	enum SOLDIER_STATE {
+		IDLE = 0;
+		MOVING = 1;
+		ATTACK = 2;
+		DEAD = 3;
+	};
+
+	message Soldier {
+		int32 id = 1;
+		int32 player_id = 2;
+		Vector position = 3;
+		int32 hp = 4;
+		SOLDIER_STATE state = 5;
+		int32 max_hp = 6; // Optional - Sent first time only
+	}
+
+	message Tower {
+		int32 id = 1;
+		int32 player_id = 2;
+		Vector position = 3;
+		int32 hp = 4;
+		int32 max_hp = 5;      // Optional - Sent first time only
+		bool is_base = 6;      // Optional - Sent first time only
+		int32 tower_level = 7; // Optional - Sent if tower is upgraded
+		bool is_dead = 8;      // Optional - Sent if tower is destroyed
+	}
+
+	message InstructionLimitError {
+		int32 code = 1;
+		string error = 2;
+	}
+
+	message GameOver {
+		repeated int32 scores = 1;
+		int32 winner = 2;
+	}
+
+	/**
+	 * List of all soldiers whose properties change
+	 * All soldiers are sent during the first frame
+	 */
+	repeated Soldier soldiers = 1;
+
+	/**
+	 * List of all towers whose properties change
+	 * All towers are sent during the first frame
+	 */
+	repeated Tower towers = 2;
+
+	/**
+	 * Player money
+	 */
+	repeated int64 money = 3;
+
+	/**
+	 * Map with terrain information
+	 * Sent only during the first frame
+	 */
+	Terrain terrain = 4;
+
+	/**
+	 * Instruction limit exceeded errors
+	 * Sent only if instruction limit is exceeded on a particular frame
+	 * If the instruction limit causes a complete game abort, the last frame's
+	 * instruction_limit_error will hold the offending frame's inst. count
+	 */
+	InstructionLimitError instruction_limit_error = 6;
+
+	/**
+	 * Game over success message
+	 * Sent with last frame in game
+	 */
+	GameOver game_over = 7;
+}
+
+/**
+ * Represents a complete game, which is a sequence of frames
+ */
+message Game {
+
+	/**
+	 * A list of states, representing the entire game
+	 */
+	repeated GameState states = 1;
+}
