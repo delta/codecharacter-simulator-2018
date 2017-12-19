@@ -94,16 +94,10 @@ class STATE_EXPORT State : public IState {
 	                 physics::Vector position) override;
 
 	/**
-	 * @see IState#AttackTower
+	 * @see IState#AttackActor
 	 */
-	void AttackTower(PlayerId player_id, int64_t soldier_id,
-	                 int64_t tower_id) override;
-
-	/**
-	 * @see IState#AttackSoldier
-	 */
-	void AttackSoldier(PlayerId player_id, int64_t soldier_id,
-	                   int64_t enemy_soldier_id) override;
+	void AttackActor(PlayerId player_id, int64_t soldier_id,
+	                 int64_t enemy_actor_id) override;
 
 	/**
 	 * @see IState#BuildTower
