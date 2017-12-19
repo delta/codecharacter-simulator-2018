@@ -61,28 +61,16 @@ class STATE_EXPORT IState {
 	                         physics::Vector position) = 0;
 
 	/**
-	 * Handles enemy tower attacks
-	 *
-	 * @param[in]  player_id     player to act upon
-	 * @param[in]  soldier_id    soldier who is attacking
-	 * @param[in]  tower_id      opponent tower to attack
-	 *
-	 * @throw      std::exception  if the operation was not possible
-	 */
-	virtual void AttackTower(PlayerId player_id, int64_t soldier_id,
-	                         int64_t tower_id) = 0;
-
-	/**
-	 * Handles enemy soldier attacks
+	 * Handles attacks on enemy units
 	 *
 	 * @param[in]  player_id           player to act upon
 	 * @param[in]  soldier_id          soldier who is attacking
-	 * @param[in]  enemy_soldier_id    soldier who is to be attacked
+	 * @param[in]  enemy_actor_id      opponent actor to attack
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	virtual void AttackSoldier(PlayerId player_id, int64_t soldier_id,
-	                           int64_t enemy_soldier_id) = 0;
+	virtual void AttackActor(PlayerId player_id, int64_t soldier_id,
+	                         int64_t enemy_actor_id) = 0;
 
 	/**
 	 * Handles tower builds

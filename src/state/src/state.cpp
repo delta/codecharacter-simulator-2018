@@ -57,13 +57,8 @@ void State::MoveSoldier(PlayerId player_id, int64_t soldier_id,
 	// TODO: Define Function
 }
 
-void State::AttackTower(PlayerId player_id, int64_t soldier_id,
-                        int64_t tower_id) {
-	// TODO: Define Function
-}
-
-void State::AttackSoldier(PlayerId player_id, int64_t soldier_id,
-                          int64_t enemy_soldier_id) {
+void State::AttackActor(PlayerId player_id, int64_t soldier_id,
+                        int64_t actor_id) {
 	// TODO: Define Function
 }
 
