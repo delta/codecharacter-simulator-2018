@@ -17,6 +17,7 @@ set(SOURCE_FILES
 	drivers/timer_test.cpp
 	drivers/main_driver_test.cpp
 	llvm_pass/llvm_pass_test.cpp
+	logger/logger_test.cpp
 )
 
 if(NOT BUILD_PROJECT STREQUAL "all")
@@ -31,7 +32,7 @@ add_executable(shm_client drivers/shared_memory/shm_client.cpp)
 
 add_executable(main_driver_test_player drivers/main_driver_test_player)
 
-target_link_libraries(tests physics state drivers player_wrapper gtest gmock)
+target_link_libraries(tests physics state logger drivers player_wrapper gtest gmock)
 target_link_libraries(tests player_code_test_0)
 
 target_link_libraries(shm_client state drivers)
