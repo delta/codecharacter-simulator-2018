@@ -4,21 +4,23 @@
 
 1. Download [Boost 1.64](https://dl.bintray.com/boostorg/release/1.64.0/source/)
 
-1. `git clone --recursive https://github.com/delta/codecharacter-simulator.git`
+2. `git clone --recursive https://github.com/delta/codecharacter-simulator.git`
 
-2. Install [CMake](https://cmake.org/download/) (> v3.6.2)
+3. Install [CMake](https://cmake.org/download/) (> v3.6.2)
 
-3. `mkdir build && cd build`
+4. Install [Protobuf](https://github.com/google/protobuf/releases)
 
-4. `export LD_LIBRARY_PATH=<your_install_location>/lib`
+5. `mkdir build && cd build`
 
-5. `BOOST_PATH=<boost_download_location> cmake .. -DCMAKE_INSTALL_PREFIX=<your_install_location>`
+6. `export LD_LIBRARY_PATH=<your_install_location>/lib`
 
-6. `make`
+7. `BOOST_PATH=<boost_download_location> cmake .. -DCMAKE_INSTALL_PREFIX=<your_install_location>`
 
-7. `make install`
+8. `make`
 
-8. To run the simulator, `<your_install_location>/bin/simulator`
+9. `make install`
+
+10. To run the simulator, `<your_install_location>/bin/simulator`
 
 To run the unit tests, `<your_install_location>/bin/test`
 
