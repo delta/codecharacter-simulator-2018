@@ -35,24 +35,6 @@ class STATE_EXPORT TowerManager : public IUpdatable {
 	PlayerId player_id;
 
 	/**
-	 * Amount of money necessary to upgrade tower to next level
-	 * First element represents initial build cost
-	 */
-	std::vector<int64_t> build_costs;
-
-	/**
-	 * Tower Max HP levels corresponding to each upgrade level
-	 * First element corresponds to base map hp
-	 */
-	std::vector<int64_t> max_hp_levels;
-
-	/**
-	 * Number of units of range each upgrade level corresponds to
-	 * First element has the default tower range
-	 */
-	std::vector<int64_t> tower_ranges;
-
-	/**
 	 * Pointer to Money Manager
 	 */
 	MoneyManager *money_manager;
@@ -69,10 +51,25 @@ class STATE_EXPORT TowerManager : public IUpdatable {
 	TowerManager();
 
 	TowerManager(std::vector<Tower *> towers, PlayerId player_id,
-	             std::vector<int64_t> build_costs,
-	             std::vector<int64_t> max_hp_levels,
-	             std::vector<int64_t> tower_ranges, MoneyManager *money_manager,
-	             IMap *map);
+	             MoneyManager *money_manager, IMap *map);
+
+	/**
+	 * Amount of money necessary to upgrade tower to next level
+	 * First element represents initial build cost
+	 */
+	static std::vector<int64_t> build_costs;
+
+	/**
+	 * Tower Max HP levels corresponding to each upgrade level
+	 * First element corresponds to base map hp
+	 */
+	static std::vector<int64_t> max_hp_levels;
+
+	/**
+	 * Number of units of range each upgrade level corresponds to
+	 * First element has the default tower range
+	 */
+	static std::vector<int64_t> tower_ranges;
 
 	/**
 	 * Method that attempts to upgrade the tower.

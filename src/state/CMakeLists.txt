@@ -11,6 +11,7 @@ set(SOURCE_FILES
 	src/map/map_element.cpp
 	src/money_manager/money_manager.cpp
 	src/tower_manager/tower_manager.cpp
+	src/tower_manager/tower_manager_static_init.cpp
 	src/state_syncer/state_syncer.cpp
 	src/path_planner/path_planner.cpp
 	src/actor/soldier_states/soldier_state.cpp
