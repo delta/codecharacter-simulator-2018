@@ -6,64 +6,57 @@
 syntax = "proto3";
 package proto;
 
+message TerrainElement {
+	enum TERRAIN_TYPE {
+		WATER = 0;
+		LAND = 1;
+	};
+	TERRAIN_TYPE type = 1;
+}
+
+message TerrainRow { repeated TerrainElement elements = 1; }
+
+message Terrain { repeated TerrainRow rows = 1; }
+
+enum SOLDIER_STATE {
+	IDLE = 0;
+	MOVE = 1;
+	ATTACK = 2;
+	DEAD = 3;
+};
+
+message Soldier {
+	int32 hp = 3;
+	int32 x = 4;
+	int32 y = 5;
+	SOLDIER_STATE state = 6;
+}
+
+message Tower {
+	int32 id = 1;
+	int32 player_id = 2; // Sent first time only
+	int32 hp = 3;
+	int32 x = 4;           //
+	int32 y = 5;           // Sent first time only
+	bool is_base = 7;      // Sent first time only
+	int32 tower_level = 8; // Sent if tower is upgraded
+	bool is_dead = 9;      // Sent if tower is destroyed
+}
+
+message InstructionLimitError {
+	int32 code = 1;
+	string error = 2;
+}
+
+message GameOver {
+	repeated int32 scores = 1;
+	int32 winner = 2;
+}
+
 /**
  * Represents the state of a game at a particular frame
  */
 message GameState {
-	message Vector {
-		double x = 1;
-		double y = 2;
-	}
-
-	message TerrainElement {
-		enum TERRAIN_TYPE {
-			WATER = 0;
-			LAND = 1;
-		};
-		TERRAIN_TYPE type = 1;
-	}
-
-	message TerrainRow { repeated TerrainElement elements = 1; }
-
-	message Terrain { repeated TerrainRow rows = 1; }
-
-	enum SOLDIER_STATE {
-		IDLE = 0;
-		MOVING = 1;
-		ATTACK = 2;
-		DEAD = 3;
-	};
-
-	message Soldier {
-		int32 id = 1;
-		int32 player_id = 2;
-		Vector position = 3;
-		int32 hp = 4;
-		SOLDIER_STATE state = 5;
-		int32 max_hp = 6; // Optional - Sent first time only
-	}
-
-	message Tower {
-		int32 id = 1;
-		int32 player_id = 2;
-		Vector position = 3;
-		int32 hp = 4;
-		int32 max_hp = 5;      // Optional - Sent first time only
-		bool is_base = 6;      // Optional - Sent first time only
-		int32 tower_level = 7; // Optional - Sent if tower is upgraded
-		bool is_dead = 8;      // Optional - Sent if tower is destroyed
-	}
-
-	message InstructionLimitError {
-		int32 code = 1;
-		string error = 2;
-	}
-
-	message GameOver {
-		repeated int32 scores = 1;
-		int32 winner = 2;
-	}
-
 	/**
 	 * List of all soldiers whose properties change
 	 * All soldiers are sent during the first frame
@@ -82,24 +75,18 @@ message GameState {
 	repeated int64 money = 3;
 
 	/**
-	 * Map with terrain information
-	 * Sent only during the first frame
-	 */
-	Terrain terrain = 4;
-
-	/**
 	 * Instruction limit exceeded errors
 	 * Sent only if instruction limit is exceeded on a particular frame
 	 * If the instruction limit causes a complete game abort, the last frame's
 	 * instruction_limit_error will hold the offending frame's inst. count
 	 */
-	InstructionLimitError instruction_limit_error = 6;
+	InstructionLimitError instruction_limit_error = 4;
 
 	/**
 	 * Game over success message
 	 * Sent with last frame in game
 	 */
-	GameOver game_over = 7;
+	GameOver game_over = 5;
 }
 
 /**
@@ -108,7 +95,28 @@ message GameState {
 message Game {
 
 	/**
+	 * Map with terrain information
+	 * Sent only during the first frame
+	 */
+	Terrain terrain = 1;
+
+	/**
+	 * Range of a tower, corresponding to each tower level
+	 */
+	repeated int32 tower_ranges = 2;
+
+	/**
+	 * Maximum HP of a tower, corresponding to each tower level
+	 */
+	repeated int32 tower_max_hps = 3;
+
+	/**
+	 * Maximum HP of a soldier
+	 */
+	int32 soldier_max_hp = 4;
+
+	/**
 	 * A list of states, representing the entire game
 	 */
-	repeated GameState states = 1;
+	repeated GameState states = 5;
 }
