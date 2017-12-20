@@ -16,13 +16,8 @@ TowerManager::TowerManager() {
 }
 
 TowerManager::TowerManager(std::vector<Tower *> p_towers, PlayerId player_id,
-                           std::vector<int64_t> build_costs,
-                           std::vector<int64_t> max_hp_levels,
-                           std::vector<int64_t> tower_ranges,
                            MoneyManager *money_manager, IMap *map)
-    : player_id(player_id), max_hp_levels(max_hp_levels),
-      tower_ranges(tower_ranges), build_costs(build_costs),
-      money_manager(money_manager), map(map) {
+    : player_id(player_id), money_manager(money_manager), map(map) {
 
 	for (int i = 0; i < p_towers.size(); ++i) {
 		towers.emplace_back(std::move(p_towers[i]));
@@ -78,7 +73,7 @@ void TowerManager::BuildTower(physics::Vector offset, bool is_base) {
 	}
 
 	// Check if the player has enough money to buy a new tower
-	int64_t tower_cost = this->build_costs[0];
+	int64_t tower_cost = TowerManager::build_costs[0];
 
 	if (tower_cost > money_manager->GetBalance(this->player_id)) {
 		throw std::out_of_range("Tower build failed due to insufficient funds");
@@ -99,14 +94,14 @@ void TowerManager::BuildTower(physics::Vector offset, bool is_base) {
 
 	// Add the new tower
 	this->towers.push_back(std::make_unique<Tower>(
-	    new_actor_id, this->player_id, ActorType::TOWER, this->max_hp_levels[0],
-	    this->max_hp_levels[0],
+	    new_actor_id, this->player_id, ActorType::TOWER,
+	    TowerManager::max_hp_levels[0], TowerManager::max_hp_levels[0],
 	    physics::Vector(element_size * offset.x + (element_size / 2),
 	                    element_size * offset.y + (element_size / 2)),
 	    is_base, 1));
 
 	// Mark the new territory controlled by the tower
-	int64_t range = tower_ranges[0];
+	int64_t range = TowerManager::tower_ranges[0];
 
 	int64_t lower_x = std::max((int)(offset.x - range), (int)0);
 	int64_t upper_x = std::min((int)(offset.x + range), (int)map_size - 1);
@@ -145,11 +140,11 @@ void TowerManager::UpgradeTower(state::ActorId tower_id) {
 	int64_t element_size = map->GetElementSize();
 
 	// Check if the tower is upgradable
-	if (current_tower_level == build_costs.size()) {
+	if (current_tower_level == TowerManager::build_costs.size()) {
 		throw std::out_of_range("Max level reached, upgrade not allowed");
 	}
 
-	int64_t tower_upgrade_cost = build_costs[current_tower_level];
+	int64_t tower_upgrade_cost = TowerManager::build_costs[current_tower_level];
 
 	// Check if the player has sufficient balance
 	int64_t current_balance = this->money_manager->GetBalance(player_id);
@@ -168,7 +163,7 @@ void TowerManager::UpgradeTower(state::ActorId tower_id) {
 	    physics::Vector(floor(tower_position.x / element_size),
 	                    floor(tower_position.y / element_size));
 
-	int64_t range = tower_ranges[current_tower_level];
+	int64_t range = TowerManager::tower_ranges[current_tower_level];
 
 	int64_t lower_x = std::max((int)(tower_offset.x - range), (int)0);
 	int64_t upper_x =
@@ -185,7 +180,8 @@ void TowerManager::UpgradeTower(state::ActorId tower_id) {
 		}
 	}
 
-	towers[current_tower_index]->Upgrade(max_hp_levels[current_tower_index]);
+	towers[current_tower_index]->Upgrade(
+	    TowerManager::max_hp_levels[current_tower_index]);
 }
 
 void TowerManager::RazeTower(state::ActorId tower_id, int64_t damage) {

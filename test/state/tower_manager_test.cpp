@@ -16,9 +16,6 @@ class TowerManagerTest : public testing::Test {
 	unique_ptr<TowerManager> tower_manager;
 	std::vector<Tower *> towers;
 	PlayerId player_id;
-	std::vector<int64_t> build_costs;
-	std::vector<int64_t> max_hp_levels;
-	std::vector<int64_t> tower_ranges;
 
 	unique_ptr<MoneyManager> money_manager;
 	int64_t max_money;
@@ -32,12 +29,6 @@ class TowerManagerTest : public testing::Test {
 	TowerManagerTest() {
 
 		this->player_id = PlayerId::PLAYER1;
-
-		this->build_costs = {500, 700, 900};
-
-		this->max_hp_levels = {100, 200, 350};
-
-		this->tower_ranges = {1, 2, 3};
 
 		// Init Money Manager
 		this->max_money = 100000;
@@ -71,8 +62,7 @@ class TowerManagerTest : public testing::Test {
 
 		// Init Tower Manager
 		this->tower_manager = make_unique<TowerManager>(
-		    towers, player_id, build_costs, max_hp_levels, tower_ranges,
-		    money_manager.get(), map.get());
+		    towers, player_id, money_manager.get(), map.get());
 	}
 };
 
@@ -93,11 +83,12 @@ TEST_F(TowerManagerTest, ValidBuildTowerTest) {
 	    Vector(0 + map->GetElementSize() / 2, 0 + map->GetElementSize() / 2));
 
 	// Check if money deducted
-	ASSERT_EQ(money_manager->GetBalance(PlayerId::PLAYER1), 5000 - 500);
+	ASSERT_EQ(money_manager->GetBalance(PlayerId::PLAYER1),
+	          5000 - TowerManager::build_costs[0]);
 
 	// Check if tower properties are set
-	ASSERT_EQ(current_towers[0]->GetHp(), 100);
-	ASSERT_EQ(current_towers[0]->GetMaxHp(), 100);
+	ASSERT_EQ(current_towers[0]->GetHp(), TowerManager::max_hp_levels[0]);
+	ASSERT_EQ(current_towers[0]->GetMaxHp(), TowerManager::max_hp_levels[0]);
 	ASSERT_EQ(current_towers[0]->GetTowerLevel(), 1);
 
 	// Check if territory around tower is set
@@ -111,10 +102,16 @@ TEST_F(TowerManagerTest, ValidBuildTowerTest) {
 
 	// Check for player territory
 	// Expected :
-	int expect_ownership[3][3] = {{1, 1, 0}, {1, 1, 0}, {0, 0, 0}};
+	vector<vector<int>> expect_ownership(10, vector<int>(10, 0));
+	// Add 1 to the tower ranges, since the tower is at (1, 1)
+	for (int i = 0; i <= TowerManager::tower_ranges[0]; ++i) {
+		for (int j = 0; j <= TowerManager::tower_ranges[0]; ++j) {
+			expect_ownership[i][j] = 1;
+		}
+	}
 
-	for (int i = 0; i < 3; ++i) {
-		for (int j = 0; j < 3; ++j) {
+	for (int i = 0; i < 10; ++i) {
+		for (int j = 0; j < 10; ++j) {
 			ASSERT_EQ(map->GetElementByOffset(Vector(i, j)).GetOwnership()[0],
 			          expect_ownership[i][j]);
 		}
@@ -150,8 +147,8 @@ TEST_F(TowerManagerTest, InvalidBuildTower) {
 
 	// Not enough money
 	// Leave one less than the build cost remaining
-	int64_t amount_to_decrease =
-	    money_manager->GetBalance(PlayerId::PLAYER1) - build_costs[0] + 1;
+	int64_t amount_to_decrease = money_manager->GetBalance(PlayerId::PLAYER1) -
+	                             TowerManager::build_costs[0] + 1;
 	money_manager->Decrease(PlayerId::PLAYER1, amount_to_decrease);
 	EXPECT_THROW(tower_manager->BuildTower(Vector(1, 2)), std::out_of_range);
 }
@@ -165,20 +162,24 @@ TEST_F(TowerManagerTest, ValidUpgradeTower) {
 	// Upgrade Tower
 	tower_manager->UpgradeTower(0);
 
-	int expect_ownership[5][5] = {{1, 1, 1, 1, 0},
-	                              {1, 1, 1, 1, 0},
-	                              {1, 1, 1, 1, 0},
-	                              {1, 1, 1, 1, 0},
-	                              {0, 0, 0, 0, 0}};
+	vector<vector<int>> expect_ownership(10, vector<int>(10, 0));
+	// Add 1 to the tower ranges, since the tower is at (1, 1)
+	for (int i = 0; i <= TowerManager::tower_ranges[1] + 1; ++i) {
+		for (int j = 0; j <= TowerManager::tower_ranges[1] + 1; ++j) {
+			expect_ownership[i][j] = 1;
+		}
+	}
 
-	for (int i = 0; i < 5; ++i) {
-		for (int j = 0; j < 5; ++j) {
+	for (int i = 0; i < 10; ++i) {
+		for (int j = 0; j < 10; ++j) {
 			ASSERT_EQ(map->GetElementByOffset(Vector(i, j)).GetOwnership()[0],
 			          expect_ownership[i][j]);
 		}
 	}
 
-	ASSERT_EQ(money_manager->GetBalance(PlayerId::PLAYER1), 5000 - 500 - 700);
+	ASSERT_EQ(money_manager->GetBalance(PlayerId::PLAYER1),
+	          5000 - TowerManager::build_costs[0] -
+	              TowerManager::build_costs[1]);
 
 	ASSERT_EQ(tower_manager->GetTowers()[0]->GetTowerLevel(), 2);
 	tower_manager->UpgradeTower(0);
@@ -195,7 +196,7 @@ TEST_F(TowerManagerTest, InvalidUpgradeTower) {
 	EXPECT_THROW(tower_manager->UpgradeTower(20), std::out_of_range);
 
 	// Valid Upgrades
-	for (int i = 0; i < build_costs.size() - 1; ++i) {
+	for (int i = 0; i < TowerManager::build_costs.size() - 1; ++i) {
 		tower_manager->UpgradeTower(0);
 	}
 
@@ -211,7 +212,8 @@ TEST_F(TowerManagerTest, RazeTower) {
 
 	// Attack the tower with 5 damage
 	tower_manager->RazeTower(0, 5);
-	ASSERT_EQ(tower_manager->GetTowerById(0)->GetHp(), 100 - 5);
+	ASSERT_EQ(tower_manager->GetTowerById(0)->GetHp(),
+	          TowerManager::max_hp_levels[0] - 5);
 
 	// Deal Fatal Blow
 	tower_manager->RazeTower(0, 200);
@@ -222,7 +224,8 @@ TEST_F(TowerManagerTest, RazeTower) {
 	tower_manager->BuildTower(Vector(2, 2), true);
 
 	tower_manager->RazeTower(1, 1000);
-	ASSERT_EQ(tower_manager->GetTowerById(1)->GetHp(), 100);
+	ASSERT_EQ(tower_manager->GetTowerById(1)->GetHp(),
+	          TowerManager::max_hp_levels[0]);
 }
 
 TEST_F(TowerManagerTest, Update) {
