@@ -6,7 +6,7 @@
 
 2. `git clone --recursive https://github.com/delta/codecharacter-simulator.git`
 
-3. Install [CMake](https://cmake.org/download/) (> v3.6.2)
+3. Install [CMake](https://cmake.org/download/) (> v3.9.6)
 
 4. Install [Protobuf](https://github.com/google/protobuf/releases)
 

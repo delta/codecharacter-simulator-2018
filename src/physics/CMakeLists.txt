@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6.2)
+cmake_minimum_required(VERSION 3.9.6)
 project(physics)
 
 set(SOURCE_FILES

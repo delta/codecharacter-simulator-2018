@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6.2)
+cmake_minimum_required(VERSION 3.9.6)
 project(logger)
 
 set(SOURCE_FILES
@@ -22,7 +22,7 @@ if((NOT BUILD_PROJECT STREQUAL "all") AND (NOT BUILD_PROJECT STREQUAL "no_tests"
 endif()
 
 add_library(logger SHARED ${SOURCE_FILES} ${PROTO_SRCS})
-target_link_libraries(logger ${Protobuf_LIBRARIES} state physics)
+target_link_libraries(logger protobuf::libprotobuf state physics)
 
 generate_export_header(logger EXPORT_FILE_NAME ${EXPORTS_FILE_PATH})
 
