@@ -85,7 +85,7 @@ TEST_F(PathPlannerTest, ValidPathsTests) {
 
 	// TEST POSITIONAL PATHS
 	source = physics::Vector(2, 2);
-	destination = physics::Vector(17, 7);
+	destination = physics::Vector(17, 6);
 	int speed = 5;
 
 	// Expect the planner to move vertically, and then horizontally
@@ -95,8 +95,9 @@ TEST_F(PathPlannerTest, ValidPathsTests) {
 	          Vector(12, 2));
 	EXPECT_EQ(path_planner->GetNextPosition(Vector(12, 2), destination, speed),
 	          Vector(17, 2));
+	// Should move directly to destination as it's nearby
 	EXPECT_EQ(path_planner->GetNextPosition(Vector(17, 2), destination, speed),
-	          destination /*which is Vector(17, 7)*/);
+	          destination /*which is Vector(17, 6)*/);
 
 	// Test a case with the destination and source in the same grid space
 	source = physics::Vector(0, 0);
