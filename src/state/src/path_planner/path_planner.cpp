@@ -152,21 +152,19 @@ physics::Vector PathPlanner::GetNextPosition(const physics::Vector &source,
 		// A temporary destination that is set to get the reference direction
 		physics::Vector next_dest;
 
-		// Check if the current source and the destination are in the same grid
-		if (floor(source.x / element_size) == floor(dest.x / element_size) &&
-		    floor(source.y / element_size) == floor(dest.y / element_size)) {
-			// Destination is in the same grid space. Set it as next_dest
+		// Convert the position and destination to offsets
+		physics::Vector position_node(floor(source.x / element_size),
+		                              floor(source.y / element_size));
+		physics::Vector dest_node(floor(dest.x / element_size),
+		                          floor(dest.y / element_size));
+
+		physics::Vector next_node = GetNextNode(position_node, dest_node);
+
+		// Check if we're close to the destination (at most a grid away)
+		if (next_node == dest_node) {
+			// Move directly to the destination
 			next_dest = dest;
-
 		} else {
-			// Convert the position and destination to offsets
-			physics::Vector position_node(floor(source.x / element_size),
-			                              floor(source.y / element_size));
-			physics::Vector dest_node(floor(dest.x / element_size),
-			                          floor(dest.y / element_size));
-
-			physics::Vector next_node = GetNextNode(position_node, dest_node);
-
 			// Convert next_dest to position from offset
 			next_dest.x =
 			    floor((next_node.x * element_size) + (element_size / 2));
