@@ -61,8 +61,8 @@ class DRIVERS_EXPORT MainDriver {
 	int64_t player_count;
 
 	/**
-	 * false if the game has timed out without completing and Start has been
-	 * called, true otherwise
+	 * true if the game has timed out without completing and Start has been
+	 * called, false otherwise
 	 */
 	std::atomic_bool is_game_timed_out;
 
