@@ -39,9 +39,9 @@ const std::vector<PlayerResult> MainDriver::Start() {
 
 	// Start a timer. Game is invalid if it does not complete within the timer
 	// limit
-	this->is_game_timed_out = true;
+	this->is_game_timed_out = false;
 	this->game_timer.Start(this->game_duration,
-	                       [this]() { this->is_game_timed_out = false; });
+	                       [this]() { this->is_game_timed_out = true; });
 
 	// Run the game and return results
 	return this->Run();
@@ -65,7 +65,7 @@ const std::vector<PlayerResult> MainDriver::Run() {
 
 			// Wait for updates (or the timer)
 			while (this->shared_buffers[cur_player_id]->is_player_running &&
-			       this->is_game_timed_out)
+			       !this->is_game_timed_out)
 				;
 
 			// Check for instruction counter to see if player has exceeded some
@@ -87,7 +87,7 @@ const std::vector<PlayerResult> MainDriver::Run() {
 		// If the game instruction count has been exceeded by some player, game
 		// is forfeit
 		// If the game timer has expired, the game has to stop
-		if (instruction_count_exceeded || !this->is_game_timed_out) {
+		if (instruction_count_exceeded || this->is_game_timed_out) {
 			return player_results;
 		}
 
