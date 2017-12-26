@@ -21,6 +21,23 @@ State::State(std::vector<std::vector<std::unique_ptr<Soldier>>> soldiers,
       tower_managers(std::move(tower_managers)),
       path_planner(std::move(path_planner)) {}
 
+Soldier *State::GetSoldierById(ActorId actor_id, PlayerId player_id) {
+	int soldiers_per_team = soldiers[0].size();
+
+	if (actor_id < 0) {
+		throw std::out_of_range("Invalid actor_id, cannot be negative");
+	}
+
+	if (actor_id > (int)PlayerId::PLAYER_COUNT * soldiers_per_team - 1) {
+		throw std::out_of_range("Invalid actor_id, no such soldier");
+	}
+
+	// Soldiers are in ascending order by actor_id. Directly get index
+	int index_of_soldier = actor_id - soldiers_per_team * (int)player_id;
+
+	return soldiers[(int)player_id][index_of_soldier].get();
+}
+
 const std::vector<std::vector<Soldier *>> State::GetAllSoldiers() {
 	std::vector<std::vector<Soldier *>> ret_soldiers;
 	for (int i = 0; i < soldiers.size(); ++i) {

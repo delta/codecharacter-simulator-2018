@@ -49,6 +49,18 @@ class STATE_EXPORT State : public IState {
 	 */
 	std::unique_ptr<IPathPlanner> path_planner;
 
+	/**
+	 * Helper function returns a pointer to a soldier
+	 * PlayerId helps identify the right soldier vector faster
+	 *
+	 * @param[in]  actor_id
+	 * @param[in]  player_id
+	 *
+	 * @return     Soldier* if actor exists
+	 * @throw      out_of_range if soldier does not exist
+	 */
+	Soldier *GetSoldierById(ActorId actor_id, PlayerId player_id);
+
   public:
 	/**
 	 * Constructors for State
