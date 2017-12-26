@@ -20,7 +20,7 @@ class StateMock : public IState {
 	MOCK_METHOD0(GetMap, IMap *());
 	MOCK_METHOD3(MoveSoldier, void(PlayerId, int64_t, Vector));
 	MOCK_METHOD3(AttackActor, void(PlayerId, int64_t, int64_t));
-	MOCK_METHOD3(BuildTower, void(PlayerId, int64_t, Vector));
+	MOCK_METHOD2(BuildTower, void(PlayerId, Vector));
 	MOCK_METHOD2(UpgradeTower, void(PlayerId, int64_t));
 	MOCK_METHOD2(SuicideTower, void(PlayerId, int64_t));
 };

@@ -114,8 +114,7 @@ class STATE_EXPORT State : public IState {
 	/**
 	 * @see IState#BuildTower
 	 */
-	void BuildTower(PlayerId player_id, int64_t tower_id,
-	                physics::Vector position) override;
+	void BuildTower(PlayerId player_id, physics::Vector position) override;
 
 	/**
 	 * @see IState#UpgradeTower
