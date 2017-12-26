@@ -83,14 +83,13 @@ class STATE_EXPORT TowerManager : public IUpdatable {
 	void UpgradeTower(ActorId tower_id);
 
 	/**
-	 * Inflict the specified damage on the specified tower
+	 * Destroy the specified tower
 	 *
 	 * @param[in]  tower_id The tower identifier
-	 * @param[in]  damage   The amount of damage to inflict
 	 *
 	 * @throw      std::out_of_range If tower_id is invalid
 	 */
-	void RazeTower(ActorId tower_id, int64_t damage);
+	void SuicideTower(ActorId tower_id);
 
 	/**
 	 * Build a new tower at the given offset

@@ -184,7 +184,7 @@ void TowerManager::UpgradeTower(state::ActorId tower_id) {
 	    TowerManager::max_hp_levels[current_tower_index]);
 }
 
-void TowerManager::RazeTower(state::ActorId tower_id, int64_t damage) {
+void TowerManager::SuicideTower(ActorId tower_id) {
 	int64_t current_tower_index;
 	bool tower_exists = false;
 	for (int i = towers.size() - 1; i >= 0; --i) {
@@ -198,16 +198,13 @@ void TowerManager::RazeTower(state::ActorId tower_id, int64_t damage) {
 		throw std::out_of_range("Invalid tower_id, tower does not exist");
 	}
 
-	// If it's a base tower, don't do any damage
+	// If it's a base tower, don't kill it
 	if (towers[current_tower_index]->GetIsBase()) {
 		return;
 	}
 
-	int64_t current_tower_hp = towers[current_tower_index]->GetHp();
-
-	// Deduct damage or if weak, kill tower
-	towers[current_tower_index]->SetHp(
-	    std::max(0, (int)(current_tower_hp - damage)));
+	// Destroy tower
+	towers[current_tower_index]->SetHp(0);
 }
 
 void TowerManager::Update() {

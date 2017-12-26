@@ -204,42 +204,15 @@ TEST_F(TowerManagerTest, InvalidUpgradeTower) {
 	EXPECT_THROW(tower_manager->UpgradeTower(0), std::out_of_range);
 }
 
-TEST_F(TowerManagerTest, RazeTower) {
+TEST_F(TowerManagerTest, SuicideTower) {
 	Actor::SetActorIdIncrement(0);
 	// Build a Valid Tower
 	map->GetElementByOffset(Vector(1, 1)).SetOwnership(PlayerId::PLAYER1, true);
 	tower_manager->BuildTower(Vector(1, 1));
 
-	// Attack the tower with 5 damage
-	tower_manager->RazeTower(0, 5);
-	ASSERT_EQ(tower_manager->GetTowerById(0)->GetHp(),
-	          TowerManager::max_hp_levels[0] - 5);
-
-	// Deal Fatal Blow
-	tower_manager->RazeTower(0, 200);
+	// Kill Tower
+	tower_manager->SuicideTower(0);
 	ASSERT_EQ(tower_manager->GetTowerById(0)->GetHp(), 0);
-
-	// Test Base towers
-	map->GetElementByOffset(Vector(2, 2)).SetOwnership(PlayerId::PLAYER1, true);
-	tower_manager->BuildTower(Vector(2, 2), true);
-
-	tower_manager->RazeTower(1, 1000);
-	ASSERT_EQ(tower_manager->GetTowerById(1)->GetHp(),
-	          TowerManager::max_hp_levels[0]);
-}
-
-TEST_F(TowerManagerTest, Update) {
-	Actor::SetActorIdIncrement(0);
-	// Build a Valid Tower
-	map->GetElementByOffset(Vector(1, 1)).SetOwnership(PlayerId::PLAYER1, true);
-	tower_manager->BuildTower(Vector(1, 1));
-
-	// Deal Fatal Blow
-	tower_manager->RazeTower(0, 200);
-	ASSERT_EQ(tower_manager->GetTowerById(0)->GetHp(), 0);
-
-	// Clean Dead Towers
 	tower_manager->Update();
-	ASSERT_EQ(tower_manager->GetTowers().size(), 0);
 	ASSERT_THROW(tower_manager->GetTowerById(0), std::out_of_range);
 }
