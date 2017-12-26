@@ -79,8 +79,7 @@ void State::AttackActor(PlayerId player_id, int64_t soldier_id,
 	// TODO: Define Function
 }
 
-void State::BuildTower(PlayerId player_id, int64_t tower_id,
-                       physics::Vector position) {
+void State::BuildTower(PlayerId player_id, physics::Vector position) {
 	// TODO: Define Function
 }
 

@@ -76,13 +76,11 @@ class STATE_EXPORT IState {
 	 * Handles tower builds
 	 *
 	 * @param[in]  player_id     player to act upon
-	 * @param[in]  tower_id      tower to act upon
 	 * @param[in]  position      position to build the tower at
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	virtual void BuildTower(PlayerId player_id, int64_t tower_id,
-	                        physics::Vector position) = 0;
+	virtual void BuildTower(PlayerId player_id, physics::Vector position) = 0;
 
 	/**
 	 * Handles tower upgrades
