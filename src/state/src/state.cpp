@@ -71,23 +71,35 @@ IMap *State::GetMap() { return this->map.get(); }
 
 void State::MoveSoldier(PlayerId player_id, int64_t soldier_id,
                         physics::Vector position) {
-	// TODO: Define Function
+	auto soldier = GetSoldierById(soldier_id, player_id);
+	soldier->Move(position);
 }
 
 void State::AttackActor(PlayerId player_id, int64_t soldier_id,
                         int64_t actor_id) {
-	// TODO: Define Function
+	auto soldier = GetSoldierById(soldier_id, player_id);
+	Actor *target;
+
+	// Determine if soldier or tower
+	// It's a soldier if actor_id is within number of soldiers-1
+	if (actor_id < (int)PlayerId::PLAYER_COUNT * soldiers[0].size()) {
+		target = GetSoldierById(actor_id, player_id);
+	} else {
+		target = tower_managers[(int)player_id]->GetTowerById(actor_id);
+	}
+
+	soldier->Attack(target);
 }
 
 void State::BuildTower(PlayerId player_id, physics::Vector position) {
-	// TODO: Define Function
+	tower_managers[(int)player_id]->BuildTower(position);
 }
 
 void State::UpgradeTower(PlayerId player_id, int64_t tower_id) {
-	// TODO: Define Function
+	tower_managers[(int)player_id]->UpgradeTower(tower_id);
 }
 
 void State::SuicideTower(PlayerId player_id, int64_t tower_id) {
-	// TODO: Define Function
+	tower_managers[(int)player_id]->SuicideTower(tower_id);
 }
 }
