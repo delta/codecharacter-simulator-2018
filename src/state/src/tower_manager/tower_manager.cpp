@@ -17,7 +17,9 @@ TowerManager::TowerManager() {
 
 TowerManager::TowerManager(std::vector<Tower *> p_towers, PlayerId player_id,
                            MoneyManager *money_manager, IMap *map)
-    : player_id(player_id), money_manager(money_manager), map(map) {
+    : player_id(player_id), money_manager(money_manager), map(map),
+      territory_refs(std::vector<std::vector<int64_t>>(
+          map->GetSize(), std::vector<int64_t>(map->GetSize(), 0))) {
 
 	for (int i = 0; i < p_towers.size(); ++i) {
 		towers.emplace_back(std::move(p_towers[i]));
@@ -85,12 +87,7 @@ void TowerManager::BuildTower(physics::Vector offset, bool is_base) {
 	money_manager->Decrease(this->player_id, tower_cost);
 
 	// Get the next ActorId
-	int64_t new_actor_id;
-	if (this->towers.size() == 0) {
-		new_actor_id = 0;
-	} else {
-		new_actor_id = this->towers[this->towers.size() - 1]->GetActorId() + 1;
-	}
+	int64_t new_actor_id = Actor::GetNextActorId();
 
 	// Add the new tower
 	this->towers.push_back(std::make_unique<Tower>(
@@ -110,6 +107,7 @@ void TowerManager::BuildTower(physics::Vector offset, bool is_base) {
 
 	for (int i = lower_x; i <= upper_x; ++i) {
 		for (int j = lower_y; j <= upper_y; ++j) {
+			territory_refs[i][j]++;
 			map->GetElementByOffset(physics::Vector(i, j))
 			    .SetOwnership(player_id, true);
 		}
@@ -175,6 +173,7 @@ void TowerManager::UpgradeTower(state::ActorId tower_id) {
 	// Set new territory
 	for (int i = lower_x; i <= upper_x; ++i) {
 		for (int j = lower_y; j <= upper_y; ++j) {
+			territory_refs[i][j]++;
 			map->GetElementByOffset(physics::Vector(i, j))
 			    .SetOwnership(player_id, true);
 		}
@@ -208,6 +207,9 @@ void TowerManager::SuicideTower(ActorId tower_id) {
 }
 
 void TowerManager::Update() {
+	int64_t map_size = map->GetSize();
+	int64_t element_size = map->GetElementSize();
+
 	std::vector<int64_t> tower_indices_to_delete;
 
 	// Find Dead Towers
@@ -217,11 +219,39 @@ void TowerManager::Update() {
 		}
 	}
 
-	// Delete Dead Towers
-	for (int i = 0; i < tower_indices_to_delete.size(); ++i) {
-		towers.erase(std::remove(towers.begin(), towers.end(),
-		                         towers[tower_indices_to_delete[i]]),
-		             towers.end());
+	// Delete Dead Towers, and deallocate their territory
+	for (int k = tower_indices_to_delete.size() - 1; k >= 0; --k) {
+		int tower_i = tower_indices_to_delete[k];
+
+		// Find territory
+		physics::Vector tower_position = towers[tower_i]->GetPosition();
+		physics::Vector tower_offset =
+		    physics::Vector(floor(tower_position.x / element_size),
+		                    floor(tower_position.y / element_size));
+
+		int64_t range =
+		    TowerManager::tower_ranges[towers[tower_i]->GetTowerLevel() - 1];
+
+		int64_t lower_x = std::max((int)(tower_offset.x - range), (int)0);
+		int64_t upper_x =
+		    std::min((int)(tower_offset.x + range), (int)map_size - 1);
+		int64_t lower_y = std::max((int)(tower_offset.y - range), (int)0);
+		int64_t upper_y =
+		    std::min((int)(tower_offset.y + range), (int)map_size - 1);
+
+		// If territory references hits zero, deallocate the territory
+		for (int i = lower_x; i <= upper_x; ++i) {
+			for (int j = lower_y; j <= upper_y; ++j) {
+				territory_refs[i][j]--;
+				if (territory_refs[i][j] == 0) {
+					map->GetElementByOffset(physics::Vector(i, j))
+					    .SetOwnership(player_id, false);
+				}
+			}
+		}
+
+		// Delete the tower from the list
+		towers.erase(towers.begin() + tower_i);
 	}
 }
 
