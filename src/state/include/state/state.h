@@ -26,6 +26,8 @@ class STATE_EXPORT State : public IState {
   protected:
 	/**
 	 * List of all soldiers in the game, indexed by PlayerId
+	 * Soldiers will always be the first set of actors, with actor_id in order
+	 * starting from 0
 	 */
 	std::vector<std::vector<std::unique_ptr<Soldier>>> soldiers;
 
