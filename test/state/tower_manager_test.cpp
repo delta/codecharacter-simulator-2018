@@ -1,6 +1,4 @@
-#include "gmock/gmock.h"
 #include "state/map/map.h"
-#include "state/mocks/map_mock.h"
 #include "state/tower_manager/tower_manager.h"
 #include "state/utilities.h"
 #include "gtest/gtest.h"
@@ -9,7 +7,6 @@
 using namespace std;
 using namespace state;
 using namespace physics;
-using ::testing::AtLeast;
 
 class TowerManagerTest : public testing::Test {
   protected:
@@ -208,11 +205,77 @@ TEST_F(TowerManagerTest, SuicideTower) {
 	Actor::SetActorIdIncrement(0);
 	// Build a Valid Tower
 	map->GetElementByOffset(Vector(1, 1)).SetOwnership(PlayerId::PLAYER1, true);
-	tower_manager->BuildTower(Vector(1, 1));
+	tower_manager->BuildTower(Vector(1, 1)); // actor_id -> 0
 
 	// Kill Tower
 	tower_manager->SuicideTower(0);
 	ASSERT_EQ(tower_manager->GetTowerById(0)->GetHp(), 0);
 	tower_manager->Update();
+
+	// Ensure the tower was removed
 	ASSERT_THROW(tower_manager->GetTowerById(0), std::out_of_range);
+}
+
+TEST_F(TowerManagerTest, TerritoryTest) {
+	map->GetElementByOffset(Vector(1, 1)).SetOwnership(PlayerId::PLAYER1, true);
+	tower_manager->BuildTower(Vector(1, 1)); // actor_id -> 1
+	tower_manager->BuildTower(Vector(1, 0)); // actor_id -> 2
+	tower_manager->BuildTower(Vector(0, 1)); // actor_id -> 3
+	tower_manager->BuildTower(Vector(0, 0)); // actor_id -> 4
+	tower_manager->Update();
+
+	ASSERT_EQ(tower_manager->GetTowers().size(), 4);
+
+	// Arbitrary value that's big enough to leave a bit of neutral territory
+	// around the tower territories so that it can be checked
+	int range_check_limit = 2 * (2 * TowerManager::tower_ranges[0] + 1);
+
+	// Expect first tower_ranges[0] units + 1 + 1 (as position is (1, 1))
+	// to be owned by player 1
+	for (int i = 0; i < range_check_limit; i++) {
+		for (int j = 0; j < range_check_limit; j++) {
+			if (i < TowerManager::tower_ranges[0] + 2 &&
+			    j < TowerManager::tower_ranges[0] + 2)
+				EXPECT_TRUE(
+				    map->GetElementByOffset(Vector(i, j)).GetOwnership()[0]);
+			else
+				EXPECT_FALSE(
+				    map->GetElementByOffset(Vector(i, j)).GetOwnership()[0]);
+		}
+	}
+
+	// Kill 3 towers, leave only the (0, 0) standing
+	tower_manager->SuicideTower(1);
+	tower_manager->SuicideTower(2);
+	tower_manager->SuicideTower(3);
+	tower_manager->Update();
+	ASSERT_EQ(tower_manager->GetTowers().size(), 1);
+	ASSERT_EQ(tower_manager->GetTowers()[0]->GetActorId(), 4);
+
+	// Expect only the first tower_ranges[0] + 1 to be owned, since the towers
+	// on (0,1), (1,0), and (1,1) are dead.
+	for (int i = 0; i < range_check_limit; i++) {
+		for (int j = 0; j < range_check_limit; j++) {
+			if (i < TowerManager::tower_ranges[0] + 1 &&
+			    j < TowerManager::tower_ranges[0] + 1)
+				EXPECT_TRUE(
+				    map->GetElementByOffset(Vector(i, j)).GetOwnership()[0]);
+			else
+				EXPECT_FALSE(
+				    map->GetElementByOffset(Vector(i, j)).GetOwnership()[0]);
+		}
+	}
+
+	// Kill last tower
+	tower_manager->SuicideTower(4);
+	tower_manager->Update();
+	ASSERT_EQ(tower_manager->GetTowers().size(), 0);
+
+	// Expect no territory owned
+	for (int i = 0; i < range_check_limit; i++) {
+		for (int j = 0; j < range_check_limit; j++) {
+			EXPECT_FALSE(
+			    map->GetElementByOffset(Vector(i, j)).GetOwnership()[0]);
+		}
+	}
 }
