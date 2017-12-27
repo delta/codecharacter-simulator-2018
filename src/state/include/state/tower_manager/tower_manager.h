@@ -44,6 +44,15 @@ class STATE_EXPORT TowerManager : public IUpdatable {
 	 */
 	IMap *map;
 
+	/**
+	 * 2D grid of reference counts of the number of towers of this player that
+	 * directly control particular territory. 0 by default for neutral.
+	 * For ex. if three towers' ranges overlap on (3, 4), then
+	 * territory_refs[3][4] would be 3.
+	 * Useful when deallocating territory that is owned by multiple towers
+	 */
+	std::vector<std::vector<int64_t>> territory_refs;
+
   public:
 	/**
 	 * Constructor for TowerManager class
