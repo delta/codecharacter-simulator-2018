@@ -53,6 +53,16 @@ class STATE_EXPORT TowerManager : public IUpdatable {
 	 */
 	std::vector<std::vector<int64_t>> territory_refs;
 
+	/**
+	 * Utility function that when given a tower, returns its range on the map
+	 * as a vector containing the lower bound and the upper bound
+	 *
+	 * @param[in]   Pointer to Tower
+	 *
+	 * @return   vector of physics::Vectors - [lower_bound, upper_bound]
+	 */
+	std::vector<physics::Vector> CalculateBounds(Tower *tower);
+
   public:
 	/**
 	 * Constructor for TowerManager class
