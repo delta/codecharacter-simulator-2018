@@ -11,7 +11,7 @@ using namespace physics;
 class TowerManagerTest : public testing::Test {
   protected:
 	unique_ptr<TowerManager> tower_manager;
-	std::vector<Tower *> towers;
+	std::vector<std::unique_ptr<Tower>> towers;
 	PlayerId player_id;
 
 	unique_ptr<MoneyManager> money_manager;
@@ -59,7 +59,7 @@ class TowerManagerTest : public testing::Test {
 
 		// Init Tower Manager
 		this->tower_manager = make_unique<TowerManager>(
-		    towers, player_id, money_manager.get(), map.get());
+		    std::move(towers), player_id, money_manager.get(), map.get());
 	}
 };
 

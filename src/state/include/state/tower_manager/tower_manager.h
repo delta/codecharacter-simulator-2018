@@ -59,7 +59,7 @@ class STATE_EXPORT TowerManager : public IUpdatable {
 	 */
 	TowerManager();
 
-	TowerManager(std::vector<Tower *> towers, PlayerId player_id,
+	TowerManager(std::vector<std::unique_ptr<Tower>> towers, PlayerId player_id,
 	             MoneyManager *money_manager, IMap *map);
 
 	/**
