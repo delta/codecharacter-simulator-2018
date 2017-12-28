@@ -23,23 +23,12 @@ TowerManager::TowerManager(std::vector<std::unique_ptr<Tower>> towers,
       territory_refs(std::vector<std::vector<int64_t>>(
           map->GetSize(), std::vector<int64_t>(map->GetSize(), 0))) {
 
-	int map_size = map->GetSize();
-	int element_size = map->GetElementSize();
-
 	// Set default territory based on initial towers
 	for (auto &tower : towers) {
-		physics::Vector tower_position = tower->GetPosition();
-		physics::Vector tower_offset = (tower_position / element_size).floor();
+		auto bounds = CalculateBounds(tower.get());
 
-		int64_t range = TowerManager::tower_ranges[tower->GetTowerLevel() - 1];
-
-		int64_t lower_x = std::max((int)(tower_offset.x - range), 0);
-		int64_t upper_x = std::min((int)(tower_offset.x + range), map_size - 1);
-		int64_t lower_y = std::max((int)(tower_offset.y - range), 0);
-		int64_t upper_y = std::min((int)(tower_offset.y + range), map_size - 1);
-
-		for (int i = lower_x; i <= upper_x; ++i) {
-			for (int j = lower_y; j <= upper_y; ++j) {
+		for (int i = bounds[0].x; i <= bounds[1].x; ++i) {
+			for (int j = bounds[0].y; j <= bounds[1].y; ++j) {
 				territory_refs[i][j]++;
 				map->GetElementByOffset(physics::Vector(i, j))
 				    .SetOwnership(player_id, true);
@@ -48,8 +37,27 @@ TowerManager::TowerManager(std::vector<std::unique_ptr<Tower>> towers,
 	}
 }
 
-void TowerManager::BuildTower(physics::Vector offset, bool is_base) {
+std::vector<physics::Vector> TowerManager::CalculateBounds(Tower *tower) {
 	int map_size = map->GetSize();
+	int element_size = map->GetElementSize();
+
+	physics::Vector tower_position = tower->GetPosition();
+	physics::Vector tower_offset = (tower_position / element_size).floor();
+
+	int64_t range = TowerManager::tower_ranges[tower->GetTowerLevel() - 1];
+
+	int64_t lower_x = std::max((int)(tower_offset.x - range), 0);
+	int64_t upper_x = std::min((int)(tower_offset.x + range), map_size - 1);
+	int64_t lower_y = std::max((int)(tower_offset.y - range), 0);
+	int64_t upper_y = std::min((int)(tower_offset.y + range), map_size - 1);
+
+	std::vector<physics::Vector> result = {physics::Vector(lower_x, lower_y),
+	                                       physics::Vector(upper_x, upper_y)};
+
+	return result;
+}
+
+void TowerManager::BuildTower(physics::Vector offset, bool is_base) {
 	int element_size = map->GetElementSize();
 
 	// Territory Checks
@@ -109,24 +117,24 @@ void TowerManager::BuildTower(physics::Vector offset, bool is_base) {
 	// Get the next ActorId
 	auto new_actor_id = Actor::GetNextActorId();
 
-	// Add the new tower
-	this->towers.push_back(std::make_unique<Tower>(
+	// Make the new tower
+	auto new_tower = std::make_unique<Tower>(
 	    new_actor_id, this->player_id, ActorType::TOWER,
 	    Tower::max_hp_levels[0], Tower::max_hp_levels[0],
 	    physics::Vector(element_size * offset.x + (element_size / 2),
 	                    element_size * offset.y + (element_size / 2)),
-	    is_base, 1));
+	    is_base, 1);
 
-	// Mark the new territory controlled by the tower
-	int64_t range = TowerManager::tower_ranges[0];
+	auto tower_ptr = new_tower.get();
 
-	int64_t lower_x = std::max((int)(offset.x - range), 0);
-	int64_t upper_x = std::min((int)(offset.x + range), map_size - 1);
-	int64_t lower_y = std::max((int)(offset.y - range), 0);
-	int64_t upper_y = std::min((int)(offset.y + range), map_size - 1);
+	// Add the new tower
+	this->towers.push_back(std::move(new_tower));
 
-	for (int i = lower_x; i <= upper_x; ++i) {
-		for (int j = lower_y; j <= upper_y; ++j) {
+	// Mark the new territory
+	auto bounds = CalculateBounds(tower_ptr);
+
+	for (int i = bounds[0].x; i <= bounds[1].x; ++i) {
+		for (int j = bounds[0].y; j <= bounds[1].y; ++j) {
 			territory_refs[i][j]++;
 			map->GetElementByOffset(physics::Vector(i, j))
 			    .SetOwnership(player_id, true);
@@ -134,7 +142,7 @@ void TowerManager::BuildTower(physics::Vector offset, bool is_base) {
 	}
 }
 
-void TowerManager::UpgradeTower(state::ActorId tower_id) {
+void TowerManager::UpgradeTower(ActorId tower_id) {
 
 	int64_t current_tower_index;
 	bool tower_exists = false;
@@ -154,9 +162,6 @@ void TowerManager::UpgradeTower(state::ActorId tower_id) {
 	int64_t current_tower_level =
 	    static_cast<int64_t>(towers[current_tower_index]->GetTowerLevel());
 
-	int map_size = map->GetSize();
-	int element_size = map->GetElementSize();
-
 	// Check if the tower is upgradable
 	if (current_tower_level == TowerManager::build_costs.size()) {
 		throw std::out_of_range("Max level reached, upgrade not allowed");
@@ -175,27 +180,26 @@ void TowerManager::UpgradeTower(state::ActorId tower_id) {
 	// Deduct Amount
 	money_manager->Decrease(player_id, tower_upgrade_cost);
 
-	// Calculate new territory bounds
-	physics::Vector tower_position = towers[current_tower_index]->GetPosition();
-	physics::Vector tower_offset = (tower_position / element_size).floor();
+	// Save old territory bounds
+	auto old_bounds = CalculateBounds(towers[current_tower_index].get());
 
-	int64_t range = TowerManager::tower_ranges[current_tower_level];
-
-	int64_t lower_x = std::max((int)(tower_offset.x - range), 0);
-	int64_t upper_x = std::min((int)(tower_offset.x + range), map_size - 1);
-	int64_t lower_y = std::max((int)(tower_offset.y - range), 0);
-	int64_t upper_y = std::min((int)(tower_offset.y + range), map_size - 1);
+	// Upgrade the tower
+	towers[current_tower_index]->Upgrade();
 
 	// Set new territory
-	for (int i = lower_x; i <= upper_x; ++i) {
-		for (int j = lower_y; j <= upper_y; ++j) {
+	auto new_bounds = CalculateBounds(towers[current_tower_index].get());
+
+	for (int i = new_bounds[0].x; i <= new_bounds[1].x; ++i) {
+		for (int j = new_bounds[0].y; j <= new_bounds[1].y; ++j) {
+			// Avoid setting territory that was already set pre-upgrade
+			if (i >= old_bounds[0].x && i <= old_bounds[1].x &&
+			    j >= old_bounds[0].y && j <= old_bounds[1].y)
+				continue;
 			territory_refs[i][j]++;
 			map->GetElementByOffset(physics::Vector(i, j))
 			    .SetOwnership(player_id, true);
 		}
 	}
-
-	towers[current_tower_index]->Upgrade();
 }
 
 void TowerManager::SuicideTower(ActorId tower_id) {
@@ -222,9 +226,6 @@ void TowerManager::SuicideTower(ActorId tower_id) {
 }
 
 void TowerManager::Update() {
-	int map_size = map->GetSize();
-	int element_size = map->GetElementSize();
-
 	std::vector<int64_t> tower_indices_to_delete;
 
 	// Find Dead Towers
@@ -238,21 +239,11 @@ void TowerManager::Update() {
 	for (int k = tower_indices_to_delete.size() - 1; k >= 0; --k) {
 		int tower_i = tower_indices_to_delete[k];
 
-		// Find territory
-		physics::Vector tower_position = towers[tower_i]->GetPosition();
-		physics::Vector tower_offset = (tower_position / element_size).floor();
-
-		int64_t range =
-		    TowerManager::tower_ranges[towers[tower_i]->GetTowerLevel() - 1];
-
-		int64_t lower_x = std::max((int)(tower_offset.x - range), 0);
-		int64_t upper_x = std::min((int)(tower_offset.x + range), map_size - 1);
-		int64_t lower_y = std::max((int)(tower_offset.y - range), 0);
-		int64_t upper_y = std::min((int)(tower_offset.y + range), map_size - 1);
+		auto bounds = CalculateBounds(towers[tower_i].get());
 
 		// If territory references hits zero, deallocate the territory
-		for (int i = lower_x; i <= upper_x; ++i) {
-			for (int j = lower_y; j <= upper_y; ++j) {
+		for (int i = bounds[0].x; i <= bounds[1].x; ++i) {
+			for (int j = bounds[0].y; j <= bounds[1].y; ++j) {
 				territory_refs[i][j]--;
 				if (territory_refs[i][j] == 0) {
 					map->GetElementByOffset(physics::Vector(i, j))
