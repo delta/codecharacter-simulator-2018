@@ -11,6 +11,7 @@
 #include "state/state_export.h"
 #include "state/utilities.h"
 #include <cstdint>
+#include <vector>
 
 namespace state {
 
@@ -45,6 +46,12 @@ class STATE_EXPORT Tower : public Actor {
 	      TowerLevel tower_level);
 
 	/**
+	 * Tower Max HP levels corresponding to each upgrade level
+	 * First element corresponds to base max hp
+	 */
+	static std::vector<int64_t> max_hp_levels;
+
+	/**
 	 * Get if the tower is a base tower
 	 *
 	 * @return     Is tower base
@@ -59,11 +66,9 @@ class STATE_EXPORT Tower : public Actor {
 	TowerLevel GetTowerLevel();
 
 	/**
-	 * Upgrades the tower, increments tower level
-	 *
-	 * @param[in]  new_hp  New max_hp and hp to set
+	 * Upgrades the tower, increments tower level, sets new HP
 	 */
-	void Upgrade(int64_t new_hp);
+	void Upgrade();
 
 	/**
 	 * Update function of the tower

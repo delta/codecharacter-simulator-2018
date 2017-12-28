@@ -69,12 +69,6 @@ class STATE_EXPORT TowerManager : public IUpdatable {
 	static std::vector<int64_t> build_costs;
 
 	/**
-	 * Tower Max HP levels corresponding to each upgrade level
-	 * First element corresponds to base map hp
-	 */
-	static std::vector<int64_t> max_hp_levels;
-
-	/**
 	 * Number of units of range each upgrade level corresponds to
 	 * First element has the default tower range
 	 */

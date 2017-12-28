@@ -22,11 +22,11 @@ bool Tower::GetIsBase() { return is_base; }
 
 TowerLevel Tower::GetTowerLevel() { return tower_level; }
 
-void Tower::Upgrade(int64_t new_hp) {
+void Tower::Upgrade() {
 	this->tower_level++;
 
-	this->max_hp = new_hp;
-	this->hp = new_hp;
+	this->max_hp = Tower::max_hp_levels[tower_level - 1];
+	this->hp = this->max_hp;
 }
 
 void Tower::Update() {}

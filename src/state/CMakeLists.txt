@@ -7,6 +7,7 @@ set(SOURCE_FILES
 	src/actor/soldier.cpp
 	src/actor/soldier_static_init.cpp
 	src/actor/tower.cpp
+	src/actor/tower_static_init.cpp
 	src/map/map.cpp
 	src/map/map_element.cpp
 	src/money_manager/money_manager.cpp
