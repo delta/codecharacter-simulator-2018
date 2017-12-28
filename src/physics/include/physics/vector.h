@@ -111,8 +111,8 @@ class PHYSICS_EXPORT Vector {
 	 *
 	 * @return     The magnitude of the vector
 	 */
-
 	double magnitude() const;
+
 	/**
 	 * Distance between this and another vector
 	 *
@@ -121,6 +121,20 @@ class PHYSICS_EXPORT Vector {
 	 * @return     The distance between the two vectors
 	 */
 	double distance(const Vector &other) const;
+
+	/**
+	 * Calculates floor of the members of the vector
+	 *
+	 * @return     The result Vector with floored values
+	 */
+	Vector floor() const;
+
+	/**
+	 * Calculates ceiling of the members of the vector
+	 *
+	 * @return     The result Vector with ceiled values
+	 */
+	Vector ceil() const;
 
 	double x;
 	double y;
