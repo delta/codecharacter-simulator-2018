@@ -56,4 +56,8 @@ double Vector::magnitude() const { return sqrt(x * x + y * y); }
 double Vector::distance(const Vector &other) const {
 	return sqrt(pow(x - other.x, 2) + pow(y - other.y, 2));
 }
+
+Vector Vector::floor() const { return Vector(std::floor(x), std::floor(y)); }
+
+Vector Vector::ceil() const { return Vector(std::ceil(x), std::ceil(y)); }
 }
