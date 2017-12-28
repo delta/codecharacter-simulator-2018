@@ -15,14 +15,36 @@ TowerManager::TowerManager() {
 	// Init None
 }
 
-TowerManager::TowerManager(std::vector<Tower *> p_towers, PlayerId player_id,
-                           MoneyManager *money_manager, IMap *map)
-    : player_id(player_id), money_manager(money_manager), map(map),
+TowerManager::TowerManager(std::vector<std::unique_ptr<Tower>> towers,
+                           PlayerId player_id, MoneyManager *money_manager,
+                           IMap *map)
+    : towers(std::move(towers)), player_id(player_id),
+      money_manager(money_manager), map(map),
       territory_refs(std::vector<std::vector<int64_t>>(
           map->GetSize(), std::vector<int64_t>(map->GetSize(), 0))) {
 
-	for (int i = 0; i < p_towers.size(); ++i) {
-		towers.emplace_back(std::move(p_towers[i]));
+	int map_size = map->GetSize();
+	int element_size = map->GetElementSize();
+
+	// Set default territory based on initial towers
+	for (auto &tower : towers) {
+		physics::Vector tower_position = tower->GetPosition();
+		physics::Vector tower_offset = (tower_position / element_size).floor();
+
+		int64_t range = TowerManager::tower_ranges[tower->GetTowerLevel() - 1];
+
+		int64_t lower_x = std::max((int)(tower_offset.x - range), 0);
+		int64_t upper_x = std::min((int)(tower_offset.x + range), map_size - 1);
+		int64_t lower_y = std::max((int)(tower_offset.y - range), 0);
+		int64_t upper_y = std::min((int)(tower_offset.y + range), map_size - 1);
+
+		for (int i = lower_x; i <= upper_x; ++i) {
+			for (int j = lower_y; j <= upper_y; ++j) {
+				territory_refs[i][j]++;
+				map->GetElementByOffset(physics::Vector(i, j))
+				    .SetOwnership(player_id, true);
+			}
+		}
 	}
 }
 
