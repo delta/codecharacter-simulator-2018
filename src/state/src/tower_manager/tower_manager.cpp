@@ -92,7 +92,7 @@ void TowerManager::BuildTower(physics::Vector offset, bool is_base) {
 	// Add the new tower
 	this->towers.push_back(std::make_unique<Tower>(
 	    new_actor_id, this->player_id, ActorType::TOWER,
-	    TowerManager::max_hp_levels[0], TowerManager::max_hp_levels[0],
+	    Tower::max_hp_levels[0], Tower::max_hp_levels[0],
 	    physics::Vector(element_size * offset.x + (element_size / 2),
 	                    element_size * offset.y + (element_size / 2)),
 	    is_base, 1));
@@ -179,8 +179,7 @@ void TowerManager::UpgradeTower(state::ActorId tower_id) {
 		}
 	}
 
-	towers[current_tower_index]->Upgrade(
-	    TowerManager::max_hp_levels[current_tower_index]);
+	towers[current_tower_index]->Upgrade();
 }
 
 void TowerManager::SuicideTower(ActorId tower_id) {

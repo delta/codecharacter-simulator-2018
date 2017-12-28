@@ -84,8 +84,8 @@ TEST_F(TowerManagerTest, ValidBuildTowerTest) {
 	          5000 - TowerManager::build_costs[0]);
 
 	// Check if tower properties are set
-	ASSERT_EQ(current_towers[0]->GetHp(), TowerManager::max_hp_levels[0]);
-	ASSERT_EQ(current_towers[0]->GetMaxHp(), TowerManager::max_hp_levels[0]);
+	ASSERT_EQ(current_towers[0]->GetHp(), Tower::max_hp_levels[0]);
+	ASSERT_EQ(current_towers[0]->GetMaxHp(), Tower::max_hp_levels[0]);
 	ASSERT_EQ(current_towers[0]->GetTowerLevel(), 1);
 
 	// Check if territory around tower is set

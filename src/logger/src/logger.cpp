@@ -4,6 +4,7 @@
  */
 
 #include "logger/logger.h"
+#include "state/actor/tower.h"
 #include "state/tower_manager/tower_manager.h"
 
 using namespace state;
@@ -50,7 +51,7 @@ void Logger::LogState(IState *state) {
 		}
 
 		// Set the tower Max HPs
-		for (auto tower_max_hp : TowerManager::max_hp_levels) {
+		for (auto tower_max_hp : Tower::max_hp_levels) {
 			logs->add_tower_max_hps(tower_max_hp);
 		}
 
