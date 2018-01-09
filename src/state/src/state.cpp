@@ -102,4 +102,6 @@ void State::UpgradeTower(PlayerId player_id, int64_t tower_id) {
 void State::SuicideTower(PlayerId player_id, int64_t tower_id) {
 	tower_managers[(int)player_id]->SuicideTower(tower_id);
 }
+
+void State::Update() {}
 }
