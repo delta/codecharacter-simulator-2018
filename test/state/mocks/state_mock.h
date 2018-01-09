@@ -23,6 +23,7 @@ class StateMock : public IState {
 	MOCK_METHOD2(BuildTower, void(PlayerId, Vector));
 	MOCK_METHOD2(UpgradeTower, void(PlayerId, int64_t));
 	MOCK_METHOD2(SuicideTower, void(PlayerId, int64_t));
+	MOCK_METHOD0(Update, void());
 };
 
 #endif

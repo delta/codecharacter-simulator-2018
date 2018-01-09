@@ -7,6 +7,7 @@
 
 #include "state/actor/soldier.h"
 #include "state/actor/tower.h"
+#include "state/interfaces/i_updatable.h"
 #include "state/map/interfaces/i_map.h"
 #include "state/map/map_element.h"
 #include "state/state_export.h"
@@ -18,7 +19,7 @@ namespace state {
  * Declarations for the IState interface, which declares methods to get
  * state values and modify the state
  */
-class STATE_EXPORT IState {
+class STATE_EXPORT IState : public IUpdatable {
   public:
 	/**
 	 * Get all soldiers, indexed by PlayerId

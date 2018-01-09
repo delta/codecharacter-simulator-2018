@@ -127,6 +127,11 @@ class STATE_EXPORT State : public IState {
 	 * @see IState#SuicideTower
 	 */
 	void SuicideTower(PlayerId player_id, int64_t tower_id) override;
+
+	/**
+	 * State update function. Calls update functions of members
+	 */
+	void Update() override;
 };
 }
 
