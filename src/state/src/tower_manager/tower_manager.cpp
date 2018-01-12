@@ -225,7 +225,7 @@ void TowerManager::SuicideTower(ActorId tower_id) {
 	towers[current_tower_index]->SetHp(0);
 
 	// Add reward amount
-	money_manager->RewardSuicide(player_id);
+	money_manager->RewardSuicide(towers[current_tower_index].get());
 }
 
 void TowerManager::Update() {

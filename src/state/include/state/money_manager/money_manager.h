@@ -7,6 +7,7 @@
 #define STATE_MONEY_MANAGER_MONEY_MANAGER_H
 
 #include "state/actor/actor.h"
+#include "state/actor/tower.h"
 #include "state/state_export.h"
 #include "state/utilities.h"
 #include <cstdint>
@@ -28,28 +29,31 @@ class STATE_EXPORT MoneyManager {
 	 */
 	int64_t max_money;
 
+	/**
+	 * Reward amount for a successful tower kill
+	 */
+	std::vector<int64_t> tower_kill_reward_amount;
+
+	/**
+	 * Reward amount for a successful soldier kill
+	 */
+	int64_t soldier_kill_reward_amount;
+
+	/**
+	 * Reward amount for demolishing one's own tower
+	 */
+	std::vector<int64_t> tower_suicide_reward_amount;
+
   public:
 	/**
 	 * Constructor for MoneyManager class
 	 */
 	MoneyManager();
 
-	MoneyManager(std::vector<int64_t> player_money, int64_t max_money);
-
-	/**
-	 * Reward amount for a successful tower kill
-	 */
-	static int64_t tower_kill_reward_amount;
-
-	/**
-	 * Reward amount for a successful soldier kill
-	 */
-	static int64_t soldier_kill_reward_amount;
-
-	/**
-	 * Reward amount for demolishing one's own tower
-	 */
-	static int64_t tower_suicide_reward_amount;
+	MoneyManager(std::vector<int64_t> player_money, int64_t max_money,
+	             std::vector<int64_t> tower_kill_reward_amount,
+	             int64_t soldier_kill_reward_amount,
+	             std::vector<int64_t> tower_suicide_reward_amount);
 
 	/**
 	 * Method to increase player money
@@ -75,18 +79,18 @@ class STATE_EXPORT MoneyManager {
 	void Decrease(PlayerId player_id, int64_t amount);
 
 	/**
-	 * Reward the specified player for killing an enemy actor
+	 * Reward the player for killing an enemy actor
 	 *
 	 * @param[in]  enemy_actor  Pointer to the killed enemy
 	 */
 	void RewardKill(Actor *enemy_actor);
 
 	/**
-	 * Reward the specified player for a tower suicide
+	 * Reward the player for a tower suicide
 	 *
 	 * @param[in]  player_id    Player identifier
 	 */
-	void RewardSuicide(PlayerId player_id);
+	void RewardSuicide(Tower *tower);
 
 	/**
 	 * Get the current balance amount of the PlayerId passed

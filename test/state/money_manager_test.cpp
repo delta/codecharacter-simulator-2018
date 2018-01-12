@@ -10,7 +10,9 @@ class MoneyManagerTest : public testing::Test {
 	MoneyManager money_manager;
 
 	vector<int64_t> player_money;
-
+	int64_t soldier_kill_reward_amount;
+	vector<int64_t> tower_kill_reward_amount;
+	vector<int64_t> tower_suicide_reward_amount;
 	int64_t max_money;
 
 	MoneyManagerTest() {
@@ -21,7 +23,13 @@ class MoneyManagerTest : public testing::Test {
 			player_money.push_back(5000); // Start balance
 		}
 
-		this->money_manager = MoneyManager(player_money, max_money);
+		soldier_kill_reward_amount = 100;
+		tower_kill_reward_amount = {100, 300, 1000};
+		tower_suicide_reward_amount = {200, 250, 300};
+
+		this->money_manager = MoneyManager(
+		    player_money, max_money, tower_kill_reward_amount,
+		    soldier_kill_reward_amount, tower_suicide_reward_amount);
 	}
 };
 

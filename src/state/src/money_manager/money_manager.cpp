@@ -13,8 +13,14 @@ MoneyManager::MoneyManager() {
 	// Init None
 }
 
-MoneyManager::MoneyManager(std::vector<int64_t> player_money, int64_t max_money)
-    : player_money(player_money), max_money(max_money) {}
+MoneyManager::MoneyManager(std::vector<int64_t> player_money, int64_t max_money,
+                           std::vector<int64_t> tower_kill_reward_amount,
+                           int64_t soldier_kill_reward_amount,
+                           std::vector<int64_t> tower_suicide_reward_amount)
+    : player_money(player_money), max_money(max_money),
+      tower_kill_reward_amount(tower_kill_reward_amount),
+      soldier_kill_reward_amount(soldier_kill_reward_amount),
+      tower_suicide_reward_amount(tower_suicide_reward_amount) {}
 
 void MoneyManager::Increase(state::PlayerId player_id, int64_t amount) {
 
@@ -60,10 +66,11 @@ void MoneyManager::RewardKill(Actor *enemy_actor) {
 	int64_t reward_amount;
 
 	if (enemy_actor->GetActorType() == ActorType::SOLDIER) {
-		reward_amount = MoneyManager::soldier_kill_reward_amount;
+		reward_amount = soldier_kill_reward_amount;
 
 	} else if (enemy_actor->GetActorType() == ActorType::TOWER) {
-		reward_amount = MoneyManager::tower_kill_reward_amount;
+		auto tower_level = static_cast<Tower *>(enemy_actor)->GetTowerLevel();
+		reward_amount = tower_kill_reward_amount[tower_level - 1];
 	}
 
 	Increase(player_id, reward_amount);
@@ -73,8 +80,11 @@ int64_t MoneyManager::GetBalance(state::PlayerId player_id) {
 	return player_money[static_cast<int>(player_id)];
 }
 
-void MoneyManager::RewardSuicide(PlayerId player_id) {
-	Increase(player_id, MoneyManager::tower_suicide_reward_amount);
+void MoneyManager::RewardSuicide(Tower *tower) {
+	auto tower_level = tower->GetTowerLevel();
+	auto player_id = tower->GetPlayerId();
+
+	Increase(player_id, tower_suicide_reward_amount[tower_level - 1]);
 };
 
 int64_t MoneyManager::GetMaxMoney() { return max_money; }

@@ -25,6 +25,9 @@ class SoldierTest : public Test {
 
 	unique_ptr<MoneyManager> money_manager;
 	vector<int64_t> player_money;
+	int64_t soldier_kill_reward_amount;
+	vector<int64_t> tower_kill_reward_amount;
+	vector<int64_t> tower_suicide_reward_amount;
 	int64_t max_money;
 
 	unique_ptr<Soldier> soldier;
@@ -48,8 +51,12 @@ class SoldierTest : public Test {
 		for (int i = 0; i < (int)PlayerId::PLAYER_COUNT; ++i) {
 			player_money.push_back(5000); // Start balance
 		}
-		this->money_manager =
-		    make_unique<MoneyManager>(player_money, max_money);
+		soldier_kill_reward_amount = 100;
+		tower_kill_reward_amount = {100, 300, 1000};
+		tower_suicide_reward_amount = {200, 250, 300};
+		this->money_manager = make_unique<MoneyManager>(
+		    player_money, max_money, tower_kill_reward_amount,
+		    soldier_kill_reward_amount, tower_suicide_reward_amount);
 
 		this->soldier = make_unique<Soldier>(
 		    1, state::PlayerId::PLAYER1, state::ActorType::SOLDIER, 100, 100,
@@ -132,7 +139,8 @@ TEST_F(SoldierTest, Attack) {
 	// Check for return to Idle state
 	ASSERT_EQ(soldier->GetState(), SoldierStateName::IDLE);
 	ASSERT_EQ(money_manager->GetBalance(PlayerId::PLAYER1),
-	          player_money[0] + MoneyManager::tower_kill_reward_amount);
+	          player_money[0] +
+	              tower_kill_reward_amount[target_tower->GetTowerLevel() - 1]);
 	ASSERT_FALSE(soldier->IsAttackTargetSet());
 }
 
@@ -176,6 +184,8 @@ TEST_F(SoldierTest, MovingEnemyPursuit) {
 	ASSERT_EQ(target_soldier->GetState(), SoldierStateName::DEAD);
 	// Check for return to Idle state
 	ASSERT_EQ(soldier->GetState(), SoldierStateName::IDLE);
+	ASSERT_EQ(money_manager->GetBalance(PlayerId::PLAYER1),
+	          player_money[0] + soldier_kill_reward_amount);
 	ASSERT_FALSE(soldier->IsAttackTargetSet());
 }
 
