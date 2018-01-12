@@ -4,6 +4,7 @@
 #include "state/actor/soldier_states/soldier_state.h"
 #include "state/actor/tower.h"
 #include "state/map/map.h"
+#include "state/money_manager/money_manager.h"
 #include "state/path_planner/path_planner.h"
 #include "state/utilities.h"
 #include "gtest/gtest.h"
@@ -22,6 +23,10 @@ class SoldierTest : public Test {
 	int map_size;
 	int elt_size;
 
+	unique_ptr<MoneyManager> money_manager;
+	vector<int64_t> player_money;
+	int64_t max_money;
+
 	unique_ptr<Soldier> soldier;
 
 	SoldierTest() {
@@ -37,13 +42,19 @@ class SoldierTest : public Test {
 		}
 
 		this->map = make_unique<Map>(grid, elt_size);
-
-		// Init Graph
 		this->path_planner = make_unique<PathPlanner>(map.get());
+
+		this->max_money = 10000;
+		for (int i = 0; i < (int)PlayerId::PLAYER_COUNT; ++i) {
+			player_money.push_back(5000); // Start balance
+		}
+		this->money_manager =
+		    make_unique<MoneyManager>(player_money, max_money);
 
 		this->soldier = make_unique<Soldier>(
 		    1, state::PlayerId::PLAYER1, state::ActorType::SOLDIER, 100, 100,
-		    physics::Vector(10, 10), 5, 3, 40, path_planner.get());
+		    physics::Vector(10, 10), 5, 3, 40, path_planner.get(),
+		    money_manager.get());
 	}
 };
 
@@ -120,13 +131,16 @@ TEST_F(SoldierTest, Attack) {
 	}
 	// Check for return to Idle state
 	ASSERT_EQ(soldier->GetState(), SoldierStateName::IDLE);
+	ASSERT_EQ(money_manager->GetBalance(PlayerId::PLAYER1),
+	          player_money[0] + MoneyManager::tower_kill_reward_amount);
 	ASSERT_FALSE(soldier->IsAttackTargetSet());
 }
 
 TEST_F(SoldierTest, MovingEnemyPursuit) {
 	auto *target_soldier =
 	    new Soldier(1, state::PlayerId::PLAYER2, state::ActorType::SOLDIER, 100,
-	                100, physics::Vector(20, 20), 5, 5, 40, path_planner.get());
+	                100, physics::Vector(20, 20), 5, 5, 40, path_planner.get(),
+	                money_manager.get());
 	target_soldier->Move(Vector(30, 30));
 	soldier->Attack(target_soldier);
 
@@ -255,7 +269,8 @@ TEST_F(SoldierTest, AttackAndRunFairness1) {
 	// Set soldiers to same position
 	auto *soldier2 =
 	    new Soldier(1, state::PlayerId::PLAYER2, state::ActorType::SOLDIER, 100,
-	                100, physics::Vector(20, 20), 5, 3, 40, path_planner.get());
+	                100, physics::Vector(20, 20), 5, 3, 40, path_planner.get(),
+	                money_manager.get());
 	soldier->SetPosition(physics::Vector(20, 20));
 
 	// Set both to attack the other
@@ -285,7 +300,8 @@ TEST_F(SoldierTest, AttackAndRunFairness2) {
 	// Set soldiers to same position
 	auto *soldier2 =
 	    new Soldier(1, state::PlayerId::PLAYER2, state::ActorType::SOLDIER, 100,
-	                100, physics::Vector(20, 20), 5, 3, 40, path_planner.get());
+	                100, physics::Vector(20, 20), 5, 3, 40, path_planner.get(),
+	                money_manager.get());
 	soldier->SetPosition(physics::Vector(20, 20));
 
 	// Set both to attack the other

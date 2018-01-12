@@ -10,6 +10,7 @@
 #include "state/actor/actor.h"
 #include "state/actor/soldier_states/soldier_state.h"
 #include "state/interfaces/i_path_planner.h"
+#include "state/money_manager/money_manager.h"
 #include "state/state_export.h"
 #include <cstdint>
 
@@ -75,6 +76,11 @@ class STATE_EXPORT Soldier : public Actor {
 	 */
 	IPathPlanner *path_planner;
 
+	/**
+	 * Pointer to MoneyManager instance
+	 */
+	MoneyManager *money_manager;
+
   public:
 	/**
 	 * Soldier Constructor
@@ -84,7 +90,7 @@ class STATE_EXPORT Soldier : public Actor {
 	Soldier(ActorId id, PlayerId player_id, ActorType actor_type, int64_t hp,
 	        int64_t max_hp, physics::Vector position, int64_t speed,
 	        int64_t attack_range, int64_t attack_damage,
-	        IPathPlanner *path_planner);
+	        IPathPlanner *path_planner, MoneyManager *money_manager);
 
 	/**
 	 * Position where the actors will respawn
@@ -212,6 +218,13 @@ class STATE_EXPORT Soldier : public Actor {
 	 * @return     Pointer to PathPlanner instance
 	 */
 	IPathPlanner *GetPathPlanner();
+
+	/**
+	 * Get the pointer to the money manager
+	 *
+	 * @return     Pointer to MoneyManager instance
+	 */
+	MoneyManager *GetMoneyManager();
 
 	/**
 	 * Get the name of the current state

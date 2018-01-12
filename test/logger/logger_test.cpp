@@ -30,15 +30,14 @@ TEST_F(LoggerTest, WriteReadTest) {
 	// a scenario
 
 	// Initialize one soldier for each team
-	// NOTE: Init nullptr in place of pathplanner. Soldier move will segfault
 	auto *soldier =
 	    new Soldier(Actor::GetNextActorId(), state::PlayerId::PLAYER1,
 	                state::ActorType::SOLDIER, 100, 100,
-	                physics::Vector(20, 20), 5, 5, 40, nullptr);
+	                physics::Vector(20, 20), 5, 5, 40, nullptr, nullptr);
 	auto *soldier2 =
 	    new Soldier(Actor::GetNextActorId(), state::PlayerId::PLAYER2,
 	                state::ActorType::SOLDIER, 100, 100,
-	                physics::Vector(20, 20), 5, 5, 40, nullptr);
+	                physics::Vector(20, 20), 5, 5, 40, nullptr, nullptr);
 	vector<vector<Soldier *>> soldiers;
 	vector<Soldier *> player_soldiers;
 	vector<Soldier *> player_soldiers2;

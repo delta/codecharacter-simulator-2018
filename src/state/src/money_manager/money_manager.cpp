@@ -46,6 +46,29 @@ void MoneyManager::Decrease(state::PlayerId player_id, int64_t amount) {
 	player_money[current_player_id] -= amount;
 }
 
+void MoneyManager::RewardKill(Actor *enemy_actor) {
+	PlayerId player_id;
+	PlayerId enemy_player_id = enemy_actor->GetPlayerId();
+
+	if (enemy_player_id == PlayerId::PLAYER2) {
+		player_id = PlayerId::PLAYER1;
+	} else {
+		player_id = PlayerId::PLAYER2;
+	}
+
+	ActorType enemy_actor_type;
+	int64_t reward_amount;
+
+	if (enemy_actor->GetActorType() == ActorType::SOLDIER) {
+		reward_amount = MoneyManager::soldier_kill_reward_amount;
+
+	} else if (enemy_actor->GetActorType() == ActorType::TOWER) {
+		reward_amount = MoneyManager::tower_kill_reward_amount;
+	}
+
+	Increase(player_id, reward_amount);
+}
+
 int64_t MoneyManager::GetBalance(state::PlayerId player_id) {
 	return player_money[static_cast<int>(player_id)];
 }
