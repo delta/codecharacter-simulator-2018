@@ -73,5 +73,9 @@ int64_t MoneyManager::GetBalance(state::PlayerId player_id) {
 	return player_money[static_cast<int>(player_id)];
 }
 
+void MoneyManager::RewardSuicide(PlayerId player_id) {
+	Increase(player_id, MoneyManager::tower_suicide_reward_amount);
+};
+
 int64_t MoneyManager::GetMaxMoney() { return max_money; }
 }

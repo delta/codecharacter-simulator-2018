@@ -223,6 +223,9 @@ void TowerManager::SuicideTower(ActorId tower_id) {
 
 	// Destroy tower
 	towers[current_tower_index]->SetHp(0);
+
+	// Add reward amount
+	money_manager->RewardSuicide(player_id);
 }
 
 void TowerManager::Update() {

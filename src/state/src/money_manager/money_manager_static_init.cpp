@@ -9,4 +9,5 @@ namespace state {
 
 int64_t MoneyManager::soldier_kill_reward_amount = 100;
 int64_t MoneyManager::tower_kill_reward_amount = 500;
+int64_t MoneyManager::tower_suicide_reward_amount = 200;
 }

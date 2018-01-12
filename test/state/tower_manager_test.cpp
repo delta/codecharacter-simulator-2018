@@ -214,6 +214,11 @@ TEST_F(TowerManagerTest, SuicideTower) {
 
 	// Ensure the tower was removed
 	ASSERT_THROW(tower_manager->GetTowerById(0), std::out_of_range);
+
+	// Ensure that money was added
+	ASSERT_EQ(money_manager->GetBalance(PlayerId::PLAYER1),
+	          player_money[0] - TowerManager::build_costs[0] +
+	              MoneyManager::tower_suicide_reward_amount);
 }
 
 TEST_F(TowerManagerTest, TerritoryTest) {
