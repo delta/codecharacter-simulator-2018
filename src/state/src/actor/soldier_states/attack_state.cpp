@@ -47,6 +47,12 @@ std::unique_ptr<SoldierState> AttackState::Update() {
 	soldier->GetAttackTarget()->SetHp(std::max(
 	    (long)0, soldier->GetAttackTarget()->GetHp() - soldier_attack_damage));
 
+	// Check if opponent is now dead
+	if (soldier->GetAttackTarget()->GetHp() == 0) {
+		// Reward player for kill
+		soldier->GetMoneyManager()->RewardKill(soldier->GetAttackTarget());
+	}
+
 	return nullptr;
 }
 

@@ -6,6 +6,7 @@
 #ifndef STATE_MONEY_MANAGER_MONEY_MANAGER_H
 #define STATE_MONEY_MANAGER_MONEY_MANAGER_H
 
+#include "state/actor/actor.h"
 #include "state/state_export.h"
 #include "state/utilities.h"
 #include <cstdint>
@@ -36,6 +37,16 @@ class STATE_EXPORT MoneyManager {
 	MoneyManager(std::vector<int64_t> player_money, int64_t max_money);
 
 	/**
+	 * Reward amount for a successful tower kill
+	 */
+	static int64_t tower_kill_reward_amount;
+
+	/**
+	 * Reward amount for a successful soldier kill
+	 */
+	static int64_t soldier_kill_reward_amount;
+
+	/**
 	 * Method to increase player money
 	 *
 	 * @param[in]  player_id  The player identifier
@@ -57,6 +68,13 @@ class STATE_EXPORT MoneyManager {
 	 *                               player has insufficuent balance
 	 */
 	void Decrease(PlayerId player_id, int64_t amount);
+
+	/**
+	 * Reward the specified player for killing an enemy actor
+	 *
+	 * @param[in]  enemy_actor  Pointer to the killed enemy
+	 */
+	void RewardKill(Actor *enemy_actor);
 
 	/**
 	 * Get the current balance amount of the PlayerId passed

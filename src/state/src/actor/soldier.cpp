@@ -16,13 +16,13 @@ Soldier::Soldier() {
 Soldier::Soldier(ActorId id, PlayerId player_id, ActorType actor_type,
                  int64_t hp, int64_t max_hp, physics::Vector position,
                  int64_t speed, int64_t attack_range, int64_t attack_damage,
-                 IPathPlanner *path_planner)
+                 IPathPlanner *path_planner, MoneyManager *money_manager)
     : Actor(id, player_id, actor_type, hp, max_hp, position), speed(speed),
       attack_range(attack_range), attack_damage(attack_damage),
-      path_planner(path_planner), attack_target(nullptr),
-      destination(physics::Vector(0, 0)), is_destination_set(false),
-      new_position(physics::Vector(0, 0)), is_new_position_set(false),
-      state(std::make_unique<IdleState>(this)) {}
+      path_planner(path_planner), money_manager(money_manager),
+      attack_target(nullptr), destination(physics::Vector(0, 0)),
+      is_destination_set(false), new_position(physics::Vector(0, 0)),
+      is_new_position_set(false), state(std::make_unique<IdleState>(this)) {}
 
 int64_t Soldier::GetSpeed() { return speed; }
 
@@ -78,6 +78,8 @@ void Soldier::SetPosition(physics::Vector position) {
 }
 
 IPathPlanner *Soldier::GetPathPlanner() { return path_planner; }
+
+MoneyManager *Soldier::GetMoneyManager() { return money_manager; }
 
 SoldierStateName Soldier::GetState() { return state->GetName(); }
 
