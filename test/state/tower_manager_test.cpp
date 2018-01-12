@@ -16,6 +16,9 @@ class TowerManagerTest : public testing::Test {
 
 	unique_ptr<MoneyManager> money_manager;
 	int64_t max_money;
+	int64_t soldier_kill_reward_amount;
+	vector<int64_t> tower_kill_reward_amount;
+	vector<int64_t> tower_suicide_reward_amount;
 	vector<int64_t> player_money;
 
 	unique_ptr<IMap> map;
@@ -34,9 +37,13 @@ class TowerManagerTest : public testing::Test {
 		for (int i = 0; i < player_count; ++i) {
 			player_money.push_back(5000);
 		}
+		soldier_kill_reward_amount = 100;
+		tower_kill_reward_amount = {100, 300, 1000};
+		tower_suicide_reward_amount = {200, 250, 300};
 
-		this->money_manager =
-		    make_unique<MoneyManager>(player_money, max_money);
+		this->money_manager = make_unique<MoneyManager>(
+		    player_money, max_money, tower_kill_reward_amount,
+		    soldier_kill_reward_amount, tower_suicide_reward_amount);
 
 		// Init Map
 		this->map_size = 60;
@@ -218,7 +225,7 @@ TEST_F(TowerManagerTest, SuicideTower) {
 	// Ensure that money was added
 	ASSERT_EQ(money_manager->GetBalance(PlayerId::PLAYER1),
 	          player_money[0] - TowerManager::build_costs[0] +
-	              MoneyManager::tower_suicide_reward_amount);
+	              tower_suicide_reward_amount[0]);
 }
 
 TEST_F(TowerManagerTest, TerritoryTest) {
