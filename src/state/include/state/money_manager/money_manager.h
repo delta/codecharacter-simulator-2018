@@ -30,7 +30,7 @@ class STATE_EXPORT MoneyManager {
 	int64_t max_money;
 
 	/**
-	 * Reward amount for a successful tower kill
+	 * Reward amounts for a successful tower kill, indexed by tower level
 	 */
 	std::vector<int64_t> tower_kill_reward_amount;
 
@@ -40,7 +40,7 @@ class STATE_EXPORT MoneyManager {
 	int64_t soldier_kill_reward_amount;
 
 	/**
-	 * Reward amount for demolishing one's own tower
+	 * Reward amounts for demolishing one's own tower, indexed by tower level
 	 */
 	std::vector<int64_t> tower_suicide_reward_amount;
 
@@ -88,7 +88,7 @@ class STATE_EXPORT MoneyManager {
 	/**
 	 * Reward the player for a tower suicide
 	 *
-	 * @param[in]  player_id    Player identifier
+	 * @param[in]  tower  Pointer to Tower that was destroyed
 	 */
 	void RewardSuicide(Tower *tower);
 
