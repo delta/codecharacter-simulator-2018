@@ -47,6 +47,11 @@ class STATE_EXPORT MoneyManager {
 	static int64_t soldier_kill_reward_amount;
 
 	/**
+	 * Reward amount for demolishing one's own tower
+	 */
+	static int64_t tower_suicide_reward_amount;
+
+	/**
 	 * Method to increase player money
 	 *
 	 * @param[in]  player_id  The player identifier
@@ -75,6 +80,13 @@ class STATE_EXPORT MoneyManager {
 	 * @param[in]  enemy_actor  Pointer to the killed enemy
 	 */
 	void RewardKill(Actor *enemy_actor);
+
+	/**
+	 * Reward the specified player for a tower suicide
+	 *
+	 * @param[in]  player_id    Player identifier
+	 */
+	void RewardSuicide(PlayerId player_id);
 
 	/**
 	 * Get the current balance amount of the PlayerId passed
