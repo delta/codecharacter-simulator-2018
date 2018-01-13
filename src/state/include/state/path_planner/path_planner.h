@@ -3,8 +3,8 @@
  * Declares the PathPlanner data structure for path planning
  */
 
-#ifndef STATE_PATH_PLANNER_PATH_GRAPH_H
-#define STATE_PATH_PLANNER_PATH_GRAPH_H
+#ifndef STATE_PATH_PLANNER_PATH_PLANNER_H
+#define STATE_PATH_PLANNER_PATH_PLANNER_H
 
 #include "physics/vector.h"
 #include "state/interfaces/i_path_planner.h"
