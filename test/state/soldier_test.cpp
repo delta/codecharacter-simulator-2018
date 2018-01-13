@@ -5,7 +5,7 @@
 #include "state/actor/tower.h"
 #include "state/map/map.h"
 #include "state/money_manager/money_manager.h"
-#include "state/path_planner/path_planner.h"
+#include "state/path_planner/simple_path_planner.h"
 #include "state/utilities.h"
 #include "gtest/gtest.h"
 #include <cstdint>
@@ -17,7 +17,7 @@ using namespace testing;
 
 class SoldierTest : public Test {
   protected:
-	unique_ptr<PathPlanner> path_planner;
+	unique_ptr<SimplePathPlanner> path_planner;
 	unique_ptr<Map> map;
 	vector<vector<MapElement>> grid;
 	int map_size;
@@ -45,7 +45,7 @@ class SoldierTest : public Test {
 		}
 
 		this->map = make_unique<Map>(grid, elt_size);
-		this->path_planner = make_unique<PathPlanner>(map.get());
+		this->path_planner = make_unique<SimplePathPlanner>(map.get());
 
 		this->max_money = 10000;
 		for (int i = 0; i < (int)PlayerId::PLAYER_COUNT; ++i) {
