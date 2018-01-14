@@ -70,7 +70,7 @@ void StateSyncer::ExecutePlayerCommands(
 }
 
 std::vector<int64_t> StateSyncer::UpdateMainState() {
-	// TODO: Define function
+	state->Update();
 	return std::vector<int64_t>(1, 1);
 }
 
