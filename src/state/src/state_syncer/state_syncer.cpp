@@ -38,6 +38,15 @@ void StateSyncer::FlipMap(
 	}
 }
 
+physics::Vector StateSyncer::FlipPosition(state::IMap *map,
+                                          physics::Vector position) {
+	physics::Vector truePostion((map->GetSize() - 1) * map->GetElementSize() -
+	                                position.x * map->GetElementSize(),
+	                            (map->GetSize() - 1) * map->GetElementSize() -
+	                                position.y * map->GetElementSize());
+	return truePostion;
+}
+
 void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
                               physics::Vector position) {
 	// TODO: Define function
