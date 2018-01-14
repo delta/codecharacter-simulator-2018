@@ -103,6 +103,14 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 */
 	void FlipMap(std::vector<std::vector<PlayerMapElement>> &player_map);
 
+	/**
+	 * Returns flipped position
+	 *
+	 * @param[in]	map         map of state
+	 * @param[in] 	position    position to be flipped
+	 */
+	physics::Vector FlipPosition(IMap *map, physics::Vector position);
+
   public:
 	/**
 	 * Constructor for StateSyncer class
