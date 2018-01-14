@@ -65,13 +65,11 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * Handles tower build commands
 	 *
 	 * @param[in]  player_id     player to act upon
-	 * @param[in]  tower_id      tower to act upon
 	 * @param[in]  position      position to build the tower at
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	void BuildTower(PlayerId player_id, int64_t tower_id,
-	                physics::Vector position);
+	void BuildTower(PlayerId player_id, physics::Vector position);
 
 	/**
 	 * Handles tower upgrade commands
