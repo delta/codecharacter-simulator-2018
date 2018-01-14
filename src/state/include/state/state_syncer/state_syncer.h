@@ -111,6 +111,15 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 */
 	physics::Vector FlipPosition(IMap *map, physics::Vector position);
 
+	/**
+	 * Logs the logic errors made by player
+	 *
+	 * @param[in]	error_code	  code of error
+	 * @param[in]	message	      error message
+	 *
+	 */
+	void LogErrors(int64_t error_code, std::string message);
+
   public:
 	/**
 	 * Constructor for StateSyncer class

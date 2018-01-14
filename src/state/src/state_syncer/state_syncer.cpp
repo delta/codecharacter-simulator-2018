@@ -47,6 +47,10 @@ physics::Vector StateSyncer::FlipPosition(state::IMap *map,
 	return truePostion;
 }
 
+void StateSyncer::LogErrors(int64_t error_code, std::string message) {
+	std::cout << error_code << " " << message << "!! \n";
+}
+
 void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
                               physics::Vector position) {
 	// TODO: Define function
