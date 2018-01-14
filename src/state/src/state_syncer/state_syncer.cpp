@@ -66,8 +66,7 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
 	// TODO: Define function
 }
 
-void StateSyncer::BuildTower(PlayerId player_id, int64_t tower_id,
-                             physics::Vector position) {
+void StateSyncer::BuildTower(PlayerId player_id, physics::Vector position) {
 	// TODO: Define function
 }
 
