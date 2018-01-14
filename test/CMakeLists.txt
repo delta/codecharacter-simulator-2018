@@ -14,6 +14,7 @@ set(SOURCE_FILES
 	state/soldier_test.cpp
 	state/path_planner_test.cpp
 	state/simple_path_planner_test.cpp
+	state/state_syncer_test.cpp
 	drivers/shared_memory/shm_test.cpp
 	drivers/timer_test.cpp
 	drivers/main_driver_test.cpp
