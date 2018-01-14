@@ -7,6 +7,7 @@
 #define STATE_PLAYER_STATE_H
 
 #include "physics/vector.h"
+#include "state/actor/soldier_states/soldier_state.h"
 #include "state/map/terrain_type.h"
 #include "state/state_export.h"
 #include <vector>
@@ -35,6 +36,7 @@ struct PlayerSoldier {
 	int64_t id;
 	physics::Vector position;
 	int64_t hp;
+	SoldierStateName state;
 
 	// Writable
 	int64_t tower_target;
