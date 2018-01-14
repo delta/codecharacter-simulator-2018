@@ -330,28 +330,79 @@ void StateSyncer::LogErrors(int64_t error_code, std::string message) {
 
 void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
                               physics::Vector position) {
-	// TODO: Define function
+	if (player_id == PlayerId::PLAYER2)
+		state->MoveSoldier(player_id, soldier_id,
+		                   FlipPosition(state->GetMap(), position));
+	else
+		state->MoveSoldier(player_id, soldier_id, position);
 }
 
 void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
                               int64_t tower_id) {
-	// TODO: Define function
+	bool valid_target = false;
+	int64_t opponent_id = (static_cast<int>(player_id) + 1) %
+	                      static_cast<int>(PlayerId::PLAYER_COUNT);
+	std::vector<Tower *> opponent_towers = state->GetAllTowers()[opponent_id];
+	for (int i = 0; i < opponent_towers.size(); ++i) {
+		if (tower_id == opponent_towers[i]->GetActorId())
+			valid_target = true;
+	}
+	if (valid_target)
+		state->AttackActor(player_id, soldier_id, tower_id);
+	else
+		LogErrors(2, "Attack Opponent's tower only");
 }
 
 void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
                                 int64_t enemy_soldier_id) {
-	// TODO: Define function
+	bool valid_target = false;
+	int64_t opponent_id = (static_cast<int>(player_id) + 1) %
+	                      static_cast<int>(PlayerId::PLAYER_COUNT);
+	std::vector<Soldier *> opponent_soldiers =
+	    state->GetAllSoldiers()[opponent_id];
+	for (int i = 0; i < opponent_soldiers.size(); ++i) {
+		if (enemy_soldier_id == opponent_soldiers[i]->GetActorId())
+			valid_target = true;
+	}
+	if (valid_target)
+		state->AttackActor(player_id, soldier_id, enemy_soldier_id);
+	else
+		LogErrors(2, "Attack Opponent's soldier only");
 }
 
 void StateSyncer::BuildTower(PlayerId player_id, physics::Vector position) {
-	// TODO: Define function
+	// Goes through all offsets of the map. If player wishes to build a tower,
+	// it checks if that is a valid territory for the player
+	// and only then builds the tower
+	bool valid_territory = true;
+	auto *map = state->GetMap();
+
+	if (map->GetElementByOffset(position)
+	        .GetOwnership()[static_cast<int>(player_id)] == false)
+		valid_territory = false;
+	for (int i = 0; i < map->GetElementByOffset(position).GetOwnership().size();
+	     ++i) {
+		if (map->GetElementByOffset(position).GetOwnership()[i] == true &&
+		    i != static_cast<int>(player_id)) {
+			valid_territory = false;
+		}
+	}
+	if (valid_territory == false)
+		LogErrors(3, "Can be built only on own territory.");
+	else {
+		if (player_id == PlayerId::PLAYER2) {
+			state->BuildTower(player_id,
+			                  FlipPosition(state->GetMap(), position));
+		} else
+			state->BuildTower(player_id, position);
+	}
 }
 
 void StateSyncer::UpgradeTower(PlayerId player_id, int64_t tower_id) {
-	// TODO: Define function
+	state->UpgradeTower(player_id, tower_id);
 }
 
 void StateSyncer::SuicideTower(PlayerId player_id, int64_t tower_id) {
-	// TODO: Define function
+	state->SuicideTower(player_id, tower_id);
 }
 }
