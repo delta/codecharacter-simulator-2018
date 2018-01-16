@@ -65,7 +65,7 @@ install(EXPORT ${PLAYER_NAME}_code_config DESTINATION lib)
 install(DIRECTORY ${INCLUDE_PATH}/ DESTINATION include)
 install(FILES ${EXPORTS_FILE_PATH} DESTINATION include/player_code)
 
-if(NOT BUILD_PROJECT STREQUAL "player_code")
+if((NOT BUILD_PROJECT STREQUAL "player_code") AND (NOT BUILD_PROJECT STREQUAL "no_tests"))
 	set(PLAYER_CODE_TEST_COUNT 0)
 	file(GLOB TEST_FILES test/*.cpp)
 
