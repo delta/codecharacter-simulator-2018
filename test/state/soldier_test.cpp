@@ -82,7 +82,8 @@ TEST_F(SoldierTest, Respawn) {
 	soldier->Update();
 	soldier->LateUpdate();
 	ASSERT_EQ(soldier->GetHp(), 100);
-	ASSERT_EQ(soldier->GetPosition(), Soldier::respawn_position);
+	ASSERT_EQ(soldier->GetPosition(),
+	          Soldier::respawn_positions[(int)soldier->GetPlayerId()]);
 	ASSERT_EQ(soldier->GetState(), SoldierStateName::IDLE);
 }
 

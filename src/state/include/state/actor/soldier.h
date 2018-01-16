@@ -13,6 +13,7 @@
 #include "state/money_manager/money_manager.h"
 #include "state/state_export.h"
 #include <cstdint>
+#include <vector>
 
 namespace state {
 
@@ -93,9 +94,9 @@ class STATE_EXPORT Soldier : public Actor {
 	        IPathPlanner *path_planner, MoneyManager *money_manager);
 
 	/**
-	 * Position where the actors will respawn
+	 * Position where the actors will respawn, indexed by player ID
 	 */
-	static physics::Vector respawn_position;
+	static std::vector<physics::Vector> respawn_positions;
 
 	/**
 	 * Number of turns to wait before respawning
