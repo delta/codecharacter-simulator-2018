@@ -41,7 +41,7 @@ struct DynamicInstructionCountPass : public llvm::FunctionPass {
 			count += B.size();
 
 			llvm::IRBuilder<> builder(&B);
-			builder.SetInsertPoint(&B, ++builder.GetInsertPoint());
+			builder.SetInsertPoint(B.getTerminator());
 
 			llvm::Value *args[] = {builder.getInt32(count)};
 			builder.CreateCall(resultFunc, args);
