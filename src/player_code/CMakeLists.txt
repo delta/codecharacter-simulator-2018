@@ -38,9 +38,19 @@ function(instrument_and_install_lib TARGET_NAME)
 	install(TARGETS ${TARGET_NAME} EXPORT ${TARGET_NAME}_config DESTINATION lib)
 	target_include_directories(${TARGET_NAME} PUBLIC
 		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${INCLUDE_PATH}>
-		$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/player_wrapper/include>
 		$<BUILD_INTERFACE:${EXPORTS_DIR}>
 	)
+
+	if((NOT BUILD_PROJECT STREQUAL "all") AND (NOT BUILD_PROJECT STREQUAL "no_tests"))
+		target_include_directories(${TARGET_NAME} PUBLIC
+			$<BUILD_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
+		)
+	else()
+		target_include_directories(${TARGET_NAME} PUBLIC
+			$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/player_wrapper/include>
+		)
+	endif()
+
 endfunction(instrument_and_install_lib)
 
 instrument_and_install_lib(${PLAYER_NAME}_code)
