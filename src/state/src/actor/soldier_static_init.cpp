@@ -9,5 +9,6 @@
 namespace state {
 
 int64_t Soldier::total_turns_to_respawn = 10;
-physics::Vector Soldier::respawn_position = physics::Vector(40, 40);
+std::vector<physics::Vector> Soldier::respawn_positions(2, physics::Vector(40,
+                                                                           40));
 }

@@ -31,7 +31,8 @@ std::unique_ptr<SoldierState> DeadState::Update() {
 }
 
 void DeadState::Exit() {
-	soldier->SetPosition(Soldier::respawn_position);
+	soldier->SetPosition(
+	    Soldier::respawn_positions[(int)soldier->GetPlayerId()]);
 	soldier->SetHp(soldier->GetMaxHp());
 	soldier->SetAttackTarget(nullptr);
 	soldier->ClearDestination();
