@@ -15,6 +15,8 @@ set(INCLUDE_PATH include)
 set(EXPORTS_DIR ${CMAKE_BINARY_DIR}/exports)
 set(EXPORTS_FILE_PATH ${EXPORTS_DIR}/drivers/drivers_export.h)
 
+find_package(Boost 1.64.0 EXACT REQUIRED)
+
 if((NOT BUILD_PROJECT STREQUAL "all") AND (NOT BUILD_PROJECT STREQUAL "no_tests"))
 	include(${CMAKE_INSTALL_PREFIX}/lib/physics_config.cmake)
 	include(${CMAKE_INSTALL_PREFIX}/lib/player_wrapper_config.cmake)
@@ -34,7 +36,7 @@ generate_export_header(drivers EXPORT_FILE_NAME ${EXPORTS_FILE_PATH})
 target_include_directories(drivers PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${INCLUDE_PATH}>
 	$<BUILD_INTERFACE:${EXPORTS_DIR}>
-	$<BUILD_INTERFACE:${BOOST_INCLUDE_PATH}>
+	$<BUILD_INTERFACE:${Boost_INCLUDE_DIRS}>
 	$<INSTALL_INTERFACE:include>
 )
 

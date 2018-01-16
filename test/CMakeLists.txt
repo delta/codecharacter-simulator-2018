@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.9.6)
 project(tests)
 
+find_package(Boost 1.64.0 EXACT REQUIRED)
+
 include_directories(.)
-include_directories(${BOOST_INCLUDE_PATH})
+include_directories(${Boost_INCLUDE_DIRS})
 
 set(SOURCE_FILES
 	test_main.cpp
