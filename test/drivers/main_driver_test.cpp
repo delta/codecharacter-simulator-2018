@@ -82,7 +82,7 @@ TEST_F(MainDriverTest, CleanRun) {
 	EXPECT_CALL(*state_syncer_mock, UpdateMainState())
 	    .Times(num_turns)
 	    .WillRepeatedly(Return(vector<int64_t>(player_count, 0)));
-	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_)).Times(num_turns);
+	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_)).Times(num_turns + 1);
 
 	driver = CreateMockMainDriver(move(state_syncer_mock));
 
@@ -127,7 +127,8 @@ TEST_F(MainDriverTest, EarlyPlayerExit) {
 	EXPECT_CALL(*state_syncer_mock, UpdateMainState())
 	    .Times(num_turns / 2)
 	    .WillRepeatedly(Return(vector<int64_t>(player_count, 0)));
-	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_)).Times(num_turns / 2);
+	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_))
+	    .Times(num_turns / 2 + 1);
 
 	driver = CreateMockMainDriver(move(state_syncer_mock));
 
@@ -168,7 +169,8 @@ TEST_F(MainDriverTest, InstructionLimitReached) {
 	EXPECT_CALL(*state_syncer_mock, UpdateMainState())
 	    .Times(num_turns / 2)
 	    .WillRepeatedly(Return(vector<int64_t>(player_count, 0)));
-	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_)).Times(num_turns / 2);
+	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_))
+	    .Times(num_turns / 2 + 1);
 
 	driver = CreateMockMainDriver(move(state_syncer_mock));
 
