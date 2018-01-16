@@ -1,6 +1,6 @@
 #include "player_code/test/player_code_test_0.h"
 
-namespace player {
+namespace player_code {
 
 PlayerCode0::PlayerCode0(state::PlayerState *player_state)
     : player_state(player_state) {}

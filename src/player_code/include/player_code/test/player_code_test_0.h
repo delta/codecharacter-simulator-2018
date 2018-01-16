@@ -2,7 +2,7 @@
 #include "player_wrapper/interfaces/i_player_code.h"
 #include "state/player_state.h"
 
-namespace player {
+namespace player_code {
 
 /**
  * Class where player defines AI code
