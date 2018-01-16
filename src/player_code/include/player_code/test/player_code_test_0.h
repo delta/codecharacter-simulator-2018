@@ -7,7 +7,7 @@ namespace player {
 /**
  * Class where player defines AI code
  */
-class PLAYER_CODE_EXPORT PlayerCode0 : public IPlayerCode {
+class PLAYER_CODE_EXPORT PlayerCode0 : public player_wrapper::IPlayerCode {
   private:
 	state::PlayerState *player_state;
 

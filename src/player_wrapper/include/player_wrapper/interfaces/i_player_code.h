@@ -3,12 +3,12 @@
  * Interface for the player AI
  */
 
-#ifndef PLAYER_INTERFACES_I_PLAYER_CODE_H
-#define PLAYER_INTERFACES_I_PLAYER_CODE_H
+#ifndef PLAYER_WRAPPER_INTERFACES_I_PLAYER_CODE_H
+#define PLAYER_WRAPPER_INTERFACES_I_PLAYER_CODE_H
 
 #include "player_wrapper/player_wrapper_export.h"
 
-namespace player {
+namespace player_wrapper {
 
 /**
  * Player AI interface

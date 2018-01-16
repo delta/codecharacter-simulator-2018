@@ -10,7 +10,7 @@ namespace drivers {
 uint64_t PlayerDriver::instruction_count = 0;
 
 PlayerDriver::PlayerDriver(
-    std::unique_ptr<player::PlayerCodeWrapper> player_code_wrapper,
+    std::unique_ptr<player_wrapper::PlayerCodeWrapper> player_code_wrapper,
     std::unique_ptr<drivers::SharedMemoryPlayer> shm_player,
     int64_t max_no_turns, Timer::Interval game_duration)
     : player_code_wrapper(std::move(player_code_wrapper)),
