@@ -13,12 +13,11 @@ set(CMAKE_CXX_STANDARD 14)
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 set(BUILD_PROJECT "all" CACHE STRING "Set the name of the project to build")
+set(BOOST_ROOT "" CACHE PATH "Path to Boost libraries")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-
-set(BOOST_INCLUDE_PATH $ENV{BOOST_PATH})
 
 if(BUILD_PROJECT STREQUAL "physics")
 	add_subdirectory(src/physics)

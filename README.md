@@ -14,7 +14,7 @@
 
 6. `export LD_LIBRARY_PATH=<your_install_location>/lib`
 
-7. `BOOST_PATH=<boost_download_location> cmake .. -DCMAKE_INSTALL_PREFIX=<your_install_location>`
+7. `cmake .. -DCMAKE_INSTALL_PREFIX=<your_install_location> -DBOOST_ROOT=<boost_download_location>`
 
 8. `make`
 
