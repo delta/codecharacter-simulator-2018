@@ -6,11 +6,13 @@
 #ifndef STATE_PLAYER_STATE_H
 #define STATE_PLAYER_STATE_H
 
+#include "constants/constants.h"
 #include "physics/vector.h"
 #include "state/actor/soldier_states/soldier_state.h"
 #include "state/map/terrain_type.h"
 #include "state/state_export.h"
-#include <vector>
+#include "state/utilities.h"
+#include <array>
 
 namespace state {
 
@@ -22,7 +24,7 @@ namespace state {
  */
 struct PlayerMapElement {
 	TerrainType terrain;
-	std::vector<bool> territory;
+	std::array<bool, static_cast<std::size_t>(PlayerId::PLAYER_COUNT)> territory;
 	bool valid_territory;
 
 	// Writable
@@ -63,13 +65,16 @@ struct PlayerTower {
  */
 struct STATE_EXPORT PlayerState {
 	// Grid of map elements
-	std::vector<std::vector<PlayerMapElement>> map;
+	std::array<std::array<PlayerMapElement, MAP_SIZE>, MAP_SIZE> map;
 
 	// Lists of soldiers, indexed by player_id
-	std::vector<std::vector<PlayerSoldier>> soldiers;
+	std::array<std::array<PlayerSoldier, NUM_SOLDIERS>, static_cast<std::size_t>(PlayerId::PLAYER_COUNT)> soldiers;
 
 	// Lists of towers, indexed by player_id
-	std::vector<std::vector<PlayerTower>> towers;
+	std::array<std::array<PlayerTower, MAX_NUM_TOWERS>, static_cast<std::size_t>(PlayerId::PLAYER_COUNT)> towers;
+
+	// Number of towers, indexed by player id
+	std::array<int64_t, static_cast<std::size_t>(PlayerId::PLAYER_COUNT)> num_towers{0, 0};
 
 	// Money
 	int64_t money;

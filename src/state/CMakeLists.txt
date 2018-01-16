@@ -31,6 +31,7 @@ set(EXPORTS_FILE_PATH ${EXPORTS_DIR}/state/state_export.h)
 
 if((NOT BUILD_PROJECT STREQUAL "all") AND (NOT BUILD_PROJECT STREQUAL "no_tests"))
 	include(${CMAKE_INSTALL_PREFIX}/lib/physics_config.cmake)
+	include(${CMAKE_INSTALL_PREFIX}/lib/constants_config.cmake)
 endif()
 
 add_library(state SHARED ${SOURCE_FILES})
@@ -43,6 +44,16 @@ target_include_directories(state PUBLIC
 	$<BUILD_INTERFACE:${EXPORTS_DIR}>
 	$<INSTALL_INTERFACE:include>
 )
+
+if((NOT BUILD_PROJECT STREQUAL "all") AND (NOT BUILD_PROJECT STREQUAL "no_tests"))
+	target_include_directories(state PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>
+	)
+else()
+	target_include_directories(state PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/constants/include>
+	)
+endif()
 
 install(TARGETS state EXPORT state_config
 	ARCHIVE DESTINATION lib

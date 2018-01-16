@@ -62,28 +62,23 @@ class StateSyncerTest : public Test {
 		this->map = make_unique<Map>(grid, elt_size);
 
 		// Soldiers for Player1
-		auto *soldier1 = new Soldier(Actor::GetNextActorId(), PlayerId::PLAYER1,
-		                             ActorType::SOLDIER, 100, 100, Vector(0, 0),
-		                             5, 5, 40, nullptr, nullptr);
-		auto *soldier2 = new Soldier(Actor::GetNextActorId(), PlayerId::PLAYER1,
-		                             ActorType::SOLDIER, 100, 100, Vector(1, 1),
-		                             5, 5, 40, nullptr, nullptr);
 		std::vector<Soldier *> player1_soldiers;
-		player1_soldiers.push_back(soldier1);
-		player1_soldiers.push_back(soldier2);
+		for (int i = 0; i < player_state1->soldiers[0].size(); ++i) {
+			auto *soldier = new Soldier(
+			    Actor::GetNextActorId(), PlayerId::PLAYER1, ActorType::SOLDIER,
+			    100, 100, Vector(0, 0), 5, 5, 40, nullptr, nullptr);
+			player1_soldiers.push_back(soldier);
+		}
 
 		// Soldiers for Player 2
-		auto *soldier3 = new Soldier(
-		    Actor::GetNextActorId(), PlayerId::PLAYER2, ActorType::SOLDIER, 100,
-		    100, Vector(this->map_size - 1, this->map_size - 1), 5, 5, 40,
-		    nullptr, nullptr);
-		auto *soldier4 = new Soldier(
-		    Actor::GetNextActorId(), PlayerId::PLAYER2, ActorType::SOLDIER, 100,
-		    100, Vector(this->map_size - 2, this->map_size - 2), 5, 5, 40,
-		    nullptr, nullptr);
 		std::vector<Soldier *> player2_soldiers;
-		player2_soldiers.push_back(soldier3);
-		player2_soldiers.push_back(soldier4);
+		for (int i = 0; i < player_state1->soldiers[0].size(); ++i) {
+			auto *soldier = new Soldier(
+			    Actor::GetNextActorId(), PlayerId::PLAYER2, ActorType::SOLDIER,
+			    100, 100, Vector(this->map_size - 1, this->map_size - 1), 5, 5,
+			    40, nullptr, nullptr);
+			player2_soldiers.push_back(soldier);
+		}
 
 		// Init soldiers for state
 		this->soldiers.push_back(player1_soldiers);
@@ -223,8 +218,8 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	ASSERT_EQ(player_states[1]->towers[1][1].position,
 	          physics::Vector(this->map_size - 1 - 4, this->map_size - 1 - 2));
 	ASSERT_EQ(player_states[0]->towers[1][1].position, Vector(4, 2));
-	ASSERT_EQ(player_states[1]->towers[1].size(), 2);
-	ASSERT_EQ(player_states[0]->towers[0].size(), 1);
+	ASSERT_EQ(player_states[1]->num_towers[1], 2);
+	ASSERT_EQ(player_states[0]->num_towers[0], 1);
 
 	// Check for Soldier positions for playerstates
 	ASSERT_EQ(player_states[0]->soldiers[0][0].position, Vector(0, 0));
@@ -276,8 +271,8 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	this->state_syncer->UpdatePlayerStates(player_states);
 
 	// Player2 has only one tower now
-	ASSERT_EQ(player_states[1]->towers[1].size(), 1);
-	ASSERT_EQ(player_states[0]->towers[1].size(), 1);
+	ASSERT_EQ(player_states[1]->num_towers[1], 1);
+	ASSERT_EQ(player_states[0]->num_towers[1], 1);
 }
 
 TEST_F(StateSyncerTest, ExecutionTest) {
@@ -302,7 +297,7 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 
 	this->state_syncer->UpdatePlayerStates(player_states);
 
-	ASSERT_EQ(player_states[1]->towers[1].size(), 2);
+	ASSERT_EQ(player_states[1]->num_towers[1], 2);
 
 	vector<bool> skip_player_command_flags;
 	skip_player_command_flags.push_back(false);
