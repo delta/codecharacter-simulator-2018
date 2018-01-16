@@ -37,6 +37,9 @@ const std::vector<PlayerResult> MainDriver::Start() {
 		this->shared_buffers[cur_player_id]->instruction_counter = 0;
 	}
 
+	// Initialize player states with contents of main state
+	this->state_syncer->UpdatePlayerStates(this->player_states);
+
 	// Start a timer. Game is invalid if it does not complete within the timer
 	// limit
 	this->is_game_timed_out = false;
