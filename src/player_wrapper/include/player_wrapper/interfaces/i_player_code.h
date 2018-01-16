@@ -6,7 +6,7 @@
 #ifndef PLAYER_INTERFACES_I_PLAYER_CODE_H
 #define PLAYER_INTERFACES_I_PLAYER_CODE_H
 
-#include "player/player_wrapper_export.h"
+#include "player_wrapper/player_wrapper_export.h"
 
 namespace player {
 

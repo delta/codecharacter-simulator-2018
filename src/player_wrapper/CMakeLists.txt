@@ -8,7 +8,7 @@ set(SOURCE_FILES
 set(INCLUDE_PATH include)
 
 set(EXPORTS_DIR ${CMAKE_BINARY_DIR}/exports)
-set(EXPORTS_FILE_PATH ${EXPORTS_DIR}/player/player_wrapper_export.h)
+set(EXPORTS_FILE_PATH ${EXPORTS_DIR}/player_wrapper/player_wrapper_export.h)
 
 add_library(player_wrapper SHARED ${SOURCE_FILES})
 
