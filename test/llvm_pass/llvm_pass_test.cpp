@@ -7,6 +7,7 @@
 #include "gtest/gtest.h"
 
 using namespace drivers;
+using namespace player_wrapper;
 using namespace player;
 using namespace state;
 using namespace std;

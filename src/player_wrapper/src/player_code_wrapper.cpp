@@ -5,7 +5,7 @@
 
 #include "player_wrapper/player_code_wrapper.h"
 
-namespace player {
+namespace player_wrapper {
 
 PlayerCodeWrapper::PlayerCodeWrapper(std::unique_ptr<IPlayerCode> player_code)
     : player_code(std::move(player_code)) {}

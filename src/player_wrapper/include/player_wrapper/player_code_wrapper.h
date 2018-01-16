@@ -3,13 +3,13 @@
  * Declaration for class that wraps the players' code
  */
 
-#ifndef PLAYER_PLAYER_CODE_WRAPPER_H
-#define PLAYER_PLAYER_CODE_WRAPPER_H
+#ifndef PLAYER_WRAPPER_PLAYER_CODE_WRAPPER_H
+#define PLAYER_WRAPPER_PLAYER_CODE_WRAPPER_H
 
 #include "player_wrapper/interfaces/i_player_code.h"
 #include <memory>
 
-namespace player {
+namespace player_wrapper {
 
 /**
  * Class that wraps the players' code
