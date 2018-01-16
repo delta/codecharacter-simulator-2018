@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.9.6)
 project(player_code)
 
-set(${PLAYER_NAME}_NAME "player_code_name" CACHE STRING "Specifies the player name")
+set(PLAYER_ID "-1" CACHE STRING "Specifies the player ID. Should be either 1 or 2")
+set(PLAYER_NAME "player_${PLAYER_ID}")
 
 file(GLOB SOURCE_FILES src/*.cpp)
 
@@ -20,11 +21,6 @@ if(BUILD_PROJECT STREQUAL "player_code")
 	set(LLVM_PASS_PATH ${CMAKE_INSTALL_PREFIX}/lib/libinstruction_count_pass.so)
 else()
 	set(LLVM_PASS_PATH ${CMAKE_BINARY_DIR}/lib/libinstruction_count_pass.so)
-endif()
-
-add_library(${PLAYER_NAME}_code SHARED ${SOURCE_FILES})
-if(NOT BUILD_PROJECT STREQUAL "player_code")
-	add_dependencies(${PLAYER_NAME}_code instruction_count_pass)
 endif()
 
 function(instrument_and_install_lib TARGET_NAME)
@@ -53,15 +49,30 @@ function(instrument_and_install_lib TARGET_NAME)
 
 endfunction(instrument_and_install_lib)
 
-instrument_and_install_lib(${PLAYER_NAME}_code)
+function(build_player_code TARGET_NAME)
 
-generate_export_header(${PLAYER_NAME}_code EXPORT_FILE_NAME ${EXPORTS_FILE_PATH} EXPORT_MACRO_NAME PLAYER_CODE_EXPORT)
+	add_library(${TARGET_NAME}_code SHARED ${SOURCE_FILES})
 
-target_include_directories(${PLAYER_NAME}_code PUBLIC
-	$<INSTALL_INTERFACE:include>
-)
+	generate_export_header(${TARGET_NAME}_code EXPORT_FILE_NAME ${EXPORTS_FILE_PATH} EXPORT_MACRO_NAME "PLAYER_CODE_EXPORT")
 
-install(EXPORT ${PLAYER_NAME}_code_config DESTINATION lib)
+	instrument_and_install_lib(${TARGET_NAME}_code)
+
+	target_include_directories(${TARGET_NAME}_code PUBLIC
+		$<INSTALL_INTERFACE:include>
+	)
+
+	install(EXPORT ${TARGET_NAME}_code_config DESTINATION lib)
+
+endfunction(build_player_code)
+
+if(BUILD_PROJECT STREQUAL "player_code")
+	build_player_code(${PLAYER_NAME})
+else()
+	foreach(PLAYER_CODE_ID 1 ${NUM_PLAYERS})
+		build_player_code("player_${PLAYER_CODE_ID}")
+	endforeach(PLAYER_CODE_ID)
+endif()
+
 install(DIRECTORY ${INCLUDE_PATH}/ DESTINATION include)
 install(FILES ${EXPORTS_FILE_PATH} DESTINATION include/player_code)
 

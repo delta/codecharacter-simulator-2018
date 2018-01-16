@@ -14,6 +14,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 set(BUILD_PROJECT "all" CACHE STRING "Set the name of the project to build")
 set(BOOST_ROOT "" CACHE PATH "Path to Boost libraries")
+set(NUM_PLAYERS "2" CACHE STRING "Number of players in the game")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
