@@ -8,7 +8,7 @@ file(GLOB SOURCE_FILES src/*.cpp)
 set(INCLUDE_PATH include)
 
 set(EXPORTS_DIR ${CMAKE_BINARY_DIR}/exports)
-set(EXPORTS_FILE_PATH ${EXPORTS_DIR}/player/player_code_export.h)
+set(EXPORTS_FILE_PATH ${EXPORTS_DIR}/player_code/player_code_export.h)
 
 if((NOT BUILD_PROJECT STREQUAL "all") AND (NOT BUILD_PROJECT STREQUAL "no_tests"))
 	include(${CMAKE_INSTALL_PREFIX}/lib/physics_config.cmake)
