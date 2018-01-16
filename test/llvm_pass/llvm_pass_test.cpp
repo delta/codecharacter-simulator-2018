@@ -8,7 +8,7 @@
 
 using namespace drivers;
 using namespace player_wrapper;
-using namespace player;
+using namespace player_code;
 using namespace state;
 using namespace std;
 using namespace ::testing;
