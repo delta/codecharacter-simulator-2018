@@ -27,14 +27,14 @@ class LLVMPassTest : public Test {
 	}
 
 	void SetPlayerDriver(int num_turns, int time_limit_ms) {
+		unique_ptr<SharedMemoryPlayer> shm_player(
+		    new SharedMemoryPlayer(shm_name));
+
 		unique_ptr<PlayerCode0> player_code(
-		    new PlayerCode0(&buf->player_state));
+		    new PlayerCode0(&shm_player->GetBuffer()->player_state));
 
 		unique_ptr<PlayerCodeWrapper> player_code_wrapper(
 		    new PlayerCodeWrapper(move(player_code)));
-
-		unique_ptr<SharedMemoryPlayer> shm_player(
-		    new SharedMemoryPlayer(shm_name));
 
 		this->driver = make_unique<PlayerDriver>(
 		    move(player_code_wrapper), move(shm_player), num_turns,
