@@ -2,6 +2,7 @@
 #include "drivers/shared_memory_utils/shared_memory_main.h"
 #include "drivers/shared_memory_utils/shared_memory_player.h"
 #include "player_code/test/player_code_test_0.h"
+#include "player_code/test/player_code_test_1.h"
 #include "player_wrapper/player_code_wrapper.h"
 #include "state/player_state.h"
 #include "gtest/gtest.h"
@@ -26,12 +27,12 @@ class LLVMPassTest : public Test {
 		this->buf = shm_main->GetBuffer();
 	}
 
-	void SetPlayerDriver(int num_turns, int time_limit_ms) {
+	template <class T> void SetPlayerDriver(int num_turns, int time_limit_ms) {
 		unique_ptr<SharedMemoryPlayer> shm_player(
 		    new SharedMemoryPlayer(shm_name));
 
-		unique_ptr<PlayerCode0> player_code(
-		    new PlayerCode0(&shm_player->GetBuffer()->player_state));
+		unique_ptr<T> player_code(
+		    new T(&shm_player->GetBuffer()->player_state));
 
 		unique_ptr<PlayerCodeWrapper> player_code_wrapper(
 		    new PlayerCodeWrapper(move(player_code)));
@@ -51,8 +52,8 @@ class LLVMPassTest : public Test {
 // The below tests are for both the PlayerDriver and the instrumentation
 
 // Test case to see if instrumentation works on a normal run
-TEST_F(LLVMPassTest, InstructionCountTest) {
-	SetPlayerDriver(2, 1000);
+TEST_F(LLVMPassTest, InstructionCountTest1) {
+	SetPlayerDriver<PlayerCode0>(2, 1000);
 
 	buf->instruction_counter = 0;
 
@@ -86,7 +87,7 @@ TEST_F(LLVMPassTest, PlayerDriverTimeout) {
 	int num_turns = 50;
 	int time_limit_ms = 1000;
 
-	SetPlayerDriver(num_turns, time_limit_ms);
+	SetPlayerDriver<PlayerCode0>(num_turns, time_limit_ms);
 
 	buf->instruction_counter = 0;
 
@@ -103,6 +104,45 @@ TEST_F(LLVMPassTest, PlayerDriverTimeout) {
 	int prev_instruction_count = buf->instruction_counter;
 
 	for (int i = 1; i < num_turns / 2; ++i) {
+		buf->is_player_running = true;
+		while (buf->is_player_running && !is_time_over)
+			;
+		// Number of instructions every turn must be the same, as the exact same
+		// player code runs every turn
+		EXPECT_EQ(prev_instruction_count, buf->instruction_counter);
+		prev_instruction_count = buf->instruction_counter;
+		buf->instruction_counter = 0;
+	}
+
+	runner.join();
+	while (!is_time_over)
+		;
+}
+
+// Normal test for another player code
+// Just checking if instrumentation works
+TEST_F(LLVMPassTest, InstructionCountTest2) {
+	int num_turns = 50;
+	int time_limit_ms = 1000;
+
+	SetPlayerDriver<PlayerCode1>(num_turns, time_limit_ms);
+
+	buf->instruction_counter = 0;
+
+	thread runner([this] { driver->Start(); });
+
+	Timer timer;
+	atomic_bool is_time_over(false);
+	timer.Start((Timer::Interval(time_limit_ms)),
+	            [&is_time_over]() { is_time_over = true; });
+
+	buf->is_player_running = true;
+	while (buf->is_player_running && !is_time_over)
+		;
+	int prev_instruction_count = buf->instruction_counter;
+	EXPECT_GT(prev_instruction_count, 0);
+
+	for (int i = 1; i < num_turns; ++i) {
 		buf->is_player_running = true;
 		while (buf->is_player_running && !is_time_over)
 			;
