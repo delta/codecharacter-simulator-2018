@@ -8,7 +8,8 @@
 
 namespace state {
 
-StateSyncer::StateSyncer(IState *state) : state(state) {}
+StateSyncer::StateSyncer(std::unique_ptr<IState> state)
+    : state(std::move(state)) {}
 
 void StateSyncer::ExecutePlayerCommands(
     const std::vector<PlayerState *> &player_states,
