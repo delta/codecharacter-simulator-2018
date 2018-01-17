@@ -49,16 +49,38 @@ class LOGGER_EXPORT Logger : public ILogger {
 	 */
 	std::unique_ptr<proto::Game> logs;
 
+	/**
+	 * Stores the instruction counts until they are written into the log along
+	 * with the remainig state data, every turn
+	 */
+	std::vector<int64_t> instruction_counts;
+
+	/**
+	 * Number of instructions exceeding which the turn is forfeit
+	 */
+	int64_t player_instruction_limit_turn;
+
+	/**
+	 * Number of instructions exceeding which the game is forfeit
+	 */
+	int64_t player_instruction_limit_game;
+
   public:
 	/**
 	 * Constructor for the Logger class
 	 */
-	Logger();
+	Logger(int64_t player_instruction_limit_turn,
+	       int64_t player_instruction_limit_game);
 
 	/**
 	 * @see ILogger#LogState
 	 */
 	void LogState(state::IState *state) override;
+
+	/**
+	 * @see ILogger#LogInstructionCount
+	 */
+	void LogInstructionCount(state::PlayerId player_id, int64_t count) override;
 
 	/**
 	 * @see ILogger#WriteGame

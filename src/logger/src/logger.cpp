@@ -4,6 +4,7 @@
  */
 
 #include "logger/logger.h"
+#include "constants/constants.h"
 #include "state/actor/tower.h"
 #include "state/tower_manager/tower_manager.h"
 
@@ -11,8 +12,13 @@ using namespace state;
 
 namespace logger {
 
-Logger::Logger()
-    : turn_count(0), tower_logs(), logs(std::make_unique<proto::Game>()) {}
+Logger::Logger(int64_t player_instruction_limit_turn,
+               int64_t player_instruction_limit_game)
+    : turn_count(0), tower_logs(), logs(std::make_unique<proto::Game>()),
+}
+      instruction_counts(std::vector<int64_t>((int)PlayerId::PLAYER_COUNT, 0)),
+      player_instruction_limit_turn(player_instruction_limit_turn),
+      player_instruction_limit_game(player_instruction_limit_game) {}
 
 void Logger::LogState(IState *state) {
 	turn_count++;
@@ -82,6 +88,11 @@ void Logger::LogState(IState *state) {
 			}
 			tower_logs.push_back(player_tower_log_entry);
 		}
+
+		// Set instruction limit constants
+		logs->set_inst_limit_turn(this->player_instruction_limit_turn);
+		logs->set_inst_limit_game(this->player_instruction_limit_game);
+
 	} else {
 		// Stuff that's done only on subsequent turns
 
@@ -179,6 +190,8 @@ void Logger::LogState(IState *state) {
 		}
 	}
 
+	// Stuff that's done on all turns
+
 	// Log all the soldiers
 	for (auto player_soldiers : soldiers) {
 		for (auto soldier : player_soldiers) {
@@ -208,6 +221,16 @@ void Logger::LogState(IState *state) {
 	for (auto player_money : money) {
 		game_state->add_money(player_money);
 	}
+
+	// Log instruction counts and reset temp counts to 0
+	for (auto &inst_count : instruction_counts) {
+		game_state->add_instruction_counts(inst_count);
+		inst_count = 0;
+	}
+}
+
+void Logger::LogInstructionCount(PlayerId player_id, int64_t count) {
+	this->instruction_counts[(int)player_id] = count;
 }
 
 void Logger::WriteGame(std::ostream &write_stream) {

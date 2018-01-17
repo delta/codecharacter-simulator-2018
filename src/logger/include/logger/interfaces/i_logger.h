@@ -19,8 +19,20 @@ class LOGGER_EXPORT ILogger {
   public:
 	/**
 	 * Takes a pointer to the main state, and logs all information
+	 *
+	 * @param[in]   state   Pointer to state
 	 */
 	virtual void LogState(state::IState *state) = 0;
+
+	/**
+	 * Takes a player and corresponding instruction count, and logs it in the
+	 * current turn's game frame
+	 *
+	 * @param[in]   player_id   Player identifier
+	 * @param[in]   count       Instruction count
+	 */
+	virtual void LogInstructionCount(state::PlayerId player_id,
+	                                 int64_t count) = 0;
 
 	/**
 	 * Writes the complete serialized logs to stream
