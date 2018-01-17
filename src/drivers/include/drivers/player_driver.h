@@ -84,9 +84,10 @@ class DRIVERS_EXPORT PlayerDriver {
 	 * @param[in]  max_no_turns         The number of turns in the game
 	 * @param[in]  game_duration        The time limit for the game
 	 */
-	PlayerDriver(std::unique_ptr<player_wrapper::PlayerCodeWrapper> player_code_wrapper,
-	             std::unique_ptr<SharedMemoryPlayer> shm_player,
-	             int64_t max_no_turns, Timer::Interval game_duration);
+	PlayerDriver(
+	    std::unique_ptr<player_wrapper::PlayerCodeWrapper> player_code_wrapper,
+	    std::unique_ptr<SharedMemoryPlayer> shm_player, int64_t max_no_turns,
+	    Timer::Interval game_duration);
 
 	/**
 	 * Increment instruction_count by count
