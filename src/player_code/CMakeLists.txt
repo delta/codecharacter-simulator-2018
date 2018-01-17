@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.9.6)
 project(player_code)
 
-set(PLAYER_ID "-1" CACHE STRING "Specifies the player ID. Should be either 1 or 2")
-set(PLAYER_NAME "player_${PLAYER_ID}")
+set(PLAYER_ID "0" CACHE STRING "Specifies the player ID. Should be between 1
+    and NUM_PLAYERS to build as that player, 0 to build as all players")
 
 file(GLOB SOURCE_FILES src/*.cpp)
 
@@ -65,12 +65,12 @@ function(build_player_code TARGET_NAME)
 
 endfunction(build_player_code)
 
-if(BUILD_PROJECT STREQUAL "player_code")
-	build_player_code(${PLAYER_NAME})
+if((BUILD_PROJECT STREQUAL "player_code") AND (NOT PLAYER_ID STREQUAL "0"))
+	build_player_code("player_${PLAYER_ID}")
 else()
-	foreach(PLAYER_CODE_ID 1 ${NUM_PLAYERS})
-		build_player_code("player_${PLAYER_CODE_ID}")
-	endforeach(PLAYER_CODE_ID)
+	foreach(ITER 1 ${NUM_PLAYERS})
+		build_player_code("player_${ITER}")
+	endforeach(ITER)
 endif()
 
 install(DIRECTORY ${INCLUDE_PATH}/ DESTINATION include)
