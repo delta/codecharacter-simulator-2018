@@ -43,15 +43,7 @@ message Tower {
 	bool is_dead = 9;      // Sent if tower is destroyed
 }
 
-message InstructionLimitError {
-	int32 code = 1;
-	string error = 2;
-}
-
-message GameOver {
-	repeated int32 scores = 1;
-	int32 winner = 2;
-}
+message PlayerError { repeated int32 errors = 1; }
 
 /**
  * Represents the state of a game at a particular frame
@@ -75,18 +67,17 @@ message GameState {
 	repeated int64 money = 3;
 
 	/**
-	 * Instruction limit exceeded errors
-	 * Sent only if instruction limit is exceeded on a particular frame
+	 * Instruction counts corresponding to each player
 	 * If the instruction limit causes a complete game abort, the last frame's
 	 * instruction_limit_error will hold the offending frame's inst. count
 	 */
-	InstructionLimitError instruction_limit_error = 4;
+	repeated int64 instruction_counts = 4;
 
 	/**
-	 * Game over success message
-	 * Sent with last frame in game
+	 * Runtime rule violation errors corresponding to each player
+	 * Stores only the error codes, the error_map will contain the messages
 	 */
-	GameOver game_over = 5;
+	repeated PlayerError player_errors = 5;
 }
 
 /**
@@ -116,7 +107,22 @@ message Game {
 	int32 soldier_max_hp = 4;
 
 	/**
+	 * Mapping of error codes and error strings
+	 */
+	map<int32, string> error_map = 5;
+
+	/**
+	 * Player turn is cancelled if this inst. limit is crossed
+	 */
+	int64 inst_limit_turn = 6;
+
+	/**
+	 * Player game is cancelled if this inst. limit is crossed
+	 */
+	int64 inst_limit_game = 7;
+
+	/**
 	 * A list of states, representing the entire game
 	 */
-	repeated GameState states = 5;
+	repeated GameState states = 8;
 }
