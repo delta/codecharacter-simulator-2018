@@ -128,6 +128,12 @@ TEST_F(LoggerTest, WriteReadTest) {
 	logger->LogInstructionCount(PlayerId::PLAYER1, inst_counts[0]);
 	logger->LogInstructionCount(PlayerId::PLAYER2, inst_counts[1]);
 
+	// Log some errors for the first turn
+	logger->LogError(PlayerId::PLAYER1, 1, "Error 1");
+	logger->LogError(PlayerId::PLAYER1, 2, "Error 2");
+	logger->LogError(PlayerId::PLAYER2, 3, "Error 3");
+	logger->LogError(PlayerId::PLAYER2, 4, "Error 4");
+
 	// Run 3 turns, update HP, run the remaining turns
 	logger->LogState(state.get());
 	logger->LogState(state.get());
@@ -135,6 +141,7 @@ TEST_F(LoggerTest, WriteReadTest) {
 	tower2->SetHp(1);
 	logger->LogState(state.get());
 	logger->LogState(state.get());
+	logger->LogFinalGameParams();
 
 	ostringstream str_stream;
 	logger->WriteGame(str_stream);
@@ -168,6 +175,23 @@ TEST_F(LoggerTest, WriteReadTest) {
 	ASSERT_EQ(game->states(1).instruction_counts_size(), 2);
 	ASSERT_EQ(game->states(1).instruction_counts(1), 0);
 	ASSERT_EQ(game->states(1).instruction_counts(0), 0);
+
+	// Check if the errors got logged on the first turn
+	// Player 1 errors
+	ASSERT_EQ(game->states(0).player_errors(0).errors_size(), 2);
+	ASSERT_EQ(game->states(0).player_errors(0).errors(0), 1);
+	ASSERT_EQ(game->states(0).player_errors(0).errors(1), 2);
+	// Player 2 errors
+	ASSERT_EQ(game->states(0).player_errors(1).errors_size(), 2);
+	ASSERT_EQ(game->states(0).player_errors(1).errors(0), 3);
+	ASSERT_EQ(game->states(0).player_errors(1).errors(1), 4);
+
+	// Check if the mapping got set and the message string matches
+	auto error_map = *game->mutable_error_map();
+	ASSERT_EQ(error_map[game->states(0).player_errors(0).errors(0)], "Error 1");
+	ASSERT_EQ(error_map[game->states(0).player_errors(0).errors(1)], "Error 2");
+	ASSERT_EQ(error_map[game->states(0).player_errors(1).errors(0)], "Error 3");
+	ASSERT_EQ(error_map[game->states(0).player_errors(1).errors(1)], "Error 4");
 
 	// BASE TOWERS CASE
 	// Check if both towers are there in the first turn

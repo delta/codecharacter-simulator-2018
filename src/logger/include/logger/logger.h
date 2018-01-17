@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <memory>
 #include <ostream>
+#include <unordered_map>
 #include <vector>
 
 namespace logger {
@@ -56,6 +57,16 @@ class LOGGER_EXPORT Logger : public ILogger {
 	std::vector<int64_t> instruction_counts;
 
 	/**
+	 * Map holding mapping of error codes to error messages
+	 */
+	std::unordered_map<int64_t, std::string> error_map;
+
+	/**
+	 * Holds the errors that occured in a particular move, indexed by player_id
+	 */
+	std::vector<std::vector<int64_t>> errors;
+
+	/**
 	 * Number of instructions exceeding which the turn is forfeit
 	 */
 	int64_t player_instruction_limit_turn;
@@ -81,6 +92,17 @@ class LOGGER_EXPORT Logger : public ILogger {
 	 * @see ILogger#LogInstructionCount
 	 */
 	void LogInstructionCount(state::PlayerId player_id, int64_t count) override;
+
+	/**
+	 * @see ILogger#LogError
+	 */
+	void LogError(state::PlayerId player_id, int64_t code,
+	              std::string message) override;
+
+	/**
+	 * @see ILogger#LogFinalGameParams
+	 */
+	void LogFinalGameParams() override;
 
 	/**
 	 * @see ILogger#WriteGame
