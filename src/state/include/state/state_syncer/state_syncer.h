@@ -10,6 +10,7 @@
 #include "state/player_state.h"
 #include "state/state.h"
 #include "state/state_export.h"
+#include <memory>
 #include <vector>
 
 namespace state {
@@ -22,7 +23,7 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	/**
 	 * Pointer to the main state
 	 */
-	IState *state;
+	std::unique_ptr<IState> state;
 
 	// The functions below call corresponding action functions in State
 
@@ -122,7 +123,7 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	/**
 	 * Constructor for StateSyncer class
 	 */
-	StateSyncer(IState *state);
+	StateSyncer(std::unique_ptr<IState> state);
 
 	/**
 	 * Function that takes the player states and exeutes commands

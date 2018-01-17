@@ -25,13 +25,14 @@ class StateSyncerTest : public Test {
 
 	std::vector<int64_t> player_money;
 
-	std::unique_ptr<StateMock> state;
+	StateMock *state;
 
 	std::vector<PlayerState *> player_states;
 
 	std::unique_ptr<StateSyncer> state_syncer;
 
-	StateSyncerTest() : state(make_unique<StateMock>()) {
+	StateSyncerTest() {
+		auto state = make_unique<StateMock>();
 
 		Actor::SetActorIdIncrement(0);
 		// Init PlayerStates
@@ -123,7 +124,8 @@ class StateSyncerTest : public Test {
 		    .SetOwnership(PlayerId::PLAYER1, true);
 		this->map->GetElementByOffset(common_position)
 		    .SetOwnership(PlayerId::PLAYER2, true);
-		this->state_syncer = make_unique<StateSyncer>(state.get());
+		this->state = state.get();
+		this->state_syncer = make_unique<StateSyncer>(std::move(state));
 	}
 };
 
