@@ -24,7 +24,8 @@ namespace state {
  */
 struct PlayerMapElement {
 	TerrainType terrain;
-	std::array<bool, static_cast<std::size_t>(PlayerId::PLAYER_COUNT)> territory;
+	std::array<bool, static_cast<std::size_t>(PlayerId::PLAYER_COUNT)>
+	    territory;
 	bool valid_territory;
 
 	// Writable
@@ -68,13 +69,18 @@ struct STATE_EXPORT PlayerState {
 	std::array<std::array<PlayerMapElement, MAP_SIZE>, MAP_SIZE> map;
 
 	// Lists of soldiers, indexed by player_id
-	std::array<std::array<PlayerSoldier, NUM_SOLDIERS>, static_cast<std::size_t>(PlayerId::PLAYER_COUNT)> soldiers;
+	std::array<std::array<PlayerSoldier, NUM_SOLDIERS>,
+	           static_cast<std::size_t>(PlayerId::PLAYER_COUNT)>
+	    soldiers;
 
 	// Lists of towers, indexed by player_id
-	std::array<std::array<PlayerTower, MAX_NUM_TOWERS>, static_cast<std::size_t>(PlayerId::PLAYER_COUNT)> towers;
+	std::array<std::array<PlayerTower, MAX_NUM_TOWERS>,
+	           static_cast<std::size_t>(PlayerId::PLAYER_COUNT)>
+	    towers;
 
 	// Number of towers, indexed by player id
-	std::array<int64_t, static_cast<std::size_t>(PlayerId::PLAYER_COUNT)> num_towers{0, 0};
+	std::array<int64_t, static_cast<std::size_t>(PlayerId::PLAYER_COUNT)>
+	    num_towers{0, 0};
 
 	// Money
 	int64_t money;
