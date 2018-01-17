@@ -9,6 +9,7 @@
 #include "logger/logger_export.h"
 #include "state/interfaces/i_state.h"
 #include <ostream>
+#include <string>
 
 namespace logger {
 
@@ -33,6 +34,23 @@ class LOGGER_EXPORT ILogger {
 	 */
 	virtual void LogInstructionCount(state::PlayerId player_id,
 	                                 int64_t count) = 0;
+
+	/**
+	 * Takes a player and the error, and logs it into the state.  Expects all
+	 * errors with identical codes to have identical message strings.
+	 *
+	 * @param[in]   player_id  The player identifier
+	 * @param[in]   code       The error code
+	 * @param[in]   message    The error string
+	 */
+	virtual void LogError(state::PlayerId player_id, int64_t code,
+	                      std::string message) = 0;
+
+	/**
+	 * Logs final game parameters, should be called once, right before logging
+	 * state to stream (i.e before calling WriteGame)
+	 */
+	virtual void LogFinalGameParams() = 0;
 
 	/**
 	 * Writes the complete serialized logs to stream

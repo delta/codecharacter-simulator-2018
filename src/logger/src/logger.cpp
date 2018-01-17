@@ -15,8 +15,10 @@ namespace logger {
 Logger::Logger(int64_t player_instruction_limit_turn,
                int64_t player_instruction_limit_game)
     : turn_count(0), tower_logs(), logs(std::make_unique<proto::Game>()),
-}
       instruction_counts(std::vector<int64_t>((int)PlayerId::PLAYER_COUNT, 0)),
+      error_map(std::unordered_map<int64_t, std::string>()),
+      errors(std::vector<std::vector<int64_t>>(
+          (int)state::PlayerId::PLAYER_COUNT, std::vector<int64_t>())),
       player_instruction_limit_turn(player_instruction_limit_turn),
       player_instruction_limit_game(player_instruction_limit_game) {}
 
@@ -227,10 +229,36 @@ void Logger::LogState(IState *state) {
 		game_state->add_instruction_counts(inst_count);
 		inst_count = 0;
 	}
+
+	// Log the errors, clear the error vectors
+	for (auto &player_errors : errors) {
+		auto player_error_struct = game_state->add_player_errors();
+		for (auto error_code : player_errors) {
+			player_error_struct->add_errors(error_code);
+		}
+		player_errors.clear();
+	}
 }
 
 void Logger::LogInstructionCount(PlayerId player_id, int64_t count) {
 	this->instruction_counts[(int)player_id] = count;
+}
+
+void Logger::LogError(state::PlayerId player_id, int64_t code,
+                      std::string message) {
+	if (this->error_map.find(code) == error_map.end()) {
+		// The eror code doesn't exist, so we don't already have message stored
+		this->error_map[code] = message;
+	}
+
+	errors[(int)player_id].push_back(code);
+}
+
+void Logger::LogFinalGameParams() {
+	// Write the error mapping to logs
+	for (auto element : error_map) {
+		(*logs->mutable_error_map())[element.first] = element.second;
+	}
 }
 
 void Logger::WriteGame(std::ostream &write_stream) {
