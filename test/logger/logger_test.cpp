@@ -1,3 +1,4 @@
+#include "constants/constants.h"
 #include "game.pb.h"
 #include "logger/logger.h"
 #include "state/mocks/map_mock.h"
@@ -17,8 +18,9 @@ class LoggerTest : public testing::Test {
 	std::unique_ptr<MapMock> map;
 
 	LoggerTest()
-	    : logger(make_unique<Logger>()), state(make_unique<StateMock>()),
-	      map(make_unique<MapMock>()) {}
+	    : logger(make_unique<Logger>(PLAYER_INSTRUCTION_LIMIT_TURN,
+	                                 PLAYER_INSTRUCTION_LIMIT_GAME)),
+	      state(make_unique<StateMock>()), map(make_unique<MapMock>()) {}
 };
 
 TEST_F(LoggerTest, WriteReadTest) {
@@ -121,6 +123,11 @@ TEST_F(LoggerTest, WriteReadTest) {
 	    .WillOnce(Return(towers4))
 	    .WillRepeatedly(Return(towers5));
 
+	// Log some instruction counts for the first turn
+	vector<int64_t> inst_counts = {123456, 654321};
+	logger->LogInstructionCount(PlayerId::PLAYER1, inst_counts[0]);
+	logger->LogInstructionCount(PlayerId::PLAYER2, inst_counts[1]);
+
 	// Run 3 turns, update HP, run the remaining turns
 	logger->LogState(state.get());
 	logger->LogState(state.get());
@@ -151,6 +158,16 @@ TEST_F(LoggerTest, WriteReadTest) {
 	// Check if soldiers are there
 	ASSERT_EQ(game->states(0).soldiers_size(), 2);
 	ASSERT_EQ(game->states(1).soldiers_size(), 2);
+
+	// Check if instruction count is there
+	ASSERT_EQ(game->states(0).instruction_counts_size(), 2);
+	ASSERT_EQ(game->states(0).instruction_counts(0), inst_counts[0]);
+	ASSERT_EQ(game->states(0).instruction_counts(1), inst_counts[1]);
+
+	// Ensure instruction counts are cleared on next turn
+	ASSERT_EQ(game->states(1).instruction_counts_size(), 2);
+	ASSERT_EQ(game->states(1).instruction_counts(1), 0);
+	ASSERT_EQ(game->states(1).instruction_counts(0), 0);
 
 	// BASE TOWERS CASE
 	// Check if both towers are there in the first turn
