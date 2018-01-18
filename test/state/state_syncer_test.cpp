@@ -44,7 +44,7 @@ class StateSyncerTest : public Test {
 
 		// Init State Map
 		this->map_size = 5;
-		this->elt_size = 1;
+		this->elt_size = 5;
 		for (int i = 0; i < map_size; ++i) {
 			vector<MapElement> row;
 			// Map Arrangement :
@@ -76,7 +76,8 @@ class StateSyncerTest : public Test {
 		for (int i = 0; i < player_state1->soldiers[0].size(); ++i) {
 			auto *soldier = new Soldier(
 			    Actor::GetNextActorId(), PlayerId::PLAYER2, ActorType::SOLDIER,
-			    100, 100, Vector(this->map_size - 1, this->map_size - 1), 5, 5,
+			    100, 100,
+			    Vector(map_size * elt_size - 1, map_size * elt_size - 1), 5, 5,
 			    40, nullptr, nullptr);
 			player2_soldiers.push_back(soldier);
 		}
@@ -91,12 +92,13 @@ class StateSyncerTest : public Test {
 		}
 
 		// Init towers for state
-		auto *tower =
-		    new Tower(Actor::GetNextActorId(), PlayerId::PLAYER1,
-		              ActorType::TOWER, 500, 500, Vector(1, 1), false, 1);
+		auto *tower = new Tower(Actor::GetNextActorId(), PlayerId::PLAYER1,
+		                        ActorType::TOWER, 500, 500,
+		                        Vector(elt_size, elt_size), false, 1);
 		auto *tower2 = new Tower(
 		    Actor::GetNextActorId(), PlayerId::PLAYER2, ActorType::TOWER, 500,
-		    500, Vector(this->map_size - 1, this->map_size - 1), false, 1);
+		    500, Vector(map_size * elt_size - 1, map_size * elt_size - 1),
+		    false, 1);
 		vector<Tower *> player_towers;
 		vector<Tower *> player_towers2;
 		player_towers.push_back(tower);
@@ -104,11 +106,11 @@ class StateSyncerTest : public Test {
 		this->towers.push_back(player_towers);
 		this->towers.push_back(player_towers2);
 
-		Vector tower1_position(1, 1);
-		this->map->GetElementByOffset(tower1_position)
+		Vector tower1_position(1 * elt_size, 1 * elt_size);
+		this->map->GetElementByXY(tower1_position)
 		    .SetOwnership(PlayerId::PLAYER1, true);
-		Vector tower2_position(4, 4);
-		this->map->GetElementByOffset(tower2_position)
+		Vector tower2_position(4 * elt_size, 4 * elt_size);
+		this->map->GetElementByXY(tower2_position)
 		    .SetOwnership(PlayerId::PLAYER2, true);
 
 		// towers of playerstates
@@ -133,9 +135,9 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	// Adding another tower to second player to check addition of tower
 	auto towers2 = towers;
 
-	auto *tower3 =
+	auto tower3 =
 	    new Tower(Actor::GetNextActorId(), PlayerId::PLAYER2, ActorType::TOWER,
-	              500, 500, Vector(4, 2), false, 1);
+	              500, 500, Vector(4 * elt_size, 2 * elt_size), false, 1);
 	towers2[1].push_back(tower3);
 
 	// towers2
@@ -168,13 +170,15 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	this->state_syncer->UpdatePlayerStates(player_states);
 
 	// Check for Tower positions for playerstates
-	ASSERT_EQ(player_states[1]->towers[1][0].position, Vector(0, 0));
-	ASSERT_EQ(player_states[0]->towers[1][0].position,
-	          physics::Vector(this->map_size - 1 - 0, this->map_size - 1 - 0));
+	ASSERT_EQ(player_states[1]->towers[1][0].position, Vector(1, 1));
+	ASSERT_EQ(
+	    player_states[0]->towers[1][0].position,
+	    physics::Vector(map_size * elt_size - 1, map_size * elt_size - 1));
 
 	// Check for Soldier positions for playerstates
 	ASSERT_EQ(player_states[0]->soldiers[0][0].position, Vector(0, 0));
-	ASSERT_EQ(player_states[1]->soldiers[0][0].position, Vector(4, 4));
+	ASSERT_EQ(player_states[1]->soldiers[0][0].position,
+	          Vector(map_size * elt_size, map_size * elt_size));
 
 	// Check for valid territory assignment for playerstates map
 
@@ -210,22 +214,24 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	ASSERT_EQ(player_states[0]->money, player_money[0]);
 	ASSERT_EQ(player_states[1]->money, player_money[1]);
 
-	Vector tower3_position(4, 2);
-	this->map->GetElementByOffset(tower3_position)
+	this->map->GetElementByXY(tower3->GetPosition())
 	    .SetOwnership(PlayerId::PLAYER2, true);
 
 	this->state_syncer->UpdatePlayerStates(player_states);
 
 	// Check for Tower positions for playerstates
 	ASSERT_EQ(player_states[1]->towers[1][1].position,
-	          physics::Vector(this->map_size - 1 - 4, this->map_size - 1 - 2));
-	ASSERT_EQ(player_states[0]->towers[1][1].position, Vector(4, 2));
+	          physics::Vector(map_size * elt_size - 4 * elt_size,
+	                          map_size * elt_size - 2 * elt_size));
+	ASSERT_EQ(player_states[0]->towers[1][1].position,
+	          Vector(4 * elt_size, 2 * elt_size));
 	ASSERT_EQ(player_states[1]->num_towers[1], 2);
 	ASSERT_EQ(player_states[0]->num_towers[0], 1);
 
 	// Check for Soldier positions for playerstates
 	ASSERT_EQ(player_states[0]->soldiers[0][0].position, Vector(0, 0));
-	ASSERT_EQ(player_states[1]->soldiers[0][0].position, Vector(4, 4));
+	ASSERT_EQ(player_states[1]->soldiers[0][0].position,
+	          Vector(map_size * elt_size, map_size * elt_size));
 
 	// Check for valid territory assignment for playerstates map
 	/*
@@ -288,13 +294,12 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 
 	auto *tower3 = new Tower(
 	    Actor::GetNextActorId(), PlayerId::PLAYER2, ActorType::TOWER, 500, 500,
-	    Vector(this->map_size - 1, this->map_size - 1), false, 1);
+	    Vector(map_size * elt_size - 1, map_size * elt_size - 1), false, 1);
 	towers[1].push_back(tower3);
 
 	EXPECT_CALL(*state, GetAllTowers()).WillRepeatedly(Return(towers));
 
-	Vector tower3_position(4, 4);
-	this->map->GetElementByOffset(tower3_position)
+	this->map->GetElementByXY(tower3->GetPosition())
 	    .SetOwnership(PlayerId::PLAYER2, true);
 
 	this->state_syncer->UpdatePlayerStates(player_states);
@@ -370,9 +375,10 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	                        player_states[0]->soldiers[0][1].id,
 	                        player_states[0]->soldiers[0][1].soldier_target))
 	    .Times(1);
-	EXPECT_CALL(*state,
-	            MoveSoldier(static_cast<PlayerId>(1),
-	                        player_states[1]->soldiers[1][1].id, Vector(0, 1)))
+	EXPECT_CALL(*state, MoveSoldier(static_cast<PlayerId>(1),
+	                                player_states[1]->soldiers[1][1].id,
+	                                Vector(map_size * elt_size - 4,
+	                                       map_size * elt_size - 3)))
 	    .Times(1);
 	EXPECT_CALL(*state, UpgradeTower(static_cast<PlayerId>(0),
 	                                 player_states[0]->towers[0][0].id))
