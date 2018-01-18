@@ -209,7 +209,7 @@ void StateSyncer::UpdatePlayerStates(
 
 void StateSyncer::FlipMap(
     std::vector<std::vector<PlayerMapElement>> &player_map) {
-	for (int i = 0; i < (player_map.size() / 2) + 1; ++i) {
+	for (int i = 0; i < player_map.size() / 2; ++i) {
 		for (int j = 0; j < player_map[i].size(); ++j) {
 			PlayerMapElement temp = player_map[i][j];
 			player_map[i][j] = player_map[player_map[i].size() - 1 - i]
@@ -222,11 +222,8 @@ void StateSyncer::FlipMap(
 
 physics::Vector StateSyncer::FlipPosition(state::IMap *map,
                                           physics::Vector position) {
-	physics::Vector truePostion((map->GetSize() - 1) * map->GetElementSize() -
-	                                position.x * map->GetElementSize(),
-	                            (map->GetSize() - 1) * map->GetElementSize() -
-	                                position.y * map->GetElementSize());
-	return truePostion;
+	return physics::Vector(map->GetSize() * map->GetElementSize() - position.x,
+	                       map->GetSize() * map->GetElementSize() - position.y);
 }
 
 void StateSyncer::LogErrors(int64_t error_code, std::string message) {
