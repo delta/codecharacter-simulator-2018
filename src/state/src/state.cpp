@@ -78,12 +78,13 @@ void State::MoveSoldier(PlayerId player_id, int64_t soldier_id,
 void State::AttackActor(PlayerId player_id, int64_t soldier_id,
                         int64_t actor_id) {
 	auto soldier = GetSoldierById(soldier_id, player_id);
+	int num_players = (int)PlayerId::PLAYER_COUNT;
 	Actor *target;
 
 	// Determine if soldier or tower
 	// It's a soldier if actor_id is within number of soldiers-1
-	if (actor_id < (int)PlayerId::PLAYER_COUNT * soldiers[0].size()) {
-		target = GetSoldierById(actor_id, player_id);
+	if (actor_id < num_players * soldiers[0].size()) {
+		target = GetSoldierById(actor_id, static_cast<PlayerId>(((int)player_id + 1) % num_players));
 	} else {
 		target = tower_managers[(int)player_id]->GetTowerById(actor_id);
 	}
