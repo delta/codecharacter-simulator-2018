@@ -63,7 +63,7 @@ std::unique_ptr<Map> BuildMap() {
 		map_elements.push_back(row);
 	}
 
-	return std::make_unique<Map>(map_elements, MAP_SIZE);
+	return std::make_unique<Map>(map_elements, MAP_ELEMENT_SIZE);
 }
 
 std::unique_ptr<MoneyManager> BuildMoneyManager() {
