@@ -84,7 +84,9 @@ void State::AttackActor(PlayerId player_id, int64_t soldier_id,
 	// Determine if soldier or tower
 	// It's a soldier if actor_id is within number of soldiers-1
 	if (actor_id < num_players * soldiers[0].size()) {
-		target = GetSoldierById(actor_id, static_cast<PlayerId>(((int)player_id + 1) % num_players));
+		target = GetSoldierById(
+		    actor_id,
+		    static_cast<PlayerId>(((int)player_id + 1) % num_players));
 	} else {
 		target = tower_managers[(int)player_id]->GetTowerById(actor_id);
 	}
@@ -104,5 +106,15 @@ void State::SuicideTower(PlayerId player_id, int64_t tower_id) {
 	tower_managers[(int)player_id]->SuicideTower(tower_id);
 }
 
-void State::Update() {}
+void State::Update() {
+	for (auto &tower_manager : this->tower_managers) {
+		tower_manager->Update();
+	}
+
+	for (auto &player_soldiers : this->soldiers) {
+		for (auto &soldier : player_soldiers) {
+			soldier->Update();
+		}
+	}
+}
 }
