@@ -11,8 +11,10 @@
 #include "drivers/shared_memory_utils/shared_buffer.h"
 #include "drivers/shared_memory_utils/shared_memory_main.h"
 #include "drivers/timer.h"
+#include "logger/interfaces/i_logger.h"
 #include "state/interfaces/i_state_syncer.h"
 #include <atomic>
+#include <string>
 #include <thread>
 
 namespace drivers {
@@ -85,6 +87,16 @@ class DRIVERS_EXPORT MainDriver {
 	 */
 	const std::vector<PlayerResult> Run();
 
+	/**
+	 * Instance of logger to write game to log file
+	 */
+	std::unique_ptr<logger::ILogger> logger;
+
+	/**
+	 * Filename to write the final game log to
+	 */
+	std::string log_file_name;
+
   public:
 	/**
 	 * Constructor
@@ -93,7 +105,9 @@ class DRIVERS_EXPORT MainDriver {
 	           std::vector<std::unique_ptr<SharedMemoryMain>> shared_memories,
 	           int64_t player_instruction_limit_turn,
 	           int64_t player_instruction_limit_game, int64_t max_no_turns,
-	           int64_t player_count, Timer::Interval game_duration);
+	           int64_t player_count, Timer::Interval game_duration,
+	           std::unique_ptr<logger::ILogger> logger,
+	           std::string log_file_name);
 
 	/**
 	 * Blocking function that starts the game.

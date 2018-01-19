@@ -4,6 +4,7 @@
  */
 
 #include "drivers/main_driver.h"
+#include <fstream>
 
 namespace drivers {
 
@@ -12,13 +13,15 @@ MainDriver::MainDriver(
     std::vector<std::unique_ptr<SharedMemoryMain>> shared_memories,
     int64_t player_instruction_limit_turn,
     int64_t player_instruction_limit_game, int64_t max_no_turns,
-    int64_t player_count, Timer::Interval game_duration)
+    int64_t player_count, Timer::Interval game_duration,
+    std::unique_ptr<logger::ILogger> logger, std::string log_file_name)
     : state_syncer(std::move(state_syncer)),
       shared_memories(std::move(shared_memories)),
       player_instruction_limit_turn(player_instruction_limit_turn),
       player_instruction_limit_game(player_instruction_limit_game),
       max_no_turns(max_no_turns), player_count(player_count),
-      is_game_timed_out(false), game_timer(), game_duration(game_duration) {
+      is_game_timed_out(false), game_timer(), game_duration(game_duration),
+      logger(std::move(logger)), log_file_name(log_file_name) {
 	for (auto &shared_memory : this->shared_memories) {
 		// Get pointers to shared memory and store
 		SharedBuffer *shared_buffer = shared_memory->GetBuffer();
@@ -58,6 +61,8 @@ const std::vector<PlayerResult> MainDriver::Run() {
 	std::vector<int64_t> player_scores(this->player_count, 0);
 	bool instruction_count_exceeded = false;
 
+	std::ofstream log_file(log_file_name, std::ios::out | std::ios::binary);
+
 	// Main loop that runs every turn
 	for (int i = 0; i < this->max_no_turns; ++i) {
 		// Loop over each player
@@ -85,12 +90,19 @@ const std::vector<PlayerResult> MainDriver::Run() {
 			} else {
 				skip_player_turn[cur_player_id] = false;
 			}
+
+			// Write the turn's instruction counts
+			logger->LogInstructionCount(
+			    static_cast<state::PlayerId>(cur_player_id),
+			    this->shared_buffers[cur_player_id]->instruction_counter);
 		}
 
 		// If the game instruction count has been exceeded by some player, game
 		// is forfeit
 		// If the game timer has expired, the game has to stop
 		if (instruction_count_exceeded || this->is_game_timed_out) {
+			logger->LogFinalGameParams();
+			logger->WriteGame(log_file);
 			return player_results;
 		}
 
@@ -114,6 +126,8 @@ const std::vector<PlayerResult> MainDriver::Run() {
 		    PlayerResult{player_scores[i], PlayerResult::Status::NORMAL};
 	}
 
+	logger->LogFinalGameParams();
+	logger->WriteGame(log_file);
 	return player_results;
 }
 }

@@ -21,14 +21,15 @@ if((NOT BUILD_PROJECT STREQUAL "all") AND (NOT BUILD_PROJECT STREQUAL "no_tests"
 	include(${CMAKE_INSTALL_PREFIX}/lib/physics_config.cmake)
 	include(${CMAKE_INSTALL_PREFIX}/lib/player_wrapper_config.cmake)
 	include(${CMAKE_INSTALL_PREFIX}/lib/state_config.cmake)
+	include(${CMAKE_INSTALL_PREFIX}/lib/logger_config.cmake)
 endif()
 
 add_library(drivers SHARED ${SOURCE_FILES})
 
 if(UNIX AND NOT APPLE)
-	target_link_libraries(drivers physics player_wrapper state rt)
+	target_link_libraries(drivers physics player_wrapper state logger rt)
 else()
-	target_link_libraries(drivers physics player_wrapper state)
+	target_link_libraries(drivers physics player_wrapper state logger)
 endif()
 
 generate_export_header(drivers EXPORT_FILE_NAME ${EXPORTS_FILE_PATH})

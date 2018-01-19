@@ -8,8 +8,8 @@
 
 namespace state {
 
-StateSyncer::StateSyncer(std::unique_ptr<IState> state)
-    : state(std::move(state)) {}
+StateSyncer::StateSyncer(std::unique_ptr<IState> state, logger::ILogger *logger)
+    : state(std::move(state)), logger(logger) {}
 
 void StateSyncer::ExecutePlayerCommands(
     const std::vector<PlayerState *> &player_states,
@@ -30,7 +30,8 @@ void StateSyncer::ExecutePlayerCommands(
 				                        is_attacking_tower};
 
 				if (std::count(flags.begin(), flags.end(), true) > 1) {
-					LogErrors(1, "Soldier can perform only one task each turn");
+					LogErrors(static_cast<PlayerId>(player_id), 1,
+					          "Soldier can perform only one task each turn");
 				} else {
 					if (is_attacking_tower) {
 						AttackTower(static_cast<PlayerId>(player_id),
@@ -48,7 +49,8 @@ void StateSyncer::ExecutePlayerCommands(
 			for (auto const &tower :
 			     player_states[player_id]->towers[player_id]) {
 				if (tower.upgrade_tower == true && tower.suicide == true) {
-					LogErrors(1, "Tower can perform only one task each turn.");
+					LogErrors(static_cast<PlayerId>(player_id), 2,
+					          "Tower can perform only one task each turn.");
 				} else if (tower.upgrade_tower == true) {
 					UpgradeTower(static_cast<PlayerId>(player_id), tower.id);
 				} else if (tower.suicide == true) {
@@ -72,6 +74,7 @@ void StateSyncer::ExecutePlayerCommands(
 
 std::vector<int64_t> StateSyncer::UpdateMainState() {
 	state->Update();
+
 	return std::vector<int64_t>(1, 1);
 }
 
@@ -205,6 +208,9 @@ void StateSyncer::UpdatePlayerStates(
 		// Assigns money taken from state to player state's state_money
 		player_states[player_id]->money = std::move(state_money[player_id]);
 	}
+
+	// This turn is now over, update the logs
+	logger->LogState(state.get());
 }
 
 void StateSyncer::FlipMap(
@@ -226,8 +232,9 @@ physics::Vector StateSyncer::FlipPosition(state::IMap *map,
 	                       map->GetSize() * map->GetElementSize() - position.y);
 }
 
-void StateSyncer::LogErrors(int64_t error_code, std::string message) {
-	std::cout << error_code << " " << message << "!! \n";
+void StateSyncer::LogErrors(PlayerId player_id, int64_t error_code,
+                            std::string message) {
+	logger->LogError(player_id, error_code, message);
 }
 
 void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
@@ -252,7 +259,7 @@ void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
 	if (valid_target)
 		state->AttackActor(player_id, soldier_id, tower_id);
 	else
-		LogErrors(2, "Attack Opponent's tower only");
+		LogErrors(player_id, 3, "Attack Opponent's tower only");
 }
 
 void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
@@ -269,7 +276,7 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
 	if (valid_target)
 		state->AttackActor(player_id, soldier_id, enemy_soldier_id);
 	else
-		LogErrors(2, "Attack Opponent's soldier only");
+		LogErrors(player_id, 4, "Attack Opponent's soldier only");
 }
 
 void StateSyncer::BuildTower(PlayerId player_id, physics::Vector position) {
@@ -290,7 +297,7 @@ void StateSyncer::BuildTower(PlayerId player_id, physics::Vector position) {
 		}
 	}
 	if (valid_territory == false)
-		LogErrors(3, "Can be built only on own territory.");
+		LogErrors(player_id, 5, "Can be built only on own territory.");
 	else {
 		if (player_id == PlayerId::PLAYER2) {
 			state->BuildTower(player_id,

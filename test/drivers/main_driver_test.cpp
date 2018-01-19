@@ -1,6 +1,8 @@
+#include "constants/constants.h"
 #include "drivers/main_driver.h"
 #include "drivers/shared_memory_utils/shared_memory_player.h"
 #include "drivers/timer.h"
+#include "logger/mocks/logger_mock.h"
 #include "state/mocks/state_syncer_mock.h"
 #include "gtest/gtest.h"
 #include <atomic>
@@ -13,6 +15,7 @@ using namespace ::testing;
 using namespace std;
 using namespace state;
 using namespace drivers;
+using namespace logger;
 
 class MainDriverTest : public testing::Test {
   protected:
@@ -32,7 +35,8 @@ class MainDriverTest : public testing::Test {
 
 	// Returns a new mock main driver
 	static unique_ptr<MainDriver>
-	CreateMockMainDriver(unique_ptr<StateSyncerMock> state_syncer_mock) {
+	CreateMockMainDriver(unique_ptr<StateSyncerMock> state_syncer_mock,
+	                     unique_ptr<LoggerMock> v_logger) {
 		vector<unique_ptr<SharedMemoryMain>> shm;
 		for (const auto &shm_name : shared_memory_names) {
 			// Remove shm if it already exists
@@ -45,7 +49,7 @@ class MainDriverTest : public testing::Test {
 		return unique_ptr<MainDriver>(new MainDriver(
 		    move(state_syncer_mock), move(shm), turn_instruction_limit,
 		    game_instruction_limit, num_turns, player_count,
-		    Timer::Interval(time_limit_ms)));
+		    Timer::Interval(time_limit_ms), move(v_logger), "game.log"));
 	}
 
   public:
@@ -84,7 +88,17 @@ TEST_F(MainDriverTest, CleanRun) {
 	    .WillRepeatedly(Return(vector<int64_t>(player_count, 0)));
 	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_)).Times(num_turns + 1);
 
-	driver = CreateMockMainDriver(move(state_syncer_mock));
+	// Declare mock logger and setting expectations
+	unique_ptr<LoggerMock> v_logger(new LoggerMock());
+
+	EXPECT_CALL(*v_logger, LogInstructionCount(PlayerId::PLAYER1, _))
+	    .Times(num_turns);
+	EXPECT_CALL(*v_logger, LogInstructionCount(PlayerId::PLAYER2, _))
+	    .Times(num_turns);
+	EXPECT_CALL(*v_logger, LogFinalGameParams()).Times(1);
+	EXPECT_CALL(*v_logger, WriteGame(_)).Times(1);
+
+	driver = CreateMockMainDriver(move(state_syncer_mock), move(v_logger));
 
 	// Start main driver on new thread
 	vector<PlayerResult> player_results;
@@ -130,7 +144,16 @@ TEST_F(MainDriverTest, EarlyPlayerExit) {
 	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_))
 	    .Times(num_turns / 2 + 1);
 
-	driver = CreateMockMainDriver(move(state_syncer_mock));
+	// Logger called num_turns/2 + 1 times before the driver exits
+	unique_ptr<LoggerMock> v_logger(new LoggerMock());
+	EXPECT_CALL(*v_logger, LogInstructionCount(PlayerId::PLAYER1, _))
+	    .Times(num_turns / 2 + 1);
+	EXPECT_CALL(*v_logger, LogInstructionCount(PlayerId::PLAYER2, _))
+	    .Times(num_turns / 2 + 1);
+	EXPECT_CALL(*v_logger, LogFinalGameParams()).Times(1);
+	EXPECT_CALL(*v_logger, WriteGame(_)).Times(1);
+
+	driver = CreateMockMainDriver(move(state_syncer_mock), move(v_logger));
 
 	vector<PlayerResult> player_results;
 	thread main_runner(
@@ -172,7 +195,15 @@ TEST_F(MainDriverTest, InstructionLimitReached) {
 	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_))
 	    .Times(num_turns / 2 + 1);
 
-	driver = CreateMockMainDriver(move(state_syncer_mock));
+	unique_ptr<LoggerMock> v_logger(new LoggerMock());
+	EXPECT_CALL(*v_logger, LogInstructionCount(PlayerId::PLAYER1, _))
+	    .Times(num_turns / 2 + 1);
+	EXPECT_CALL(*v_logger, LogInstructionCount(PlayerId::PLAYER2, _))
+	    .Times(num_turns / 2 + 1);
+	EXPECT_CALL(*v_logger, LogFinalGameParams()).Times(1);
+	EXPECT_CALL(*v_logger, WriteGame(_)).Times(1);
+
+	driver = CreateMockMainDriver(move(state_syncer_mock), move(v_logger));
 
 	vector<PlayerResult> player_results;
 	thread main_runner(
