@@ -126,6 +126,25 @@ class STATE_EXPORT Actor : public IUpdatable {
 	void SetHp(int64_t hp);
 
 	/**
+	 * Gets the latest version of HP
+	 *
+	 * Some Actors may buffer damage accumulated over a turn and apply it at
+	 * the turn's end. This method returns HP after applying buffered damage
+	 *
+	 * @return     The latest HP
+	 */
+	virtual int64_t GetLatestHp() = 0;
+
+	/**
+	 * Reduces the Actor's HP by the specified amount
+	 *
+	 * Ensures that HP does not drop below zero
+	 *
+	 * @param[in]  damage_amount  The damage amount
+	 */
+	virtual void Damage(int64_t damage_amount) = 0;
+
+	/**
 	 * Get the position of the actor
 	 *
 	 * @return     Actor Position

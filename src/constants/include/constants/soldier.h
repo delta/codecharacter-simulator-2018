@@ -21,6 +21,7 @@ const int64_t SOLDIER_ATTACK_RANGE = 30;
 const int64_t SOLDIER_ATTACK_DAMAGE = 25;
 
 // Number of turns a soldier takes to respawn
+// Must be greater than 0, otherwise horrible things will occur
 const int64_t SOLDIER_TOTAL_TURNS_TO_RESPAWN = 10;
 
 #endif

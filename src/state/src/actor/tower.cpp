@@ -29,5 +29,11 @@ void Tower::Upgrade() {
 	this->hp = this->max_hp;
 }
 
+int64_t Tower::GetLatestHp() { return hp; }
+
+void Tower::Damage(int64_t damage_amount) {
+	this->hp = std::max<int64_t>(0, this->hp - damage_amount);
+}
+
 void Tower::Update() {}
 }
