@@ -21,7 +21,6 @@ target_link_libraries(main physics state logger drivers player_wrapper constants
 
 target_include_directories(main PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${INCLUDE_PATH}>
-	$<BUILD_INTERFACE:${EXPORTS_DIR}>
 	$<INSTALL_INTERFACE:include>
 )
 
