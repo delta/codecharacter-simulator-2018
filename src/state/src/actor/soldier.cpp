@@ -22,7 +22,8 @@ Soldier::Soldier(ActorId id, PlayerId player_id, ActorType actor_type,
       path_planner(path_planner), money_manager(money_manager),
       attack_target(nullptr), destination(physics::Vector(0, 0)),
       is_destination_set(false), new_position(physics::Vector(0, 0)),
-      is_new_position_set(false), state(std::make_unique<IdleState>(this)) {}
+      is_new_position_set(false), damage_incurred(0),
+      state(std::make_unique<IdleState>(this)) {}
 
 int64_t Soldier::GetSpeed() { return speed; }
 
@@ -94,11 +95,31 @@ void Soldier::Attack(Actor *attack_target) {
 	this->is_destination_set = false;
 }
 
+int64_t Soldier::GetLatestHp() { return hp - damage_incurred; }
+
+void Soldier::Damage(int64_t damage_amount) {
+	this->damage_incurred =
+	    std::min<int64_t>(this->hp, this->damage_incurred + damage_amount);
+}
+
 void Soldier::LateUpdate() {
 	// If a move was performed, copy new_position into position
 	if (IsNewPositionSet()) {
 		SetPosition(new_position);
 		ClearNewPosition();
+	}
+
+	// Update HP and reset damage counter
+	this->SetHp(this->GetLatestHp());
+	this->damage_incurred = 0;
+
+	// Allow soldier to transition to dead state if it's dead
+	if (this->hp == 0 && state->GetName() != SoldierStateName::DEAD) {
+		auto new_state = std::move(state->Update());
+		state->Exit();
+		state = std::move(new_state);
+		state->Enter();
+		state->Update();
 	}
 }
 

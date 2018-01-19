@@ -71,6 +71,20 @@ class STATE_EXPORT Tower : public Actor {
 	void Upgrade();
 
 	/**
+	 * Returns tower's hp
+	 *
+	 * @see Actor#GetLatestHp
+	 *
+	 * @return     The tower's hp
+	 */
+	int64_t GetLatestHp() override;
+
+	/**
+	 * @see Actor#Damage
+	 */
+	void Damage(int64_t damage_amount) override;
+
+	/**
 	 * Update function of the tower
 	 */
 	void Update() override;

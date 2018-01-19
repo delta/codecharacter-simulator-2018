@@ -31,7 +31,7 @@ std::unique_ptr<SoldierState> AttackState::Update() {
 	}
 
 	// Check if the target is dead
-	if (soldier->GetAttackTarget()->GetHp() == 0) {
+	if (soldier->GetAttackTarget()->GetLatestHp() == 0) {
 		soldier->SetAttackTarget(nullptr);
 		return std::make_unique<IdleState>(soldier);
 	}
@@ -43,12 +43,10 @@ std::unique_ptr<SoldierState> AttackState::Update() {
 
 	// Execute attack code
 	// Inflict damage on opponent
-	int64_t soldier_attack_damage = soldier->GetAttackDamage();
-	soldier->GetAttackTarget()->SetHp(std::max(
-	    (long)0, soldier->GetAttackTarget()->GetHp() - soldier_attack_damage));
+	soldier->GetAttackTarget()->Damage(soldier->GetAttackDamage());
 
 	// Check if opponent is now dead
-	if (soldier->GetAttackTarget()->GetHp() == 0) {
+	if (soldier->GetAttackTarget()->GetLatestHp() == 0) {
 		// Reward player for kill
 		soldier->GetMoneyManager()->RewardKill(soldier->GetAttackTarget());
 	}

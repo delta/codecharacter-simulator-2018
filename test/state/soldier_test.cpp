@@ -67,7 +67,9 @@ class SoldierTest : public Test {
 
 TEST_F(SoldierTest, Respawn) {
 	// Kill the soldier
-	soldier->SetHp(0);
+	soldier->Damage(soldier->GetHp());
+	ASSERT_EQ(soldier->GetHp(), soldier->GetMaxHp());
+	ASSERT_EQ(soldier->GetLatestHp(), 0);
 
 	// Run some updates of the soldier
 	// until the turn before it respawns
@@ -335,4 +337,31 @@ TEST_F(SoldierTest, AttackAndRunFairness2) {
 	// Soldier 2 should have still suffered the second hit
 	ASSERT_EQ(soldier2->GetHp(),
 	          soldier2->GetMaxHp() - (2 * soldier->GetAttackDamage()));
+}
+
+TEST_F(SoldierTest, SimultaneousAttackFairness) {
+	// Create second soldier with identical stats on the opponent's team
+	auto soldier2 = make_unique<Soldier>(
+	    1, state::PlayerId::PLAYER2, state::ActorType::SOLDIER, 100, 100,
+	    physics::Vector(20, 20), 5, 3, 40, path_planner.get(),
+	    money_manager.get());
+	// Place soldiers at same position
+	soldier->SetPosition(physics::Vector(20, 20));
+
+	// Make both fight to the death, both should die together since they have
+	// equal stats
+	soldier->Attack(soldier2.get());
+	soldier2->Attack(soldier.get());
+
+	while (soldier->GetHp() != 0) {
+		// Enemy shouldn't die prematurely
+		ASSERT_NE(soldier2->GetHp(), 0);
+		soldier->Update();
+		soldier2->Update();
+		soldier->LateUpdate();
+		soldier2->LateUpdate();
+	}
+
+	// Enemy should have died with our soldier
+	ASSERT_EQ(soldier2->GetHp(), 0);
 }
