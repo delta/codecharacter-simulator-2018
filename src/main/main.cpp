@@ -2,6 +2,7 @@
 #include "drivers/main_driver.h"
 #include "drivers/shared_memory_utils/shared_memory_main.h"
 #include "drivers/timer.h"
+#include "logger/logger.h"
 #include "physics/vector.h"
 #include "state/actor/actor.h"
 #include "state/actor/soldier.h"
@@ -20,6 +21,7 @@
 using namespace drivers;
 using namespace physics;
 using namespace state;
+using namespace logger;
 
 int num_players = (int)PlayerId::PLAYER_COUNT;
 
@@ -30,6 +32,8 @@ auto Tower::max_hp_levels = TOWER_HPS;
 
 auto TowerManager::build_costs = TOWER_BUILD_COSTS;
 auto TowerManager::tower_ranges = TOWER_RANGES;
+
+const std::string GAME_LOG_FILE_NAME = "game.log";
 
 std::vector<std::string> shm_names(num_players);
 
@@ -125,7 +129,11 @@ std::unique_ptr<State> BuildState() {
 }
 
 std::unique_ptr<drivers::MainDriver> BuildMainDriver() {
-	auto state_syncer = std::make_unique<StateSyncer>(std::move(BuildState()));
+	auto logger = std::make_unique<Logger>(PLAYER_INSTRUCTION_LIMIT_TURN,
+	                                       PLAYER_INSTRUCTION_LIMIT_GAME);
+
+	auto state_syncer =
+	    std::make_unique<StateSyncer>(std::move(BuildState()), logger.get());
 	std::vector<std::unique_ptr<SharedMemoryMain>> shm_mains;
 
 	for (int i = 0; i < num_players; ++i) {
@@ -137,7 +145,8 @@ std::unique_ptr<drivers::MainDriver> BuildMainDriver() {
 	return std::make_unique<MainDriver>(
 	    std::move(state_syncer), std::move(shm_mains),
 	    PLAYER_INSTRUCTION_LIMIT_TURN, PLAYER_INSTRUCTION_LIMIT_GAME, NUM_TURNS,
-	    num_players, Timer::Interval(GAME_DURATION_MS));
+	    num_players, Timer::Interval(GAME_DURATION_MS), std::move(logger),
+	    GAME_LOG_FILE_NAME);
 }
 
 int main(int argc, char *argv[]) {

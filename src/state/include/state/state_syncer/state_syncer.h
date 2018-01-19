@@ -5,6 +5,7 @@
 #ifndef STATE_SYNCER_STATE_SYNCER_H
 #define STATE_SYNCER_STATE_SYNCER_H
 
+#include "logger/interfaces/i_logger.h"
 #include "state/interfaces/i_state.h"
 #include "state/interfaces/i_state_syncer.h"
 #include "state/player_state.h"
@@ -24,6 +25,11 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * Pointer to the main state
 	 */
 	std::unique_ptr<IState> state;
+
+	/**
+	 * Pointer to the logger instance
+	 */
+	logger::ILogger *logger;
 
 	// The functions below call corresponding action functions in State
 
@@ -113,17 +119,18 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	/**
 	 * Logs the logic errors made by player
 	 *
+	 * @param[in]	player_id  	  player identifier
 	 * @param[in]	error_code	  code of error
 	 * @param[in]	message	      error message
 	 *
 	 */
-	void LogErrors(int64_t error_code, std::string message);
+	void LogErrors(PlayerId player_id, int64_t error_code, std::string message);
 
   public:
 	/**
 	 * Constructor for StateSyncer class
 	 */
-	StateSyncer(std::unique_ptr<IState> state);
+	StateSyncer(std::unique_ptr<IState> state, logger::ILogger *logger);
 
 	/**
 	 * Function that takes the player states and exeutes commands

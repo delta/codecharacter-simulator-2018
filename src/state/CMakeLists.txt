@@ -52,6 +52,7 @@ if((NOT BUILD_PROJECT STREQUAL "all") AND (NOT BUILD_PROJECT STREQUAL "no_tests"
 else()
 	target_include_directories(state PUBLIC
 		$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/constants/include>
+		$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src/logger/include>
 	)
 endif()
 

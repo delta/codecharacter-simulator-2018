@@ -1,3 +1,4 @@
+#include "logger/mocks/logger_mock.h"
 #include "state/mocks/state_mock.h"
 #include "state/mocks/state_syncer_mock.h"
 #include "state/player_state.h"
@@ -11,6 +12,7 @@ using namespace std;
 using namespace state;
 using namespace physics;
 using namespace testing;
+using namespace logger;
 
 class StateSyncerTest : public Test {
   protected:
@@ -31,7 +33,10 @@ class StateSyncerTest : public Test {
 
 	std::unique_ptr<StateSyncer> state_syncer;
 
-	StateSyncerTest() {
+	std::unique_ptr<LoggerMock> logger;
+
+	StateSyncerTest() : logger(std::move(make_unique<LoggerMock>())) {
+
 		auto state = make_unique<StateMock>();
 
 		Actor::SetActorIdIncrement(0);
@@ -127,11 +132,16 @@ class StateSyncerTest : public Test {
 		this->map->GetElementByOffset(common_position)
 		    .SetOwnership(PlayerId::PLAYER2, true);
 		this->state = state.get();
-		this->state_syncer = make_unique<StateSyncer>(std::move(state));
+
+		this->state_syncer =
+		    make_unique<StateSyncer>(std::move(state), logger.get());
 	}
 };
 
 TEST_F(StateSyncerTest, UpdationTest) {
+	// Set logger expectations
+	EXPECT_CALL(*logger, LogState(_)).WillRepeatedly(Return());
+
 	// Adding another tower to second player to check addition of tower
 	auto towers2 = towers;
 
@@ -284,6 +294,10 @@ TEST_F(StateSyncerTest, UpdationTest) {
 }
 
 TEST_F(StateSyncerTest, ExecutionTest) {
+	// Set logger expectations
+	EXPECT_CALL(*logger, LogState(_)).WillRepeatedly(Return());
+	EXPECT_CALL(*logger, LogError(_, _, _)).WillRepeatedly(Return());
+
 	player_money[1] = 5000;
 
 	EXPECT_CALL(*state, GetMap()).WillRepeatedly(Return(map.get()));
