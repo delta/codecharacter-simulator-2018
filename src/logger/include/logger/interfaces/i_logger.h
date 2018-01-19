@@ -18,6 +18,8 @@ namespace logger {
  */
 class LOGGER_EXPORT ILogger {
   public:
+	virtual ~ILogger(){};
+
 	/**
 	 * Takes a pointer to the main state, and logs all information
 	 *
