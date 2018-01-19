@@ -116,5 +116,11 @@ void State::Update() {
 			soldier->Update();
 		}
 	}
+
+	for (auto &player_soldiers : this->soldiers) {
+		for (auto &soldier : player_soldiers) {
+			soldier->LateUpdate();
+		}
+	}
 }
 }
