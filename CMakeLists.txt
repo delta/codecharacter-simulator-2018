@@ -6,7 +6,6 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 include(GenerateExportHeader)
-include(clang-format.cmake)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -15,6 +14,10 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 set(BUILD_PROJECT "all" CACHE STRING "Set the name of the project to build")
 set(BOOST_ROOT "" CACHE PATH "Path to Boost libraries")
 set(NUM_PLAYERS "2" CACHE STRING "Number of players in the game")
+
+if((NOT BUILD_PROJECT STREQUAL "no_tests") AND (NOT BUILD_PROJECT STREQUAL "player_code"))
+	include(clang-format.cmake)
+endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
