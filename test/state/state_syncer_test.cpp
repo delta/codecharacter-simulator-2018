@@ -499,6 +499,10 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	                              "Insufficient funds to upgrade tower"))
 	    .Times(1);
 
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER1, 14,
+	                              "Cannot attack Base Tower of opponent"))
+	    .Times(1);
+
 	// Single soldier targeting soldier and tower
 	player_states[0]->soldiers[0][0].tower_target =
 	    player_states[0]->towers[1][0].id;
@@ -572,16 +576,19 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	// Trying to build without sufficient funds
 	player_states[1]->map[2][0].build_tower = true;
 
-	// Expect 15 errors to be logged.
+	// Trying to attack Base Tower of opponent.
+	player_states[0]->soldiers[0][8].tower_target =
+	    player_states[0]->towers[1][0].id;
+
 	this->state_syncer->ExecutePlayerCommands(player_states,
 	                                          skip_player_command_flags);
 
 	// Resetting to default values
 	this->state_syncer->UpdatePlayerStates(player_states);
 
-	// Different soldiers given different jobs
+	// Different soldiers given different valid jobs
 	player_states[0]->soldiers[0][0].tower_target =
-	    player_states[0]->towers[1][0].id;
+	    player_states[0]->towers[1][1].id;
 	player_states[0]->soldiers[0][1].soldier_target =
 	    player_states[0]->soldiers[1][0].id;
 	player_states[1]->soldiers[1][1].destination = Vector(4, 3);
