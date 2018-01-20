@@ -110,10 +110,11 @@ class StateSyncerTest : public Test {
 		auto *tower = new Tower(Actor::GetNextActorId(), PlayerId::PLAYER1,
 		                        ActorType::TOWER, 500, 500,
 		                        Vector(elt_size, elt_size), false, 1);
+		// Base Tower of player2
 		auto *tower2 = new Tower(
 		    Actor::GetNextActorId(), PlayerId::PLAYER2, ActorType::TOWER, 500,
-		    500, Vector(map_size * elt_size - 1, map_size * elt_size - 1),
-		    false, 1);
+		    500, Vector(map_size * elt_size - 1, map_size * elt_size - 1), true,
+		    1);
 		vector<Tower *> player_towers;
 		vector<Tower *> player_towers2;
 		player_towers.push_back(tower);
@@ -396,7 +397,11 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	EXPECT_CALL(*logger, LogState(_)).WillRepeatedly(Return());
 	EXPECT_CALL(*logger, LogError(_, _, _)).WillRepeatedly(Return());
 
-	player_money[1] = 5000;
+	player_money[0] = 1300;
+	player_money[1] = 400;
+
+	auto player_money2 = player_money;
+	player_money2[1] = 900;
 
 	auto *tower3 = new Tower(
 	    Actor::GetNextActorId(), PlayerId::PLAYER2, ActorType::TOWER, 500, 500,
@@ -406,9 +411,18 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	this->map->GetElementByXY(tower3->GetPosition())
 	    .SetOwnership(PlayerId::PLAYER2, true);
 
+	// Assigning another offset to player1
+	this->map->GetElementByOffset(Vector(0, 0))
+	    .SetOwnership(PlayerId::PLAYER1, true);
+
 	EXPECT_CALL(*state, GetMap()).WillRepeatedly(Return(map.get()));
 
-	EXPECT_CALL(*state, GetMoney()).WillRepeatedly(Return(player_money));
+	EXPECT_CALL(*state, GetMoney())
+	    .Times(4)
+	    .WillOnce(Return(player_money))
+	    .WillOnce(Return(player_money))
+	    .WillOnce(Return(player_money))
+	    .WillOnce(Return(player_money2));
 
 	EXPECT_CALL(*state, GetAllSoldiers()).WillRepeatedly(Return(soldiers));
 
@@ -468,6 +482,22 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	            LogError(PlayerId::PLAYER1, 9,
 	                     "Tower can be built only on valid territory."))
 	    .Times(2);
+
+	EXPECT_CALL(*logger,
+	            LogError(PlayerId::PLAYER2, 10, "Cannot destroy base tower"))
+	    .Times(1);
+
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER1, 12,
+	                              "Insufficient funds to build tower"))
+	    .Times(1);
+
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2, 12,
+	                              "Insufficient funds to build tower"))
+	    .Times(1);
+
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2, 13,
+	                              "Insufficient funds to upgrade tower"))
+	    .Times(1);
 
 	// Single soldier targeting soldier and tower
 	player_states[0]->soldiers[0][0].tower_target =
@@ -530,11 +560,17 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	player_states[1]->towers[1][1].id = player_states[1]->towers[1][1].id + 10;
 	player_states[1]->towers[1][1].upgrade_tower = true;
 
+	// Trying to upgrade without sufficient funds
+	player_states[1]->towers[1][0].upgrade_tower = true;
+
 	// Trying to build in territory that is not yours
 	player_states[0]->map[3][3].build_tower = true;
 
 	// Trying to build in territory that belongs to both
 	player_states[0]->map[0][4].build_tower = true;
+
+	// Trying to build without sufficient funds
+	player_states[1]->map[2][0].build_tower = true;
 
 	// Expect 15 errors to be logged.
 	this->state_syncer->ExecutePlayerCommands(player_states,
@@ -553,12 +589,14 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	player_states[0]->towers[0][0].upgrade_tower = true;
 	player_states[1]->towers[1][1].suicide = true;
 	// Building towers
-	this->map->GetElementByOffset(Vector(0, 0))
-	    .SetOwnership(PlayerId::PLAYER1, true);
 	player_states[0]->map[0][0].build_tower = true;
-	player_states[0]->map[0][0].territory[0] = true;
-	player_states[0]->map[0][0].territory[1] = false;
-	player_states[0]->map[0][0].valid_territory = true;
+	player_states[1]->map[2][0].build_tower = true;
+
+	// Trying to build after spending enough to not have enough balance
+	player_states[0]->map[1][2].build_tower = true;
+
+	// Trying to suicide base tower
+	player_states[1]->towers[1][0].suicide = true;
 
 	// Checking if these exact calls are made when executing player commands
 	EXPECT_CALL(*state,
@@ -583,6 +621,8 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	                                 player_states[1]->towers[1][1].id))
 	    .Times(1);
 	EXPECT_CALL(*state, BuildTower(static_cast<PlayerId>(0), Vector(0, 0)))
+	    .Times(1);
+	EXPECT_CALL(*state, BuildTower(static_cast<PlayerId>(1), Vector(2, 4)))
 	    .Times(1);
 
 	// Execute the commands

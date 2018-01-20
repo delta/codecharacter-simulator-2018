@@ -20,6 +20,8 @@ void StateSyncer::ExecutePlayerCommands(
     const std::vector<bool> &skip_player_commands_flags) {
 	auto state_soldiers = state->GetAllSoldiers();
 	auto state_towers = state->GetAllTowers();
+	auto state_money = state->GetMoney();
+
 	for (int player_id = 0; player_id < player_states.size(); ++player_id) {
 		if (skip_player_commands_flags[player_id] == false) {
 			int64_t soldier_index = 0;
@@ -64,7 +66,7 @@ void StateSyncer::ExecutePlayerCommands(
 					          "Tower can perform only one task each turn");
 				} else if (tower.upgrade_tower == true) {
 					UpgradeTower(static_cast<PlayerId>(player_id), tower.id,
-					             tower_index);
+					             tower_index, state_money[player_id]);
 				} else if (tower.suicide == true) {
 					SuicideTower(static_cast<PlayerId>(player_id), tower.id,
 					             tower_index);
@@ -78,7 +80,8 @@ void StateSyncer::ExecutePlayerCommands(
 					if (player_states[player_id]->map[j][k].build_tower ==
 					    true) {
 						BuildTower(static_cast<PlayerId>(player_id),
-						           physics::Vector(j, k));
+						           physics::Vector(j, k),
+						           state_money[player_id]);
 					}
 				}
 			}
@@ -388,11 +391,12 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
 	state->AttackActor(player_id, soldier_id, enemy_soldier_id);
 }
 
-void StateSyncer::BuildTower(PlayerId player_id, physics::Vector offset) {
+void StateSyncer::BuildTower(PlayerId player_id, physics::Vector offset,
+                             int64_t &player_money) {
 	bool valid_territory = true;
 	auto *map = state->GetMap();
-	auto state_money = state->GetMoney();
 	auto state_towers = state->GetAllTowers();
+
 	// Flip position for Player2
 	if (player_id == PlayerId::PLAYER2) {
 		offset.x = map->GetSize() - 1 - offset.x;
@@ -421,11 +425,19 @@ void StateSyncer::BuildTower(PlayerId player_id, physics::Vector offset) {
 		return;
 	}
 
+	// Check if player has sufficient balance
+	int64_t tower_cost = tower_build_costs[0];
+	if (player_money < tower_cost) {
+		LogErrors(player_id, 12, "Insufficient funds to build tower");
+		return;
+	}
+
+	player_money = player_money - tower_cost;
 	state->BuildTower(player_id, offset);
 }
 
 void StateSyncer::UpgradeTower(PlayerId player_id, int64_t tower_id,
-                               int64_t tower_index) {
+                               int64_t tower_index, int64_t &player_money) {
 	auto state_towers = state->GetAllTowers();
 	// Check if id has been altered.
 	if (tower_id !=
@@ -433,6 +445,24 @@ void StateSyncer::UpgradeTower(PlayerId player_id, int64_t tower_id,
 		LogErrors(player_id, 3, "Do not alter id of actors");
 		return;
 	}
+
+	// Check if tower is upgradable to another level
+	int64_t current_tower_level = static_cast<int64_t>(
+	    state_towers[static_cast<int>(player_id)][tower_index]
+	        ->GetTowerLevel());
+	if (current_tower_level == tower_build_costs.size()) {
+		LogErrors(player_id, 11, "Max level reached, upgrade not allowed");
+		return;
+	}
+
+	// Check if player has sufficient balance
+	int64_t tower_upgrade_cost = tower_build_costs[current_tower_level];
+	if (player_money < tower_upgrade_cost) {
+		LogErrors(player_id, 13, "Insufficient funds to upgrade tower");
+		return;
+	}
+
+	player_money = player_money - tower_upgrade_cost;
 	state->UpgradeTower(player_id, tower_id);
 }
 
@@ -445,6 +475,13 @@ void StateSyncer::SuicideTower(PlayerId player_id, int64_t tower_id,
 		LogErrors(player_id, 3, "Do not alter id of actors");
 		return;
 	}
+
+	// Check if tower is base tower
+	if (state_towers[static_cast<int>(player_id)][tower_index]->GetIsBase()) {
+		LogErrors(player_id, 10, "Cannot destroy base tower");
+		return;
+	}
+
 	state->SuicideTower(player_id, tower_id);
 }
 }

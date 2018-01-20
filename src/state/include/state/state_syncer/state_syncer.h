@@ -84,10 +84,12 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 *
 	 * @param[in]  player_id     player to act upon
 	 * @param[in]  offset        offset to build the tower at
+	 * @param[in]  player_money  money of player
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	void BuildTower(PlayerId player_id, physics::Vector offset);
+	void BuildTower(PlayerId player_id, physics::Vector offset,
+	                int64_t &player_money);
 
 	/**
 	 * Handles tower upgrade commands
@@ -95,11 +97,12 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * @param[in]  player_id     player to act upon
 	 * @param[in]  tower_id      tower to act upon
 	 * @param[in]  tower_index   index of tower in state
+	 * @param[in]  player_money  money of player
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	void UpgradeTower(PlayerId player_id, int64_t tower_id,
-	                  int64_t tower_index);
+	void UpgradeTower(PlayerId player_id, int64_t tower_id, int64_t tower_index,
+	                  int64_t &player_money);
 
 	/**
 	 * Handles tower self destruct commands
