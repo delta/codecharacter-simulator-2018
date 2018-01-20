@@ -32,26 +32,13 @@ void Logger::LogState(IState *state) {
 
 	if (turn_count == 1) {
 		// Stuff that should only be done on the first turn
-		// Set the terrain
+		// Set the terrain properties
 		auto *map = state->GetMap();
 		auto map_size = map->GetSize();
-		auto *terrain = logs->mutable_terrain();
+		auto element_size = map->GetElementSize();
 
-		for (int i = 0; i < map_size; ++i) {
-			auto *terrain_row = terrain->add_rows();
-			for (int j = 0; j < map_size; ++j) {
-				auto *terrain_elem = terrain_row->add_elements();
-				switch (map->GetElementByOffset(physics::Vector(i, j))
-				            .GetTerrainType()) {
-				case TerrainType::LAND:
-					terrain_elem->set_type(proto::TerrainElement::LAND);
-					break;
-				case TerrainType::WATER:
-					terrain_elem->set_type(proto::TerrainElement::WATER);
-					break;
-				}
-			}
-		}
+		logs->set_terrain_size(map_size);
+		logs->set_terrain_element_size(element_size);
 
 		// Set the tower ranges
 		for (auto tower_range : TowerManager::tower_ranges) {

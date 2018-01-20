@@ -95,25 +95,21 @@ TEST_F(LoggerTest, WriteReadTest) {
 	towers5[0].erase(towers5[0].begin(), towers5[0].begin() + 2);
 	towers5[0].push_back(tower5);
 
-	// Dummy Map element
-	auto *map_element_land = new MapElement(Vector(0, 0), TerrainType::LAND);
+	/// Set Map expectations
+	int64_t map_size = 30;
+	int64_t element_size = 50;
+	EXPECT_CALL(*state, GetMap()).WillOnce(Return(map.get()));
+	EXPECT_CALL(*map, GetSize()).WillOnce(Return(map_size));
+	EXPECT_CALL(*map, GetElementSize()).WillOnce(Return(element_size));
 
-	// Dummy money values
+	// Set money expectations
 	vector<int64_t> money1 = {400, 500};
 	vector<int64_t> money2 = {300, 600};
-
-	EXPECT_CALL(*state, GetMap()).WillOnce(Return(map.get()));
-
-	EXPECT_CALL(*map, GetSize()).WillOnce(Return(30));
-
-	EXPECT_CALL(*map, GetElementByOffset(_))
-	    .Times(30 * 30)
-	    .WillRepeatedly(ReturnRef(*map_element_land));
-
 	EXPECT_CALL(*state, GetMoney())
 	    .WillOnce(Return(money1))
 	    .WillRepeatedly(Return(money2));
 
+	// Set state expectations
 	EXPECT_CALL(*state, GetAllSoldiers()).WillRepeatedly(Return(soldiers));
 
 	EXPECT_CALL(*state, GetAllTowers())
@@ -156,11 +152,9 @@ TEST_F(LoggerTest, WriteReadTest) {
 	ASSERT_EQ(game->states(1).money(0), money2[0]);
 	ASSERT_EQ(game->states(1).money(1), money2[1]);
 
-	// Check for terrain
-	ASSERT_EQ(game->terrain().rows_size(), 30);
-	ASSERT_EQ(game->terrain().rows(0).elements_size(), 30);
-	ASSERT_EQ(game->terrain().rows(0).elements(0).type(),
-	          proto::TerrainElement::LAND);
+	// Check for terrain properties
+	ASSERT_EQ(game->terrain_size(), map_size);
+	ASSERT_EQ(game->terrain_element_size(), element_size);
 
 	// Check if soldiers are there
 	ASSERT_EQ(game->states(0).soldiers_size(), 2);

@@ -6,18 +6,6 @@
 syntax = "proto3";
 package proto;
 
-message TerrainElement {
-	enum TERRAIN_TYPE {
-		WATER = 0;
-		LAND = 1;
-	};
-	TERRAIN_TYPE type = 1;
-}
-
-message TerrainRow { repeated TerrainElement elements = 1; }
-
-message Terrain { repeated TerrainRow rows = 1; }
-
 enum SOLDIER_STATE {
 	IDLE = 0;
 	MOVE = 1;
@@ -49,6 +37,7 @@ message PlayerError { repeated int32 errors = 1; }
  * Represents the state of a game at a particular frame
  */
 message GameState {
+
 	/**
 	 * List of all soldiers whose properties change
 	 * All soldiers are sent during the first frame
@@ -86,43 +75,47 @@ message GameState {
 message Game {
 
 	/**
-	 * Map with terrain information
-	 * Sent only during the first frame
-	 */
-	Terrain terrain = 1;
-
-	/**
 	 * Range of a tower, corresponding to each tower level
 	 */
-	repeated int32 tower_ranges = 2;
+	repeated int32 tower_ranges = 1;
 
 	/**
 	 * Maximum HP of a tower, corresponding to each tower level
 	 */
-	repeated int32 tower_max_hps = 3;
+	repeated int32 tower_max_hps = 2;
 
 	/**
 	 * Maximum HP of a soldier
 	 */
-	int32 soldier_max_hp = 4;
+	int32 soldier_max_hp = 3;
 
 	/**
 	 * Mapping of error codes and error strings
 	 */
-	map<int32, string> error_map = 5;
+	map<int32, string> error_map = 4;
 
 	/**
 	 * Player turn is cancelled if this inst. limit is crossed
 	 */
-	int64 inst_limit_turn = 6;
+	int64 inst_limit_turn = 5;
 
 	/**
 	 * Player game is cancelled if this inst. limit is crossed
 	 */
-	int64 inst_limit_game = 7;
+	int64 inst_limit_game = 6;
+
+	/**
+	 * Size of the map, in number of elements
+	 */
+	int32 terrain_size = 7;
+
+	/**
+	 * Size of one terrain element
+	 */
+	int32 terrain_element_size = 8;
 
 	/**
 	 * A list of states, representing the entire game
 	 */
-	repeated GameState states = 8;
+	repeated GameState states = 9;
 }
