@@ -10,8 +10,10 @@
 
 namespace state {
 
-StateSyncer::StateSyncer(std::unique_ptr<IState> state, logger::ILogger *logger)
-    : state(std::move(state)), logger(logger) {}
+StateSyncer::StateSyncer(std::unique_ptr<IState> state, logger::ILogger *logger,
+                         std::vector<int64_t> tower_build_costs)
+    : state(std::move(state)), logger(logger),
+      tower_build_costs(tower_build_costs) {}
 
 void StateSyncer::ExecutePlayerCommands(
     const std::vector<PlayerState *> &player_states,

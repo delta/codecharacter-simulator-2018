@@ -36,7 +36,11 @@ class StateSyncerTest : public Test {
 
 	std::unique_ptr<LoggerMock> logger;
 
-	StateSyncerTest() : logger(std::move(make_unique<LoggerMock>())) {
+	std::vector<int64_t> tower_build_costs;
+
+	StateSyncerTest()
+	    : logger(std::move(make_unique<LoggerMock>())),
+	      tower_build_costs({500, 700, 900}) {
 
 		auto state = make_unique<StateMock>();
 
@@ -155,8 +159,8 @@ class StateSyncerTest : public Test {
 
 		this->state = state.get();
 
-		this->state_syncer =
-		    make_unique<StateSyncer>(std::move(state), logger.get());
+		this->state_syncer = make_unique<StateSyncer>(
+		    std::move(state), logger.get(), tower_build_costs);
 	}
 };
 

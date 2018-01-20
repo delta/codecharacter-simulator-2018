@@ -132,8 +132,8 @@ std::unique_ptr<drivers::MainDriver> BuildMainDriver() {
 	auto logger = std::make_unique<Logger>(PLAYER_INSTRUCTION_LIMIT_TURN,
 	                                       PLAYER_INSTRUCTION_LIMIT_GAME);
 
-	auto state_syncer =
-	    std::make_unique<StateSyncer>(std::move(BuildState()), logger.get());
+	auto state_syncer = std::make_unique<StateSyncer>(
+	    std::move(BuildState()), logger.get(), TOWER_BUILD_COSTS);
 	std::vector<std::unique_ptr<SharedMemoryMain>> shm_mains;
 
 	for (int i = 0; i < num_players; ++i) {

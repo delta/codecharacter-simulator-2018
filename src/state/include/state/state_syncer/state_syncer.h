@@ -11,6 +11,7 @@
 #include "state/player_state.h"
 #include "state/state.h"
 #include "state/state_export.h"
+#include <cstdint>
 #include <memory>
 #include <vector>
 
@@ -30,6 +31,12 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * Pointer to the logger instance
 	 */
 	logger::ILogger *logger;
+
+	/**
+	 * Amount of money necessary to upgrade a tower to next level
+	 * First element represents initial build cost
+	 */
+	std::vector<int64_t> tower_build_costs;
 
 	// The functions below call corresponding action functions in State
 
@@ -138,7 +145,8 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	/**
 	 * Constructor for StateSyncer class
 	 */
-	StateSyncer(std::unique_ptr<IState> state, logger::ILogger *logger);
+	StateSyncer(std::unique_ptr<IState> state, logger::ILogger *logger,
+	            std::vector<int64_t> tower_build_costs);
 
 	/**
 	 * Function that takes the player states and exeutes commands
