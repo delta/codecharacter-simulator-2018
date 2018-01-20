@@ -88,7 +88,9 @@ void State::AttackActor(PlayerId player_id, int64_t soldier_id,
 		    actor_id,
 		    static_cast<PlayerId>(((int)player_id + 1) % num_players));
 	} else {
-		target = tower_managers[(int)player_id]->GetTowerById(actor_id);
+		target =
+		    tower_managers[((int)player_id + 1) % num_players]->GetTowerById(
+		        actor_id);
 	}
 
 	soldier->Attack(target);
