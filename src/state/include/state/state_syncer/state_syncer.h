@@ -39,11 +39,12 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * @param[in]  player_id     player to act upon
 	 * @param[in]  soldier_id    soldier to act upon
 	 * @param[in]  position      new position to move the soldier to
+	 * @param[in]  soldier_index index of soldier in state
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
 	void MoveSoldier(PlayerId player_id, int64_t soldier_id,
-	                 physics::Vector position);
+	                 physics::Vector position, int64_t soldier_index);
 
 	/**
 	 * Handles enemy tower attack commands
@@ -51,10 +52,12 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * @param[in]  player_id     player to act upon
 	 * @param[in]  soldier_id    soldier who is attacking
 	 * @param[in]  tower_id      opponent tower to attack
+	 * @param[in]  soldier_index index of soldier in state
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	void AttackTower(PlayerId player_id, int64_t soldier_id, int64_t tower_id);
+	void AttackTower(PlayerId player_id, int64_t soldier_id, int64_t tower_id,
+	                 int64_t soldier_index);
 
 	/**
 	 * Handles enemy soldier attack commands
@@ -62,41 +65,46 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * @param[in]  player_id           player to act upon
 	 * @param[in]  soldier_id          soldier who is attacking
 	 * @param[in]  enemy_soldier_id    soldier who is to be attacked
+	 * @param[in]  soldier_index       index of soldier in state
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
 	void AttackSoldier(PlayerId player_id, int64_t soldier_id,
-	                   int64_t enemy_soldier_id);
+	                   int64_t enemy_soldier_id, int64_t soldier_index);
 
 	/**
 	 * Handles tower build commands
 	 *
 	 * @param[in]  player_id     player to act upon
-	 * @param[in]  position      position to build the tower at
+	 * @param[in]  offset        offset to build the tower at
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	void BuildTower(PlayerId player_id, physics::Vector position);
+	void BuildTower(PlayerId player_id, physics::Vector offset);
 
 	/**
 	 * Handles tower upgrade commands
 	 *
 	 * @param[in]  player_id     player to act upon
 	 * @param[in]  tower_id      tower to act upon
+	 * @param[in]  tower_index   index of tower in state
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
-	void UpgradeTower(PlayerId player_id, int64_t tower_id);
+	void UpgradeTower(PlayerId player_id, int64_t tower_id,
+	                  int64_t tower_index);
 
 	/**
 	 * Handles tower self destruct commands
 	 *
 	 * @param[in]  player_id     player to act upon
 	 * @param[in]  tower_id      opponent tower to attack
+	 * @param[in]  tower_index   index of tower in state
 	 *
 	 * @throw      std::exception if the operation was not possible
 	 */
-	void SuicideTower(PlayerId player_id, int64_t tower_id);
+	void SuicideTower(PlayerId player_id, int64_t tower_id,
+	                  int64_t tower_index);
 
 	/**
 	 * Changes orientation of map such that there is a
