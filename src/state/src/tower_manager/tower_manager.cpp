@@ -231,6 +231,11 @@ void TowerManager::SuicideTower(ActorId tower_id) {
 void TowerManager::Update() {
 	std::vector<int64_t> tower_indices_to_delete;
 
+	// Delete towers two turns old
+	this->towers_to_delete[0].clear();
+	// Shift towers that were one turn old to the list for deletion next turn
+	this->towers_to_delete[0] = std::move(this->towers_to_delete[1]);
+
 	// Find Dead Towers
 	for (int i = 0; i < towers.size(); ++i) {
 		if (towers[i]->GetHp() == 0) {
@@ -239,8 +244,9 @@ void TowerManager::Update() {
 	}
 
 	// Delete Dead Towers, and deallocate their territory
-	for (int k = tower_indices_to_delete.size() - 1; k >= 0; --k) {
-		int tower_i = tower_indices_to_delete[k];
+	for (auto tower_index = tower_indices_to_delete.rbegin();
+	     tower_index != tower_indices_to_delete.rend(); ++tower_index) {
+		int tower_i = *tower_index;
 
 		auto bounds = CalculateBounds(towers[tower_i].get());
 
@@ -255,7 +261,11 @@ void TowerManager::Update() {
 			}
 		}
 
-		// Delete the tower from the list
+		// Move the tower from main list to list for deletion, will be removed
+		// fully after two turns
+		this->towers_to_delete[1].push_back(std::move(towers[tower_i]));
+
+		// Delete the tower from the main list
 		towers.erase(towers.begin() + tower_i);
 	}
 }
