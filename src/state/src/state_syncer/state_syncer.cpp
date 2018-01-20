@@ -332,8 +332,15 @@ void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
 	// Check if target  is valid
 	for (int i = 0; i < opponent_towers.size(); ++i) {
 		// Check if opponent actor id is correct id
-		if (tower_id == opponent_towers[i]->GetActorId())
+		if (tower_id == opponent_towers[i]->GetActorId()) {
+			if (opponent_towers[i]->GetIsBase()) {
+				LogErrors(player_id, 14,
+				          "Cannot attack Base Tower of opponent");
+				return;
+			}
+
 			valid_target = true;
+		}
 	}
 	if (!valid_target) {
 		LogErrors(player_id, 6, "Attack Opponent's tower only");
