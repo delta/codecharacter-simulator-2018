@@ -393,12 +393,13 @@ void StateSyncer::BuildTower(PlayerId player_id, physics::Vector offset) {
 	auto *map = state->GetMap();
 	auto state_money = state->GetMoney();
 	auto state_towers = state->GetAllTowers();
-	MapElement tower_element = map->GetElementByOffset(offset);
 	// Flip position for Player2
 	if (player_id == PlayerId::PLAYER2) {
 		offset.x = map->GetSize() - 1 - offset.x;
 		offset.y = map->GetSize() - 1 - offset.y;
 	}
+
+	auto tower_element = map->GetElementByOffset(offset);
 
 	if (tower_element.GetOwnership()[static_cast<int>(player_id)] == false)
 		valid_territory = false;
