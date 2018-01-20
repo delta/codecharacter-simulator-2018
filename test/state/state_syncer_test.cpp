@@ -1,4 +1,5 @@
 #include "logger/mocks/logger_mock.h"
+#include "state/actor/soldier_states/soldier_state.h"
 #include "state/mocks/state_mock.h"
 #include "state/mocks/state_syncer_mock.h"
 #include "state/player_state.h"
@@ -84,6 +85,11 @@ class StateSyncerTest : public Test {
 			    100, 100,
 			    Vector(map_size * elt_size - 1, map_size * elt_size - 1), 5, 5,
 			    40, nullptr, nullptr);
+			// Last 8 soldiers of player2 are dead.
+			if (i > 2) {
+				soldier->SetHp(0);
+				soldier->Update();
+			}
 			player2_soldiers.push_back(soldier);
 		}
 
@@ -131,6 +137,22 @@ class StateSyncerTest : public Test {
 		    .SetOwnership(PlayerId::PLAYER1, true);
 		this->map->GetElementByOffset(common_position)
 		    .SetOwnership(PlayerId::PLAYER2, true);
+
+		// players valid territory
+		//  * * 2 * *
+		//  * * * * *
+		//  * 1 * * *
+		//  * * * * *
+		//  * * * * *
+
+		// Set some offsets to belong to a player
+		Vector player1_spot(1, 2);
+		this->map->GetElementByOffset(player1_spot)
+		    .SetOwnership(PlayerId::PLAYER1, true);
+		Vector player2_spot(2, 4);
+		this->map->GetElementByOffset(player2_spot)
+		    .SetOwnership(PlayerId::PLAYER2, true);
+
 		this->state = state.get();
 
 		this->state_syncer =
@@ -164,6 +186,9 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	auto player_money2 = player_money;
 	player_money2[1] = 4500;
 
+	this->map->GetElementByXY(tower3->GetPosition())
+	    .SetOwnership(PlayerId::PLAYER2, true);
+
 	EXPECT_CALL(*state, GetMap()).WillRepeatedly(Return(map.get()));
 
 	EXPECT_CALL(*state, GetMoney())
@@ -180,7 +205,7 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	this->state_syncer->UpdatePlayerStates(player_states);
 
 	// Check for Tower positions for playerstates
-	ASSERT_EQ(player_states[1]->towers[1][0].position, Vector(1, 1));
+	ASSERT_EQ(player_states[1]->towers[1][0].position, Vector(0, 0));
 	ASSERT_EQ(
 	    player_states[0]->towers[1][0].position,
 	    physics::Vector(map_size * elt_size - 1, map_size * elt_size - 1));
@@ -188,7 +213,11 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	// Check for Soldier positions for playerstates
 	ASSERT_EQ(player_states[0]->soldiers[0][0].position, Vector(0, 0));
 	ASSERT_EQ(player_states[1]->soldiers[0][0].position,
-	          Vector(map_size * elt_size, map_size * elt_size));
+	          Vector(map_size * elt_size - 1, map_size * elt_size - 1));
+
+	// Check for Soldier State assignment
+	ASSERT_EQ(player_states[0]->soldiers[1][6].state, SoldierStateName::DEAD);
+	ASSERT_EQ(player_states[1]->soldiers[1][6].state, SoldierStateName::DEAD);
 
 	// Check for valid territory assignment for playerstates map
 
@@ -198,10 +227,28 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	//  * * * * *
 	//  * 1 * * *
 	//  * * * * *
-	ASSERT_EQ(player_states[0]->map[1][1].valid_territory, true);
+
+	// player1 valid territory map
+	//  * * 2 * *
+	//  * * * * *
+	//  * 1 * * *
+	//  * * * * *
+	//  * * * * *
+
+	// Valid territory
+	ASSERT_EQ(player_states[0]->map[1][2].territory[0], true);
+	ASSERT_EQ(player_states[0]->map[1][2].territory[1], false);
+	ASSERT_EQ(player_states[0]->map[1][2].valid_territory, true);
+	ASSERT_EQ(player_states[0]->map[2][4].territory[0], false);
+	ASSERT_EQ(player_states[0]->map[2][4].territory[1], true);
+	ASSERT_EQ(player_states[0]->map[2][4].valid_territory, false);
+	// Can't build where tower is already present
+	ASSERT_EQ(player_states[0]->map[1][1].valid_territory, false);
+	// Parts of map that are not owned solely by player are not valid.
 	ASSERT_EQ(player_states[0]->map[4][4].valid_territory, false);
 	ASSERT_EQ(player_states[0]->map[4][3].valid_territory, false);
 	ASSERT_EQ(player_states[0]->map[4][2].valid_territory, false);
+	// Common territory is not valid.
 	ASSERT_EQ(player_states[0]->map[0][4].territory[0], true);
 	ASSERT_EQ(player_states[0]->map[0][4].territory[1], true);
 	ASSERT_EQ(player_states[0]->map[0][4].valid_territory, false);
@@ -212,10 +259,26 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	// * * * * *
 	// * * * * *
 	// 2 * * * +
-	ASSERT_EQ(player_states[1]->map[0][0].valid_territory, true);
+
+	// player2 valid territory map
+	//  * * * * *
+	//  * * * * *
+	//  * * * 1 *
+	//  * * * * *
+	//  * * 2 * *
+
+	// Valid territory
+	ASSERT_EQ(player_states[1]->map[2][0].territory[0], false);
+	ASSERT_EQ(player_states[1]->map[2][0].territory[1], true);
+	ASSERT_EQ(player_states[1]->map[2][0].valid_territory, true);
+	ASSERT_EQ(player_states[1]->map[3][2].valid_territory, false);
+	// Can't build where tower is already present
+	ASSERT_EQ(player_states[1]->map[0][0].valid_territory, false);
+	// Parts of map that are not owned solely by player are not valid.
 	ASSERT_EQ(player_states[1]->map[4][4].valid_territory, false);
 	ASSERT_EQ(player_states[1]->map[4][3].valid_territory, false);
-	ASSERT_EQ(player_states[1]->map[0][2].valid_territory, false);
+	ASSERT_EQ(player_states[1]->map[0][3].valid_territory, false);
+	// Common territory is not valid.
 	ASSERT_EQ(player_states[1]->map[4][0].territory[0], true);
 	ASSERT_EQ(player_states[1]->map[4][0].territory[1], true);
 	ASSERT_EQ(player_states[1]->map[4][0].valid_territory, false);
@@ -224,15 +287,12 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	ASSERT_EQ(player_states[0]->money, player_money[0]);
 	ASSERT_EQ(player_states[1]->money, player_money[1]);
 
-	this->map->GetElementByXY(tower3->GetPosition())
-	    .SetOwnership(PlayerId::PLAYER2, true);
-
 	this->state_syncer->UpdatePlayerStates(player_states);
 
 	// Check for Tower positions for playerstates
 	ASSERT_EQ(player_states[1]->towers[1][1].position,
-	          physics::Vector(map_size * elt_size - 4 * elt_size,
-	                          map_size * elt_size - 2 * elt_size));
+	          physics::Vector(map_size * elt_size - 1 - 4 * elt_size,
+	                          map_size * elt_size - 1 - 2 * elt_size));
 	ASSERT_EQ(player_states[0]->towers[1][1].position,
 	          Vector(4 * elt_size, 2 * elt_size));
 	ASSERT_EQ(player_states[1]->num_towers[1], 2);
@@ -241,7 +301,7 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	// Check for Soldier positions for playerstates
 	ASSERT_EQ(player_states[0]->soldiers[0][0].position, Vector(0, 0));
 	ASSERT_EQ(player_states[1]->soldiers[0][0].position,
-	          Vector(map_size * elt_size, map_size * elt_size));
+	          Vector(map_size * elt_size - 1 - 0, map_size * elt_size - 1 - 0));
 
 	// Check for valid territory assignment for playerstates map
 	/*
@@ -252,13 +312,30 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	 * 1 * * *
 	 * * * * *
 	*/
-	ASSERT_EQ(player_states[0]->map[1][1].valid_territory, true);
+
+	// player1 valid territory map
+	//  * * 2 * *
+	//  * * * * *
+	//  * 1 * * *
+	//  * * * * *
+	//  * * * * *
+
+	// Valid territory
+	ASSERT_EQ(player_states[0]->map[1][2].territory[0], true);
+	ASSERT_EQ(player_states[0]->map[1][2].territory[1], false);
+	ASSERT_EQ(player_states[0]->map[1][2].valid_territory, true);
+	ASSERT_EQ(player_states[0]->map[2][4].valid_territory, false);
+	// Can't build where tower is already present
+	ASSERT_EQ(player_states[0]->map[1][1].valid_territory, false);
+	// Parts of map that are not owned solely by player are not valid.
 	ASSERT_EQ(player_states[0]->map[4][2].valid_territory, false);
 	ASSERT_EQ(player_states[0]->map[4][3].valid_territory, false);
 	ASSERT_EQ(player_states[0]->map[0][0].valid_territory, false);
 	ASSERT_EQ(player_states[0]->map[4][4].valid_territory, false);
+	// Territory that belongs to opponent.
 	ASSERT_EQ(player_states[0]->map[4][4].territory[1], true);
 	ASSERT_EQ(player_states[0]->map[4][2].territory[1], true);
+	// Common territory is not valid.
 	ASSERT_EQ(player_states[0]->map[0][4].territory[0], true);
 	ASSERT_EQ(player_states[0]->map[0][4].territory[1], true);
 	ASSERT_EQ(player_states[0]->map[0][4].valid_territory, false);
@@ -272,12 +349,29 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	 * * * * *
 	 2 * * * +
 	*/
-	ASSERT_EQ(player_states[1]->map[4][2].valid_territory, false);
-	ASSERT_EQ(player_states[1]->map[0][2].valid_territory, true);
+
+	// player2 valid territory map
+	//  * * * * *
+	//  * * * * *
+	//  * * * 1 *
+	//  * * * * *
+	//  * * 2 * *
+
+	// Valid territory
+	ASSERT_EQ(player_states[1]->map[2][0].territory[0], false);
+	ASSERT_EQ(player_states[1]->map[2][0].territory[1], true);
+	ASSERT_EQ(player_states[1]->map[2][0].valid_territory, true);
+	ASSERT_EQ(player_states[1]->map[3][2].valid_territory, false);
+	// Can't build where tower is already present
+	ASSERT_EQ(player_states[1]->map[0][0].valid_territory, false);
+	ASSERT_EQ(player_states[1]->map[0][2].valid_territory, false);
+	// Parts of map that are not owned solely by player are not valid.
 	ASSERT_EQ(player_states[1]->map[4][3].valid_territory, false);
-	ASSERT_EQ(player_states[1]->map[0][0].valid_territory, true);
+	ASSERT_EQ(player_states[1]->map[4][2].valid_territory, false);
 	ASSERT_EQ(player_states[1]->map[4][4].valid_territory, false);
+	// Territory that belongs to opponent.
 	ASSERT_EQ(player_states[1]->map[3][3].territory[0], true);
+	// Common territory is not valid.
 	ASSERT_EQ(player_states[1]->map[4][0].territory[0], true);
 	ASSERT_EQ(player_states[1]->map[4][0].territory[1], true);
 	ASSERT_EQ(player_states[1]->map[4][0].valid_territory, false);
@@ -300,21 +394,21 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 
 	player_money[1] = 5000;
 
+	auto *tower3 = new Tower(
+	    Actor::GetNextActorId(), PlayerId::PLAYER2, ActorType::TOWER, 500, 500,
+	    Vector(map_size * elt_size - 1, map_size * elt_size - 1), false, 1);
+	towers[1].push_back(tower3);
+
+	this->map->GetElementByXY(tower3->GetPosition())
+	    .SetOwnership(PlayerId::PLAYER2, true);
+
 	EXPECT_CALL(*state, GetMap()).WillRepeatedly(Return(map.get()));
 
 	EXPECT_CALL(*state, GetMoney()).WillRepeatedly(Return(player_money));
 
 	EXPECT_CALL(*state, GetAllSoldiers()).WillRepeatedly(Return(soldiers));
 
-	auto *tower3 = new Tower(
-	    Actor::GetNextActorId(), PlayerId::PLAYER2, ActorType::TOWER, 500, 500,
-	    Vector(map_size * elt_size - 1, map_size * elt_size - 1), false, 1);
-	towers[1].push_back(tower3);
-
 	EXPECT_CALL(*state, GetAllTowers()).WillRepeatedly(Return(towers));
-
-	this->map->GetElementByXY(tower3->GetPosition())
-	    .SetOwnership(PlayerId::PLAYER2, true);
 
 	this->state_syncer->UpdatePlayerStates(player_states);
 
@@ -323,6 +417,53 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	vector<bool> skip_player_command_flags;
 	skip_player_command_flags.push_back(false);
 	skip_player_command_flags.push_back(false);
+
+	EXPECT_CALL(*logger,
+	            LogError(PlayerId::PLAYER1, 1,
+	                     "Soldier can perform only one task each turn"))
+	    .Times(2);
+
+	EXPECT_CALL(*logger,
+	            LogError(PlayerId::PLAYER2, 1,
+	                     "Soldier can perform only one task each turn"))
+	    .Times(1);
+
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER1, 2,
+	                              "Tower can perform only one task each turn"))
+	    .Times(1);
+
+	EXPECT_CALL(*logger,
+	            LogError(PlayerId::PLAYER1, 3, "Do not alter id of actors"))
+	    .Times(3);
+
+	EXPECT_CALL(*logger,
+	            LogError(PlayerId::PLAYER2, 3, "Do not alter id of actors"))
+	    .Times(1);
+
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2, 4,
+	                              "Soldier must be alive in order to act"))
+	    .Times(1);
+
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER1, 5, "Position not in map"))
+	    .Times(1);
+
+	EXPECT_CALL(*logger,
+	            LogError(PlayerId::PLAYER1, 6, "Attack Opponent's tower only"))
+	    .Times(1);
+
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2, 7,
+	                              "Attack Opponent's soldier only"))
+	    .Times(1);
+
+	EXPECT_CALL(*logger,
+	            LogError(PlayerId::PLAYER1, 8,
+	                     "Opponent soldier must be alive to attack it"))
+	    .Times(1);
+
+	EXPECT_CALL(*logger,
+	            LogError(PlayerId::PLAYER1, 9,
+	                     "Tower can be built only on valid territory."))
+	    .Times(2);
 
 	// Single soldier targeting soldier and tower
 	player_states[0]->soldiers[0][0].tower_target =
@@ -340,13 +481,50 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	    player_states[1]->soldiers[0][0].id;
 	player_states[1]->soldiers[1][0].destination = Vector(1, 0);
 
+	// Soldier trying to attack soldier after changing own id.
+	player_states[0]->soldiers[0][2].id =
+	    player_states[0]->soldiers[0][2].id + 1;
+	player_states[0]->soldiers[0][2].soldier_target =
+	    player_states[0]->soldiers[1][0].id;
+
+	// Soldier trying to attack tower after changing own id.
+	player_states[0]->soldiers[0][3].id =
+	    player_states[0]->soldiers[0][3].id + 1;
+	player_states[0]->soldiers[0][3].tower_target =
+	    player_states[0]->towers[1][0].id;
+
+	// Soldier trying to move after changing own id.
+	player_states[0]->soldiers[0][4].id =
+	    player_states[0]->soldiers[0][4].id + 1;
+	player_states[0]->soldiers[0][4].destination = Vector(3, 3);
+
+	// Soldier trying to act when dead.
+	player_states[1]->soldiers[1][3].soldier_target =
+	    player_states[1]->soldiers[0][6].id;
+
+	// Soldier attacking dead opponent soldier.
+	player_states[0]->soldiers[0][7].soldier_target =
+	    player_states[1]->soldiers[1][4].id;
+
 	// Soldier attacking own soldier
 	player_states[1]->soldiers[1][1].soldier_target =
 	    player_states[1]->soldiers[1][1].id;
 
+	// Soldier attacking own tower
+	player_states[0]->soldiers[0][5].tower_target =
+	    player_states[0]->towers[0][0].id;
+
+	// Soldier trying to move out of map
+	player_states[0]->soldiers[0][6].destination =
+	    Vector(map_size * elt_size, map_size * elt_size);
+
 	// Make tower suicide and upgrade
 	player_states[0]->towers[0][0].upgrade_tower = true;
 	player_states[0]->towers[0][0].suicide = true;
+
+	// Tower to upgrade after changing its own id.
+	player_states[1]->towers[1][1].id = player_states[1]->towers[1][1].id + 10;
+	player_states[1]->towers[1][1].upgrade_tower = true;
 
 	// Trying to build in territory that is not yours
 	player_states[0]->map[3][3].build_tower = true;
@@ -354,7 +532,7 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	// Trying to build in territory that belongs to both
 	player_states[0]->map[0][4].build_tower = true;
 
-	// Expect 7 errors to be logged.
+	// Expect 15 errors to be logged.
 	this->state_syncer->ExecutePlayerCommands(player_states,
 	                                          skip_player_command_flags);
 
@@ -391,8 +569,8 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	    .Times(1);
 	EXPECT_CALL(*state, MoveSoldier(static_cast<PlayerId>(1),
 	                                player_states[1]->soldiers[1][1].id,
-	                                Vector(map_size * elt_size - 4,
-	                                       map_size * elt_size - 3)))
+	                                Vector(map_size * elt_size - 1 - 4,
+	                                       map_size * elt_size - 1 - 3)))
 	    .Times(1);
 	EXPECT_CALL(*state, UpgradeTower(static_cast<PlayerId>(0),
 	                                 player_states[0]->towers[0][0].id))

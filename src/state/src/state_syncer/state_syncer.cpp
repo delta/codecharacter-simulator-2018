@@ -4,7 +4,9 @@
  */
 
 #include "state/state_syncer/state_syncer.h"
+#include "state/actor/soldier_states/soldier_state.h"
 #include <algorithm>
+#include <cmath>
 
 namespace state {
 
@@ -14,9 +16,12 @@ StateSyncer::StateSyncer(std::unique_ptr<IState> state, logger::ILogger *logger)
 void StateSyncer::ExecutePlayerCommands(
     const std::vector<PlayerState *> &player_states,
     const std::vector<bool> &skip_player_commands_flags) {
+	auto state_soldiers = state->GetAllSoldiers();
+	auto state_towers = state->GetAllTowers();
 	for (int player_id = 0; player_id < player_states.size(); ++player_id) {
 		if (skip_player_commands_flags[player_id] == false) {
-
+			int64_t soldier_index = 0;
+			int64_t tower_index = 0;
 			for (auto const &soldiers :
 			     player_states[player_id]->soldiers[player_id]) {
 				// A soldier can only either move, attack tower or another
@@ -35,27 +40,34 @@ void StateSyncer::ExecutePlayerCommands(
 				} else {
 					if (is_attacking_tower) {
 						AttackTower(static_cast<PlayerId>(player_id),
-						            soldiers.id, soldiers.tower_target);
+						            soldiers.id, soldiers.tower_target,
+						            soldier_index);
 					} else if (is_attacking_soldier) {
 						AttackSoldier(static_cast<PlayerId>(player_id),
-						              soldiers.id, soldiers.soldier_target);
+						              soldiers.id, soldiers.soldier_target,
+						              soldier_index);
 					} else if (is_moving) {
 						MoveSoldier(static_cast<PlayerId>(player_id),
-						            soldiers.id, soldiers.destination);
+						            soldiers.id, soldiers.destination,
+						            soldier_index);
 					}
 				}
+				soldier_index++;
 			}
 
 			for (auto const &tower :
 			     player_states[player_id]->towers[player_id]) {
 				if (tower.upgrade_tower == true && tower.suicide == true) {
 					LogErrors(static_cast<PlayerId>(player_id), 2,
-					          "Tower can perform only one task each turn.");
+					          "Tower can perform only one task each turn");
 				} else if (tower.upgrade_tower == true) {
-					UpgradeTower(static_cast<PlayerId>(player_id), tower.id);
+					UpgradeTower(static_cast<PlayerId>(player_id), tower.id,
+					             tower_index);
 				} else if (tower.suicide == true) {
-					SuicideTower(static_cast<PlayerId>(player_id), tower.id);
+					SuicideTower(static_cast<PlayerId>(player_id), tower.id,
+					             tower_index);
 				}
+				tower_index++;
 			}
 
 			for (int j = 0; j < player_states[player_id]->map.size(); ++j) {
@@ -176,21 +188,30 @@ void StateSyncer::UpdatePlayerStates(
 		for (auto &player_map_row : player_map) {
 			for (auto &player_map_element : player_map_row) {
 				player_map_element.valid_territory = true;
-				if (player_map_element.terrain == TerrainType::WATER) {
-					player_map_element.valid_territory = false;
-				} else {
-					for (int i = 0; i < player_map_element.territory.size();
-					     ++i) {
-						if (player_map_element.territory[i] == true &&
-						    i != player_id) {
-							player_map_element.valid_territory = false;
-						}
-						if (i == player_id &&
-						    player_map_element.territory[player_id] == false)
-							player_map_element.valid_territory = false;
+				for (int i = 0; i < player_map_element.territory.size(); ++i) {
+					if (player_map_element.territory[i] == true &&
+					    i != player_id) {
+						player_map_element.valid_territory = false;
 					}
+					if (i == player_id &&
+					    player_map_element.territory[player_id] == false)
+						player_map_element.valid_territory = false;
 				}
 			}
+		}
+		// If tower is already present, it is not valid territory
+		for (auto &player_tower : state_towers[player_id]) {
+			int64_t x, y;
+			physics::Vector position;
+			if (static_cast<PlayerId>(player_id) == PlayerId::PLAYER1) {
+				position = player_tower->GetPosition();
+			} else {
+				position = FlipPosition(map, player_tower->GetPosition());
+			}
+			physics::Vector offset_position =
+			    (position / map->GetElementSize()).floor();
+			player_map[offset_position.x][offset_position.y].valid_territory =
+			    false;
 		}
 
 		// Assigns map taken from state to player state map
@@ -215,21 +236,27 @@ void StateSyncer::UpdatePlayerStates(
 
 void StateSyncer::FlipMap(
     std::vector<std::vector<PlayerMapElement>> &player_map) {
-	for (int i = 0; i < player_map.size() / 2; ++i) {
+	int64_t map_size = player_map.size();
+	for (int i = 0; i < map_size / 2; ++i) {
 		for (int j = 0; j < player_map[i].size(); ++j) {
-			PlayerMapElement temp = player_map[i][j];
-			player_map[i][j] = player_map[player_map[i].size() - 1 - i]
-			                             [player_map[i].size() - 1 - j];
-			player_map[player_map[i].size() - 1 - i]
-			          [player_map[i].size() - 1 - j] = temp;
+			std::swap(player_map[i][j],
+			          player_map[map_size - 1 - i][map_size - 1 - j]);
+		}
+	}
+	if (map_size % 2) {
+		int64_t i = map_size / 2;
+		for (int j = 0; j < map_size / 2; ++j) {
+			std::swap(player_map[i][j],
+			          player_map[map_size - 1 - i][map_size - 1 - j]);
 		}
 	}
 }
 
 physics::Vector StateSyncer::FlipPosition(state::IMap *map,
                                           physics::Vector position) {
-	return physics::Vector(map->GetSize() * map->GetElementSize() - position.x,
-	                       map->GetSize() * map->GetElementSize() - position.y);
+	return physics::Vector(
+	    map->GetSize() * map->GetElementSize() - 1 - position.x,
+	    map->GetSize() * map->GetElementSize() - 1 - position.y);
 }
 
 void StateSyncer::LogErrors(PlayerId player_id, int64_t error_code,
@@ -238,80 +265,183 @@ void StateSyncer::LogErrors(PlayerId player_id, int64_t error_code,
 }
 
 void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
-                              physics::Vector position) {
+                              physics::Vector position, int64_t soldier_index) {
+	auto *map = state->GetMap();
+	auto state_soldiers = state->GetAllSoldiers();
+
+	// Flip position for Player2
 	if (player_id == PlayerId::PLAYER2)
-		state->MoveSoldier(player_id, soldier_id,
-		                   FlipPosition(state->GetMap(), position));
-	else
-		state->MoveSoldier(player_id, soldier_id, position);
+		position = FlipPosition(map, position);
+
+	// Check if id has been altered
+	if (soldier_id !=
+	    state_soldiers[static_cast<int>(player_id)][soldier_index]
+	        ->GetActorId()) {
+		LogErrors(player_id, 3, "Do not alter id of actors");
+		return;
+	}
+
+	// Check is soldier is alive to act
+	if (state_soldiers[static_cast<int>(player_id)][soldier_index]->GetHp() ==
+	    0) {
+		LogErrors(player_id, 4, "Soldier must be alive in order to act");
+		return;
+	}
+
+	// Check if position is valid
+	if (position.x < 0 ||
+	    position.x >= map->GetSize() * map->GetElementSize() ||
+	    position.y < 0 ||
+	    position.y >= map->GetSize() * map->GetElementSize()) {
+		LogErrors(player_id, 5, "Position not in map");
+		return;
+	}
+
+	state->MoveSoldier(player_id, soldier_id, position);
 }
 
 void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
-                              int64_t tower_id) {
+                              int64_t tower_id, int64_t soldier_index) {
 	bool valid_target = false;
 	int64_t opponent_id = (static_cast<int>(player_id) + 1) %
 	                      static_cast<int>(PlayerId::PLAYER_COUNT);
+	auto state_soldiers = state->GetAllSoldiers();
+
+	// Check if id has been altered
+	if (soldier_id !=
+	    state_soldiers[static_cast<int>(player_id)][soldier_index]
+	        ->GetActorId()) {
+		LogErrors(player_id, 3, "Do not alter id of actors");
+		return;
+	}
+
+	// Check is soldier is alive to act
+	if (state_soldiers[static_cast<int>(player_id)][soldier_index]->GetHp() ==
+	    0) {
+		LogErrors(player_id, 4, "Soldier must be alive in order to act");
+		return;
+	}
+
 	std::vector<Tower *> opponent_towers = state->GetAllTowers()[opponent_id];
+
+	// Check if target  is valid
 	for (int i = 0; i < opponent_towers.size(); ++i) {
+		// Check if opponent actor id is correct id
 		if (tower_id == opponent_towers[i]->GetActorId())
 			valid_target = true;
 	}
-	if (valid_target)
-		state->AttackActor(player_id, soldier_id, tower_id);
-	else
-		LogErrors(player_id, 3, "Attack Opponent's tower only");
+	if (!valid_target) {
+		LogErrors(player_id, 6, "Attack Opponent's tower only");
+		return;
+	}
+
+	state->AttackActor(player_id, soldier_id, tower_id);
 }
 
 void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
-                                int64_t enemy_soldier_id) {
+                                int64_t enemy_soldier_id,
+                                int64_t soldier_index) {
 	bool valid_target = false;
+	bool opponent_alive = false;
 	int64_t opponent_id = (static_cast<int>(player_id) + 1) %
 	                      static_cast<int>(PlayerId::PLAYER_COUNT);
+	auto state_soldiers = state->GetAllSoldiers();
 	std::vector<Soldier *> opponent_soldiers =
 	    state->GetAllSoldiers()[opponent_id];
-	for (int i = 0; i < opponent_soldiers.size(); ++i) {
-		if (enemy_soldier_id == opponent_soldiers[i]->GetActorId())
-			valid_target = true;
+
+	// Check if id has been altered
+	if (soldier_id !=
+	    state_soldiers[static_cast<int>(player_id)][soldier_index]
+	        ->GetActorId()) {
+		LogErrors(player_id, 3, "Do not alter id of actors");
+		return;
 	}
-	if (valid_target)
-		state->AttackActor(player_id, soldier_id, enemy_soldier_id);
-	else
-		LogErrors(player_id, 4, "Attack Opponent's soldier only");
+
+	// Check if soldier is alive to act
+	if (state_soldiers[static_cast<int>(player_id)][soldier_index]->GetHp() ==
+	    0) {
+		LogErrors(player_id, 4, "Soldier must be alive in order to act");
+		return;
+	}
+
+	// Check if opponent actor id is correct id
+	for (int i = 0; i < opponent_soldiers.size(); ++i) {
+		if (enemy_soldier_id == opponent_soldiers[i]->GetActorId()) {
+			valid_target = true;
+			// Check if opponent soldier is alive.
+			if (opponent_soldiers[i]->GetHp() != 0)
+				opponent_alive = true;
+		}
+	}
+
+	if (!valid_target) {
+		LogErrors(player_id, 7, "Attack Opponent's soldier only");
+		return;
+	}
+	if (!opponent_alive) {
+		LogErrors(player_id, 8, "Opponent soldier must be alive to attack it");
+		return;
+	}
+
+	state->AttackActor(player_id, soldier_id, enemy_soldier_id);
 }
 
-void StateSyncer::BuildTower(PlayerId player_id, physics::Vector position) {
-	// Goes through all offsets of the map. If player wishes to build a tower,
-	// it checks if that is a valid territory for the player
-	// and only then builds the tower
+void StateSyncer::BuildTower(PlayerId player_id, physics::Vector offset) {
 	bool valid_territory = true;
 	auto *map = state->GetMap();
+	auto state_money = state->GetMoney();
+	auto state_towers = state->GetAllTowers();
+	MapElement tower_element = map->GetElementByOffset(offset);
+	// Flip position for Player2
+	if (player_id == PlayerId::PLAYER2) {
+		offset.x = map->GetSize() - 1 - offset.x;
+		offset.y = map->GetSize() - 1 - offset.y;
+	}
 
-	if (map->GetElementByOffset(position)
-	        .GetOwnership()[static_cast<int>(player_id)] == false)
+	if (tower_element.GetOwnership()[static_cast<int>(player_id)] == false)
 		valid_territory = false;
-	for (int i = 0; i < map->GetElementByOffset(position).GetOwnership().size();
-	     ++i) {
-		if (map->GetElementByOffset(position).GetOwnership()[i] == true &&
+	for (int i = 0; i < tower_element.GetOwnership().size(); ++i) {
+		if (tower_element.GetOwnership()[i] == true &&
 		    i != static_cast<int>(player_id)) {
 			valid_territory = false;
 		}
 	}
-	if (valid_territory == false)
-		LogErrors(player_id, 5, "Can be built only on own territory.");
-	else {
-		if (player_id == PlayerId::PLAYER2) {
-			state->BuildTower(player_id,
-			                  FlipPosition(state->GetMap(), position));
-		} else
-			state->BuildTower(player_id, position);
+	// If tower is already present, it is not valid territory
+	for (auto &player_tower : state_towers[static_cast<int>(player_id)]) {
+		if ((player_tower->GetPosition() / map->GetElementSize()).floor() ==
+		    offset)
+			valid_territory = false;
 	}
+
+	if (!valid_territory) {
+		LogErrors(player_id, 9, "Tower can be built only on valid territory.");
+		return;
+	}
+
+	state->BuildTower(player_id, offset);
 }
 
-void StateSyncer::UpgradeTower(PlayerId player_id, int64_t tower_id) {
+void StateSyncer::UpgradeTower(PlayerId player_id, int64_t tower_id,
+                               int64_t tower_index) {
+	auto state_towers = state->GetAllTowers();
+	// Check if id has been altered.
+	if (tower_id !=
+	    state_towers[static_cast<int>(player_id)][tower_index]->GetActorId()) {
+		LogErrors(player_id, 3, "Do not alter id of actors");
+		return;
+	}
 	state->UpgradeTower(player_id, tower_id);
 }
 
-void StateSyncer::SuicideTower(PlayerId player_id, int64_t tower_id) {
+void StateSyncer::SuicideTower(PlayerId player_id, int64_t tower_id,
+                               int64_t tower_index) {
+	auto state_towers = state->GetAllTowers();
+	// Check if id has been altered.
+	if (tower_id !=
+	    state_towers[static_cast<int>(player_id)][tower_index]->GetActorId()) {
+		LogErrors(player_id, 3, "Do not alter id of actors");
+		return;
+	}
 	state->SuicideTower(player_id, tower_id);
 }
 }
