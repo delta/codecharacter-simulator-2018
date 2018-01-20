@@ -45,6 +45,13 @@ class STATE_EXPORT TowerManager : public IUpdatable {
 	IMap *map;
 
 	/**
+	 * Towers are stored for two extra turns before removing them from the
+	 * manager. This list is populated every turn. First element is the list of
+	 * towers two turns old, second element is the list of towers one turn old.
+	 */
+	std::array<std::vector<std::unique_ptr<Tower>>, 2> towers_to_delete;
+
+	/**
 	 * 2D grid of reference counts of the number of towers of this player that
 	 * directly control particular territory. 0 by default for neutral.
 	 * For ex. if three towers' ranges overlap on (3, 4), then
