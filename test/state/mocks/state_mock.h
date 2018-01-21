@@ -18,6 +18,7 @@ class StateMock : public IState {
 	MOCK_METHOD0(GetAllTowers, const vector<vector<Tower *>>());
 	MOCK_METHOD0(GetMoney, vector<int64_t>());
 	MOCK_METHOD0(GetMap, IMap *());
+	MOCK_METHOD0(GetScores, vector<int64_t>());
 	MOCK_METHOD3(MoveSoldier, void(PlayerId, int64_t, Vector));
 	MOCK_METHOD3(AttackActor, void(PlayerId, int64_t, int64_t));
 	MOCK_METHOD2(BuildTower, void(PlayerId, Vector));

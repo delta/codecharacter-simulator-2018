@@ -31,10 +31,8 @@ class STATE_EXPORT IStateSyncer {
 
 	/**
 	 * Updates the main state
-	 *
-	 * @return     Player's scores indexed by player ID
 	 */
-	virtual std::vector<int64_t> UpdateMainState() = 0;
+	virtual void UpdateMainState() = 0;
 
 	/**
 	 * Writes the main state back into player state copies
@@ -43,6 +41,13 @@ class STATE_EXPORT IStateSyncer {
 	 */
 	virtual void
 	UpdatePlayerStates(std::vector<PlayerState *> &player_states) = 0;
+
+	/**
+	 * Get game scores of players, indexed by player ID
+	 *
+	 * @return      Vector of scores
+	 */
+	virtual std::vector<int64_t> GetScores() = 0;
 
 	/**
 	 * Destructor

@@ -10,10 +10,12 @@ class StateSyncerMock : public state::IStateSyncer {
 	             void(const std::vector<state::PlayerState *> &player_states,
 	                  const std::vector<bool> &skip_player_commands_flags));
 
-	MOCK_METHOD0(UpdateMainState, std::vector<int64_t>(void));
+	MOCK_METHOD0(UpdateMainState, void());
 
 	MOCK_METHOD1(UpdatePlayerStates,
 	             void(std::vector<state::PlayerState *> &player_states));
+
+	MOCK_METHOD0(GetScores, std::vector<int64_t>());
 };
 
 #endif

@@ -168,10 +168,8 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	/**
 	 * Call updates on the main state to update state values
 	 * This effectively finishes a turn and refreshes the state
-	 *
-	 * @return  list of player scores
 	 */
-	std::vector<int64_t> UpdateMainState() override;
+	void UpdateMainState() override;
 
 	/**
 	 * After the state has been updated, refresh the player states
@@ -180,6 +178,11 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * @param[inout]  player_states  list of player states to update
 	 */
 	void UpdatePlayerStates(std::vector<PlayerState *> &player_states) override;
+
+	/**
+	 * @see IStateSyncer#GetScores
+	 */
+	std::vector<int64_t> GetScores() override;
 };
 }
 

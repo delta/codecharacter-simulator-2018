@@ -150,6 +150,16 @@ std::unique_ptr<drivers::MainDriver> BuildMainDriver() {
 }
 
 int main(int argc, char *argv[]) {
+	std::string prefix_key;
+	if (argc < 2) {
+		prefix_key = "codecharacter";
+		std::cerr
+		    << "WARNING: main needs a key to prefix scores with for security,"
+		       "running with default key value now...";
+	} else {
+		prefix_key = std::string(argv[1]);
+	}
+
 	std::cout << "Starting main...\n";
 	auto driver = std::move(BuildMainDriver());
 
@@ -158,7 +168,9 @@ int main(int argc, char *argv[]) {
 		    "./player_" + std::to_string(i) + " " + shm_names[i - 1] + " &";
 		std::system(command.c_str());
 	}
-	driver->Start();
-	std::cout << "Done with main!\n";
+	auto results = driver->Start();
+	std::cout << prefix_key << " " << results[0].score << " "
+	          << results[0].status << " " << results[1].score << " "
+	          << results[1].status << std::endl;
 	return 0;
 }

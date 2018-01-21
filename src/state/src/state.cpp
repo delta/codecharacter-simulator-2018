@@ -69,6 +69,24 @@ std::vector<int64_t> State::GetMoney() {
 
 IMap *State::GetMap() { return this->map.get(); }
 
+std::vector<int64_t> State::GetScores() {
+	int num_players = (int)PlayerId::PLAYER_COUNT;
+	std::vector<int64_t> scores(num_players, 0);
+
+	for (int i = 0; i < this->map->GetSize(); ++i) {
+		for (int j = 0; j < this->map->GetSize(); ++j) {
+			auto elt = this->map->GetElementByOffset(physics::Vector(i, j));
+			for (int player_id = 0; player_id < num_players; ++player_id) {
+				if (elt.GetOwnership()[player_id]) {
+					scores[player_id]++;
+				}
+			}
+		}
+	}
+
+	return scores;
+}
+
 void State::MoveSoldier(PlayerId player_id, int64_t soldier_id,
                         physics::Vector position) {
 	auto soldier = GetSoldierById(soldier_id, player_id);

@@ -102,6 +102,11 @@ class STATE_EXPORT State : public IState {
 	IMap *GetMap() override;
 
 	/**
+	 * @see IState#GetScores
+	 */
+	std::vector<int64_t> GetScores() override;
+
+	/**
 	 * @see IState#MoveSoldier
 	 */
 	void MoveSoldier(PlayerId player_id, int64_t soldier_id,
