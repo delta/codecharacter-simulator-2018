@@ -16,6 +16,7 @@
 #include "state/utilities.h"
 #include <cstdint>
 #include <memory>
+#include <queue>
 #include <vector>
 
 namespace state {
@@ -45,6 +46,27 @@ class STATE_EXPORT TowerManager : public IUpdatable {
 	IMap *map;
 
 	/**
+	 * List of offsets to build towers at
+	 *
+	 * Added to by BuildTower and consumed in the Update method
+	 */
+	std::queue<physics::Vector> towers_to_build_offsets;
+
+	/**
+	 * List of tower IDs to upgrade to the next level
+	 *
+	 * Added to by UpgradeTower and consumed in the Update method
+	 */
+	std::queue<ActorId> towers_to_upgrade;
+
+	/**
+	 * List of tower IDs that are going to suicide
+	 *
+	 * Added to by SuicideTower and consumed in the Update method
+	 */
+	std::queue<ActorId> towers_to_suicide;
+
+	/**
 	 * Towers are stored for two extra turns before removing them from the
 	 * manager. This list is populated every turn. First element is the list of
 	 * towers two turns old, second element is the list of towers one turn old.
@@ -69,6 +91,33 @@ class STATE_EXPORT TowerManager : public IUpdatable {
 	 * @return   vector of physics::Vectors - [lower_bound, upper_bound]
 	 */
 	std::vector<physics::Vector> CalculateBounds(Tower *tower);
+
+	/**
+	 * Consumes towers_to_build_offsets and builds towers at those offsets
+	 *
+	 * @throw std::out_of_range If tower offset is not within the map
+	 */
+	void HandleTowerBuildUpdates();
+
+	/**
+	 * Consumes towers_to_upgrade and upgrades towers with the given IDs
+	 *
+	 * @throw std::out_of_range If an ID was invalid or tower is already at max
+	 *                          level
+	 */
+	void HandleTowerUpgradeUpdates();
+
+	/**
+	 * Consumes towers_to_suicide and suicides towers with the given IDs
+	 *
+	 * @throw std::out_of_range If an ID was invalid
+	 */
+	void HandleTowerSuicideUpdates();
+
+	/**
+	 * Manages updating of the towers_to_delete list
+	 */
+	void HandleTowerDeathUpdates();
 
   public:
 	/**
