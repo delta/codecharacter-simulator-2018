@@ -247,15 +247,20 @@ TEST_F(TowerManagerTest, TerritoryTest) {
 
 TEST_F(TowerManagerTest, AdjacentBuildTower) {
 	Actor::SetActorIdIncrement(0);
-	auto tower_manager_2 = make_unique<TowerManager>(
-	    move(vector<unique_ptr<Tower>>()), PlayerId::PLAYER2,
-	    money_manager.get(), map.get());
 
-	// Build two towers from opposite teams adjacent to each other
+	// Make a tower via tower manager constructor at offset (0, 1) for player 2
+	vector<unique_ptr<Tower>> towers_enemy;
+	towers_enemy.push_back(move(make_unique<Tower>(
+	    Actor::GetNextActorId(), PlayerId::PLAYER2, ActorType::TOWER,
+	    Tower::max_hp_levels[0], Tower::max_hp_levels[0],
+	    Vector(0, map->GetElementSize()), true, 1)));
+
+	auto tower_manager_2 = make_unique<TowerManager>(
+	    move(towers_enemy), PlayerId::PLAYER2, money_manager.get(), map.get());
+
+	// Build player 1 tower adjacent to player 2's tower
 	tower_manager->BuildTower(Vector(0, 0));
-	tower_manager_2->BuildTower(Vector(0, 1));
 	tower_manager->Update();
-	tower_manager_2->Update();
 
 	// Arbitrary value that's big enough to leave a bit of neutral territory
 	// around the tower territories so that it can be checked
@@ -275,7 +280,7 @@ TEST_F(TowerManagerTest, AdjacentBuildTower) {
 				    map->GetElementByOffset(Vector(i, j)).GetOwnership()[0]);
 			}
 
-			// Player 2 territoroy checks
+			// Player 2 territory checks
 			if (i <= base_tower_range && j - 1 <= base_tower_range) {
 				EXPECT_TRUE(
 				    map->GetElementByOffset(Vector(i, j)).GetOwnership()[1]);

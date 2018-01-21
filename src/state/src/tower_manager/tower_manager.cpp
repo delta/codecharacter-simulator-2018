@@ -24,7 +24,7 @@ TowerManager::TowerManager(std::vector<std::unique_ptr<Tower>> towers,
           map->GetSize(), std::vector<int64_t>(map->GetSize(), 0))) {
 
 	// Set default territory based on initial towers
-	for (auto &tower : towers) {
+	for (auto &tower : this->towers) {
 		auto bounds = CalculateBounds(tower.get());
 
 		for (int i = bounds[0].x; i <= bounds[1].x; ++i) {
