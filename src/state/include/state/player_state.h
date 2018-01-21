@@ -62,25 +62,49 @@ struct PlayerTower {
 };
 
 /**
+ * Struct holding information about Opponent's soldier
+ */
+struct OpponentSoldier {
+	int64_t id;
+	physics::Vector position;
+	int64_t hp;
+	SoldierStateName state;
+};
+
+/**
+ * Struct holding information about Opponent's tower
+ */
+struct OpponentTower {
+	int64_t id;
+	physics::Vector position;
+	int64_t hp;
+	int64_t level;
+};
+
+/**
  * Player's copy of state
  */
 struct STATE_EXPORT PlayerState {
 	// Grid of map elements
 	std::array<std::array<PlayerMapElement, MAP_SIZE>, MAP_SIZE> map;
 
-	// Lists of soldiers, indexed by player_id
-	std::array<std::array<PlayerSoldier, NUM_SOLDIERS>,
-	           static_cast<std::size_t>(PlayerId::PLAYER_COUNT)>
-	    soldiers;
+	// List of player soldiers
+	std::array<PlayerSoldier, NUM_SOLDIERS> soldiers;
 
-	// Lists of towers, indexed by player_id
-	std::array<std::array<PlayerTower, MAX_NUM_TOWERS>,
-	           static_cast<std::size_t>(PlayerId::PLAYER_COUNT)>
-	    towers;
+	// List of opponent soldiers
+	std::array<PlayerSoldier, NUM_SOLDIERS> opponent_soldiers;
 
-	// Number of towers, indexed by player id
-	std::array<int64_t, static_cast<std::size_t>(PlayerId::PLAYER_COUNT)>
-	    num_towers{0, 0};
+	// List of player towers
+	std::array<PlayerTower, MAX_NUM_TOWERS> towers;
+
+	// List of opponent soldiers
+	std::array<PlayerTower, MAX_NUM_TOWERS> opponent_towers;
+
+	// Number of player towers
+	int64_t num_towers;
+
+	// Number of opponent towers
+	int64_t num_opponent_towers;
 
 	// Money
 	int64_t money;
