@@ -89,11 +89,7 @@ void StateSyncer::ExecutePlayerCommands(
 	}
 }
 
-std::vector<int64_t> StateSyncer::UpdateMainState() {
-	state->Update();
-
-	return std::vector<int64_t>(1, 1);
-}
+void StateSyncer::UpdateMainState() { state->Update(); }
 
 void StateSyncer::UpdatePlayerStates(
     std::vector<PlayerState *> &player_states) {
@@ -490,5 +486,9 @@ void StateSyncer::SuicideTower(PlayerId player_id, int64_t tower_id,
 	}
 
 	state->SuicideTower(player_id, tower_id);
+}
+
+std::vector<int64_t> StateSyncer::GetScores() {
+	return this->state->GetScores();
 }
 }

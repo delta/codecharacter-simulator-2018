@@ -112,13 +112,16 @@ const std::vector<PlayerResult> MainDriver::Run() {
 		// exceeded turn instruction limit
 		this->state_syncer->ExecutePlayerCommands(this->player_states,
 		                                          skip_player_turn);
-		// Update the main state and get the player's scores
-		player_scores = this->state_syncer->UpdateMainState();
+		// Update the main state
+		this->state_syncer->UpdateMainState();
 		// Write the updated main state back to the player's state copies
 		this->state_syncer->UpdatePlayerStates(this->player_states);
 	}
 
 	// Done with the game now
+
+	// Get the players' scores
+	player_scores = this->state_syncer->GetScores();
 
 	// Write the player results
 	for (int i = 0; i < this->player_count; ++i) {

@@ -50,6 +50,13 @@ class STATE_EXPORT IState : public IUpdatable {
 	virtual IMap *GetMap() = 0;
 
 	/**
+	 * Get game scores of players, indexed by player ID
+	 *
+	 * @return      Vector of scores
+	 */
+	virtual std::vector<int64_t> GetScores() = 0;
+
+	/**
 	 * Handles soldier movement
 	 *
 	 * @param[in]  player_id     player to act upon

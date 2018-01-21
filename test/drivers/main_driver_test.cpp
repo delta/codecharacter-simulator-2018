@@ -83,10 +83,10 @@ TEST_F(MainDriverTest, CleanRun) {
 	            ExecutePlayerCommands(_, vector<bool>(player_count, true)))
 	    .Times(num_turns / 2);
 
-	EXPECT_CALL(*state_syncer_mock, UpdateMainState())
-	    .Times(num_turns)
-	    .WillRepeatedly(Return(vector<int64_t>(player_count, 0)));
+	EXPECT_CALL(*state_syncer_mock, UpdateMainState()).Times(num_turns);
 	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_)).Times(num_turns + 1);
+	EXPECT_CALL(*state_syncer_mock, GetScores())
+	    .WillOnce(Return(vector<int64_t>(player_count, 10)));
 
 	// Declare mock logger and setting expectations
 	unique_ptr<LoggerMock> v_logger(new LoggerMock());
@@ -123,9 +123,13 @@ TEST_F(MainDriverTest, CleanRun) {
 	// Wait for main driver to wrap up
 	main_runner.join();
 
-	// Everyone gets a score of 0 and status is normal as game finished normally
+	// Number of result structs should equal number of players
+	EXPECT_EQ(player_results.size(), player_count);
+
+	// Everyone gets a score of 10 and status is normal as game finished
+	// normally
 	for (auto result : player_results) {
-		EXPECT_EQ(result.score, 0);
+		EXPECT_EQ(result.score, 10);
 		EXPECT_EQ(result.status, PlayerResult::Status::NORMAL);
 	}
 }
@@ -138,11 +142,10 @@ TEST_F(MainDriverTest, EarlyPlayerExit) {
 	// Expect only half the number of turns to be run
 	EXPECT_CALL(*state_syncer_mock, ExecutePlayerCommands(_, _))
 	    .Times(num_turns / 2);
-	EXPECT_CALL(*state_syncer_mock, UpdateMainState())
-	    .Times(num_turns / 2)
-	    .WillRepeatedly(Return(vector<int64_t>(player_count, 0)));
+	EXPECT_CALL(*state_syncer_mock, UpdateMainState()).Times(num_turns / 2);
 	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_))
 	    .Times(num_turns / 2 + 1);
+	EXPECT_CALL(*state_syncer_mock, GetScores()).Times(0);
 
 	// Logger called num_turns/2 + 1 times before the driver exits
 	unique_ptr<LoggerMock> v_logger(new LoggerMock());
@@ -175,6 +178,9 @@ TEST_F(MainDriverTest, EarlyPlayerExit) {
 	}
 	main_runner.join();
 
+	// Number of result structs should equal number of players
+	EXPECT_EQ(player_results.size(), player_count);
+
 	// Results are undefined as game didn't complete
 	for (auto result : player_results) {
 		EXPECT_EQ(result.status, PlayerResult::Status::UNDEFINED);
@@ -189,11 +195,10 @@ TEST_F(MainDriverTest, InstructionLimitReached) {
 	// Expect only half the turns to run
 	EXPECT_CALL(*state_syncer_mock, ExecutePlayerCommands(_, _))
 	    .Times(num_turns / 2);
-	EXPECT_CALL(*state_syncer_mock, UpdateMainState())
-	    .Times(num_turns / 2)
-	    .WillRepeatedly(Return(vector<int64_t>(player_count, 0)));
+	EXPECT_CALL(*state_syncer_mock, UpdateMainState()).Times(num_turns / 2);
 	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_))
 	    .Times(num_turns / 2 + 1);
+	EXPECT_CALL(*state_syncer_mock, GetScores()).Times(0);
 
 	unique_ptr<LoggerMock> v_logger(new LoggerMock());
 	EXPECT_CALL(*v_logger, LogInstructionCount(PlayerId::PLAYER1, _))
@@ -241,6 +246,9 @@ TEST_F(MainDriverTest, InstructionLimitReached) {
 	}
 
 	main_runner.join();
+
+	// Number of result structs should equal number of players
+	EXPECT_EQ(player_results.size(), player_count);
 
 	for (auto result : player_results) {
 		EXPECT_EQ(result.status,
