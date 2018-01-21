@@ -8,6 +8,7 @@
 #include "drivers/drivers_export.h"
 #include "state/utilities.h"
 #include <cstdint>
+#include <iostream>
 #include <vector>
 
 namespace drivers {
@@ -47,6 +48,22 @@ struct DRIVERS_EXPORT PlayerResult {
 	 */
 	Status status;
 };
+
+DRIVERS_EXPORT inline std::ostream &
+operator<<(std::ostream &ostream, const PlayerResult::Status &status) {
+	switch (status) {
+	case PlayerResult::Status::UNDEFINED:
+		ostream << "UNDEFINED";
+		break;
+	case PlayerResult::Status::NORMAL:
+		ostream << "NORMAL";
+		break;
+	case PlayerResult::Status::EXCEEDED_INSTRUCTION_LIMIT:
+		ostream << "EXCEEDED_INSTRUCTION_LIMIT";
+		break;
+	}
+	return ostream;
+}
 }
 
 #endif
