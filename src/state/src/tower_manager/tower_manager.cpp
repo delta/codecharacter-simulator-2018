@@ -58,177 +58,145 @@ std::vector<physics::Vector> TowerManager::CalculateBounds(Tower *tower) {
 }
 
 void TowerManager::BuildTower(physics::Vector offset, bool is_base) {
-	int element_size = map->GetElementSize();
-
-	// Territory Checks
-	MapElement tower_element = map->GetElementByOffset(offset);
-	std::vector<bool> element_ownership = tower_element.GetOwnership();
-
-	// Check if the location is on land
-	if (tower_element.GetTerrainType() != TerrainType::LAND) {
-		throw std::out_of_range("Cannot build - terrain is not land");
-	}
-
-	// Check if player owns territory
-	bool this_players_territory =
-	    element_ownership[static_cast<int>(this->player_id)];
-	bool only_this_players_territory = true;
-
-	// Check if no one else owns territory
-	for (int i = 0; i < element_ownership.size(); ++i) {
-
-		// Skip the own player's ownership prop when checking
-		if (i == static_cast<int>(this->player_id))
-			continue;
-
-		// If someone else owns this territory, break
-		if (element_ownership[i]) {
-			only_this_players_territory = false;
-			break;
-		}
-	}
-
-	if (!(this_players_territory && only_this_players_territory)) {
-		throw std::out_of_range("Invalid territory to build");
-	}
-
-	// Check if a tower already exists in the same location
-	physics::Vector tower_position;
-
-	for (int i = 0; i < towers.size(); ++i) {
-		tower_position = towers[i]->GetPosition();
-		if ((tower_position / element_size).floor() == offset.floor()) {
-			throw std::out_of_range("Invalid location - tower already exists");
-		}
-	}
-
-	// Check if the player has enough money to buy a new tower
-	int64_t tower_cost = TowerManager::build_costs[0];
-
-	if (tower_cost > money_manager->GetBalance(this->player_id)) {
-		throw std::out_of_range("Tower build failed due to insufficient funds");
-	}
-
-	// Everything is good. Build the tower
-
-	// Deduct the amount
-	money_manager->Decrease(this->player_id, tower_cost);
-
-	// Get the next ActorId
-	auto new_actor_id = Actor::GetNextActorId();
-
-	// Make the new tower
-	auto new_tower = std::make_unique<Tower>(
-	    new_actor_id, this->player_id, ActorType::TOWER,
-	    Tower::max_hp_levels[0], Tower::max_hp_levels[0],
-	    physics::Vector(element_size * offset.x + (element_size / 2),
-	                    element_size * offset.y + (element_size / 2)),
-	    is_base, 1);
-
-	auto tower_ptr = new_tower.get();
-
-	// Add the new tower
-	this->towers.push_back(std::move(new_tower));
-
-	// Mark the new territory
-	auto bounds = CalculateBounds(tower_ptr);
-
-	for (int i = bounds[0].x; i <= bounds[1].x; ++i) {
-		for (int j = bounds[0].y; j <= bounds[1].y; ++j) {
-			territory_refs[i][j]++;
-			map->GetElementByOffset(physics::Vector(i, j))
-			    .SetOwnership(player_id, true);
-		}
-	}
+	this->towers_to_build_offsets.push(offset);
 }
 
 void TowerManager::UpgradeTower(ActorId tower_id) {
-
-	int64_t current_tower_index;
-	bool tower_exists = false;
-	for (int i = towers.size() - 1; i >= 0; --i) {
-		if (towers[i]->GetActorId() == tower_id) {
-			current_tower_index = i;
-			tower_exists = true;
-			break;
-		}
-	}
-
-	// Check if tower exists
-	if (!tower_exists) {
-		throw std::out_of_range("Invalid tower_id, tower does not exist");
-	}
-
-	int64_t current_tower_level =
-	    static_cast<int64_t>(towers[current_tower_index]->GetTowerLevel());
-
-	// Check if the tower is upgradable
-	if (current_tower_level == TowerManager::build_costs.size()) {
-		throw std::out_of_range("Max level reached, upgrade not allowed");
-	}
-
-	int64_t tower_upgrade_cost = TowerManager::build_costs[current_tower_level];
-
-	// Check if the player has sufficient balance
-	int64_t current_balance = this->money_manager->GetBalance(player_id);
-	if (current_balance < tower_upgrade_cost) {
-		throw std::out_of_range("Insufficient balance for upgrade");
-	}
-
-	// Everything is good, upgrade the tower
-
-	// Deduct Amount
-	money_manager->Decrease(player_id, tower_upgrade_cost);
-
-	// Save old territory bounds
-	auto old_bounds = CalculateBounds(towers[current_tower_index].get());
-
-	// Upgrade the tower
-	towers[current_tower_index]->Upgrade();
-
-	// Set new territory
-	auto new_bounds = CalculateBounds(towers[current_tower_index].get());
-
-	for (int i = new_bounds[0].x; i <= new_bounds[1].x; ++i) {
-		for (int j = new_bounds[0].y; j <= new_bounds[1].y; ++j) {
-			// Avoid setting territory that was already set pre-upgrade
-			if (i >= old_bounds[0].x && i <= old_bounds[1].x &&
-			    j >= old_bounds[0].y && j <= old_bounds[1].y)
-				continue;
-			territory_refs[i][j]++;
-			map->GetElementByOffset(physics::Vector(i, j))
-			    .SetOwnership(player_id, true);
-		}
-	}
+	this->towers_to_upgrade.push(tower_id);
 }
 
 void TowerManager::SuicideTower(ActorId tower_id) {
+	this->towers_to_suicide.push(tower_id);
 	int64_t current_tower_index;
-	bool tower_exists = false;
-	for (int i = towers.size() - 1; i >= 0; --i) {
-		if (towers[i]->GetActorId() == tower_id) {
-			current_tower_index = i;
-			tower_exists = true;
-			break;
-		}
-	}
-	if (!tower_exists) {
-		throw std::out_of_range("Invalid tower_id, tower does not exist");
-	}
-
-	// If it's a base tower, don't kill it
-	if (towers[current_tower_index]->GetIsBase()) {
-		throw std::logic_error("Cannot destroy base tower");
-	}
-
-	// Destroy tower
-	towers[current_tower_index]->SetHp(0);
-
-	// Add reward amount
-	money_manager->RewardSuicide(towers[current_tower_index].get());
 }
 
-void TowerManager::Update() {
+void TowerManager::HandleTowerBuildUpdates() {
+	auto element_size = this->map->GetElementSize();
+
+	// Iterate through list of offsets to build towers at
+	while (!this->towers_to_build_offsets.empty()) {
+		// Fetch the offset to build the tower at
+		const auto build_offset = this->towers_to_build_offsets.front();
+		this->towers_to_build_offsets.pop();
+
+		// Deduct the amount
+		money_manager->Decrease(this->player_id, this->build_costs[0]);
+
+		// Get the next ActorId
+		auto new_actor_id = Actor::GetNextActorId();
+
+		// Make the new tower
+		auto new_tower = std::make_unique<Tower>(
+		    new_actor_id, this->player_id, ActorType::TOWER,
+		    Tower::max_hp_levels[0], Tower::max_hp_levels[0],
+		    physics::Vector(element_size * build_offset.x + (element_size / 2),
+		                    element_size * build_offset.y + (element_size / 2)),
+		    false, 1);
+
+		auto tower_ptr = new_tower.get();
+
+		// Add the new tower
+		this->towers.push_back(std::move(new_tower));
+
+		// Mark the new territory
+		auto bounds = CalculateBounds(tower_ptr);
+
+		for (int i = bounds[0].x; i <= bounds[1].x; ++i) {
+			for (int j = bounds[0].y; j <= bounds[1].y; ++j) {
+				territory_refs[i][j]++;
+				map->GetElementByOffset(physics::Vector(i, j))
+				    .SetOwnership(player_id, true);
+			}
+		}
+	}
+}
+
+void TowerManager::HandleTowerUpgradeUpdates() {
+	// Iterate through list of tower IDs to upgrade
+	while (!this->towers_to_upgrade.empty()) {
+		// Get ID of tower to upgrade
+		const auto tower_id = this->towers_to_upgrade.front();
+		this->towers_to_upgrade.pop();
+
+		// Get the index of the tower in the list of towers
+		int64_t current_tower_index = -1;
+		for (int i = towers.size() - 1; i >= 0; --i) {
+			if (towers[i]->GetActorId() == tower_id) {
+				current_tower_index = i;
+				break;
+			}
+		}
+
+		// Check if tower exists
+		if (current_tower_index == -1) {
+			throw std::out_of_range("Cannot upgrade non-existent tower");
+		}
+
+		int64_t current_tower_level =
+		    static_cast<int64_t>(towers[current_tower_index]->GetTowerLevel());
+
+		// Check if the tower is upgradable
+		if (current_tower_level == TowerManager::build_costs.size()) {
+			throw std::out_of_range("Max level reached, upgrade not allowed");
+		}
+
+		// Deduct Amount
+		money_manager->Decrease(player_id,
+		                        this->build_costs[current_tower_level]);
+
+		// Save old territory bounds
+		auto old_bounds = CalculateBounds(towers[current_tower_index].get());
+
+		// Upgrade the tower
+		towers[current_tower_index]->Upgrade();
+
+		// Set new territory
+		auto new_bounds = CalculateBounds(towers[current_tower_index].get());
+
+		for (int i = new_bounds[0].x; i <= new_bounds[1].x; ++i) {
+			for (int j = new_bounds[0].y; j <= new_bounds[1].y; ++j) {
+				// Avoid setting territory that was already set pre-upgrade
+				if (i >= old_bounds[0].x && i <= old_bounds[1].x &&
+				    j >= old_bounds[0].y && j <= old_bounds[1].y)
+					continue;
+				territory_refs[i][j]++;
+				map->GetElementByOffset(physics::Vector(i, j))
+				    .SetOwnership(player_id, true);
+			}
+		}
+	}
+}
+
+void TowerManager::HandleTowerSuicideUpdates() {
+	// Iterate through list of tower IDs to suicide
+	while (!this->towers_to_suicide.empty()) {
+		// Get ID of tower to suicide
+		const auto tower_id = this->towers_to_suicide.front();
+		this->towers_to_suicide.pop();
+
+		// Get the index of the tower in the list of towers
+		int64_t current_tower_index = -1;
+		for (int i = towers.size() - 1; i >= 0; --i) {
+			if (towers[i]->GetActorId() == tower_id) {
+				current_tower_index = i;
+				break;
+			}
+		}
+
+		// Check if tower exists
+		if (current_tower_index == -1) {
+			throw std::out_of_range("Cannot suicide non-existent tower");
+		}
+
+		// Destroy tower
+		towers[current_tower_index]->SetHp(0);
+
+		// Add reward amount
+		money_manager->RewardSuicide(towers[current_tower_index].get());
+	}
+}
+
+void TowerManager::HandleTowerDeathUpdates() {
 	std::vector<int64_t> tower_indices_to_delete;
 
 	// Delete towers two turns old
@@ -268,6 +236,13 @@ void TowerManager::Update() {
 		// Delete the tower from the main list
 		towers.erase(towers.begin() + tower_i);
 	}
+}
+
+void TowerManager::Update() {
+	this->HandleTowerBuildUpdates();
+	this->HandleTowerUpgradeUpdates();
+	this->HandleTowerSuicideUpdates();
+	this->HandleTowerDeathUpdates();
 }
 
 Tower *TowerManager::GetTowerById(ActorId tower_id) {
