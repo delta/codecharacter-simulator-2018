@@ -480,8 +480,8 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	            LogError(PlayerId::PLAYER2, 3, "Do not alter id of actors"))
 	    .Times(1);
 
-	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2, 4,
-	                              "Soldier must be alive in order to act"))
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2,
+	                              ErrorType::NO_ACTION_BY_DEAD_SOLDIER, _))
 	    .Times(1);
 
 	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER1, 5, "Position not in map"))

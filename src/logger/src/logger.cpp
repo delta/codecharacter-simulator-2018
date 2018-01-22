@@ -16,7 +16,7 @@ Logger::Logger(int64_t player_instruction_limit_turn,
                int64_t player_instruction_limit_game)
     : turn_count(0), tower_logs(), logs(std::make_unique<proto::Game>()),
       instruction_counts(std::vector<int64_t>((int)PlayerId::PLAYER_COUNT, 0)),
-      error_map(std::unordered_map<int64_t, std::string>()),
+      error_map(std::unordered_map<std::string, int64_t>()), current_error_code(0),
       errors(std::vector<std::vector<int64_t>>(
           (int)state::PlayerId::PLAYER_COUNT, std::vector<int64_t>())),
       player_instruction_limit_turn(player_instruction_limit_turn),
@@ -231,20 +231,30 @@ void Logger::LogInstructionCount(PlayerId player_id, int64_t count) {
 	this->instruction_counts[(int)player_id] = count;
 }
 
-void Logger::LogError(state::PlayerId player_id, int64_t code,
+void Logger::LogError(state::PlayerId player_id, ErrorType error_type,
                       std::string message) {
-	if (this->error_map.find(code) == error_map.end()) {
-		// The eror code doesn't exist, so we don't already have message stored
-		this->error_map[code] = message;
+	int64_t error_code;
+
+	// Encode the message as "ERROR_TYPE: <message_string>"
+	std::string full_message = ErrorTypeName[(int)error_type] + ": " + message;
+
+	// If the message doesn't exist in the map, add an entry in the map and
+	// increment the counter
+	if (error_map.find(full_message) == error_map.end()) {
+		error_code = current_error_code++;
+		error_map[full_message] = error_code;
+	} else {
+		error_code = error_map[full_message];
 	}
 
-	errors[(int)player_id].push_back(code);
+	errors[(int)player_id].push_back(error_code);
 }
 
 void Logger::LogFinalGameParams() {
 	// Write the error mapping to logs
+	// Flip the mapping, int error_code -> string message
 	for (auto element : error_map) {
-		(*logs->mutable_error_map())[element.first] = element.second;
+		(*logs->mutable_error_map())[element.second] = element.first;
 	}
 }
 

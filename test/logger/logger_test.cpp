@@ -125,10 +125,14 @@ TEST_F(LoggerTest, WriteReadTest) {
 	logger->LogInstructionCount(PlayerId::PLAYER2, inst_counts[1]);
 
 	// Log some errors for the first turn
-	logger->LogError(PlayerId::PLAYER1, 1, "Error 1");
-	logger->LogError(PlayerId::PLAYER1, 2, "Error 2");
-	logger->LogError(PlayerId::PLAYER2, 3, "Error 3");
-	logger->LogError(PlayerId::PLAYER2, 4, "Error 4");
+	logger->LogError(PlayerId::PLAYER1, ErrorType::INVALID_TERRITORY,
+	                 "Error 1");
+	logger->LogError(PlayerId::PLAYER1, ErrorType::INVALID_TERRITORY,
+	                 "Error 2");
+	logger->LogError(PlayerId::PLAYER2, ErrorType::INVALID_TERRITORY,
+	                 "Error 3");
+	logger->LogError(PlayerId::PLAYER2, ErrorType::INVALID_TERRITORY,
+	                 "Error 4");
 
 	// Run 3 turns, update HP, run the remaining turns
 	logger->LogState(state.get());
@@ -171,21 +175,26 @@ TEST_F(LoggerTest, WriteReadTest) {
 	ASSERT_EQ(game->states(1).instruction_counts(0), 0);
 
 	// Check if the errors got logged on the first turn
+	// Error codes should increment from 0
 	// Player 1 errors
 	ASSERT_EQ(game->states(0).player_errors(0).errors_size(), 2);
-	ASSERT_EQ(game->states(0).player_errors(0).errors(0), 1);
-	ASSERT_EQ(game->states(0).player_errors(0).errors(1), 2);
+	ASSERT_EQ(game->states(0).player_errors(0).errors(0), 0);
+	ASSERT_EQ(game->states(0).player_errors(0).errors(1), 1);
 	// Player 2 errors
 	ASSERT_EQ(game->states(0).player_errors(1).errors_size(), 2);
-	ASSERT_EQ(game->states(0).player_errors(1).errors(0), 3);
-	ASSERT_EQ(game->states(0).player_errors(1).errors(1), 4);
+	ASSERT_EQ(game->states(0).player_errors(1).errors(0), 2);
+	ASSERT_EQ(game->states(0).player_errors(1).errors(1), 3);
 
 	// Check if the mapping got set and the message string matches
 	auto error_map = *game->mutable_error_map();
-	ASSERT_EQ(error_map[game->states(0).player_errors(0).errors(0)], "Error 1");
-	ASSERT_EQ(error_map[game->states(0).player_errors(0).errors(1)], "Error 2");
-	ASSERT_EQ(error_map[game->states(0).player_errors(1).errors(0)], "Error 3");
-	ASSERT_EQ(error_map[game->states(0).player_errors(1).errors(1)], "Error 4");
+	ASSERT_EQ(error_map[game->states(0).player_errors(0).errors(0)],
+	          "INVALID_TERRITORY: Error 1");
+	ASSERT_EQ(error_map[game->states(0).player_errors(0).errors(1)],
+	          "INVALID_TERRITORY: Error 2");
+	ASSERT_EQ(error_map[game->states(0).player_errors(1).errors(0)],
+	          "INVALID_TERRITORY: Error 3");
+	ASSERT_EQ(error_map[game->states(0).player_errors(1).errors(1)],
+	          "INVALID_TERRITORY: Error 4");
 
 	// BASE TOWERS CASE
 	// Check if both towers are there in the first turn

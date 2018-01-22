@@ -6,6 +6,7 @@
 #ifndef LOGGER_I_LOGGER_H
 #define LOGGER_I_LOGGER_H
 
+#include "logger/error_type.h"
 #include "logger/logger_export.h"
 #include "state/interfaces/i_state.h"
 #include <ostream>
@@ -38,14 +39,14 @@ class LOGGER_EXPORT ILogger {
 	                                 int64_t count) = 0;
 
 	/**
-	 * Takes a player and the error, and logs it into the state.  Expects all
-	 * errors with identical codes to have identical message strings.
+	 * Takes a player and the error, and logs it into the state. Every distinct
+	 * string is assigned an error code and stored in the error_map
 	 *
-	 * @param[in]   player_id  The player identifier
-	 * @param[in]   code       The error code
-	 * @param[in]   message    The error string
+	 * @param[in]   player_id    The player identifier
+	 * @param[in]   error_type   The error type
+	 * @param[in]   message      The error string
 	 */
-	virtual void LogError(state::PlayerId player_id, int64_t code,
+	virtual void LogError(state::PlayerId player_id, ErrorType error_type,
 	                      std::string message) = 0;
 
 	/**

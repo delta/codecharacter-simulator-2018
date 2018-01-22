@@ -7,6 +7,7 @@
 #define LOGGER_LOGGER_H
 
 #include "game.pb.h"
+#include "logger/error_type.h"
 #include "logger/interfaces/i_logger.h"
 #include "logger/logger_export.h"
 #include "state/interfaces/i_state.h"
@@ -57,9 +58,14 @@ class LOGGER_EXPORT Logger : public ILogger {
 	std::vector<int64_t> instruction_counts;
 
 	/**
-	 * Map holding mapping of error codes to error messages
+	 * Map holding mapping of error strings to error codes
 	 */
-	std::unordered_map<int64_t, std::string> error_map;
+	std::unordered_map<std::string, int64_t> error_map;
+
+	/**
+	 * Holds an incrementing value to assign each error a unique code
+	 */
+	int64_t current_error_code;
 
 	/**
 	 * Holds the errors that occured in a particular move, indexed by player_id
@@ -96,7 +102,7 @@ class LOGGER_EXPORT Logger : public ILogger {
 	/**
 	 * @see ILogger#LogError
 	 */
-	void LogError(state::PlayerId player_id, int64_t code,
+	void LogError(state::PlayerId player_id, ErrorType error_type,
 	              std::string message) override;
 
 	/**

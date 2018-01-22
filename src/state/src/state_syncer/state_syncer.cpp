@@ -301,7 +301,7 @@ physics::Vector StateSyncer::FlipPosition(state::IMap *map,
 
 void StateSyncer::LogErrors(PlayerId player_id, int64_t error_code,
                             std::string message) {
-	logger->LogError(player_id, error_code, message);
+	logger->LogError(player_id, message);
 }
 
 void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
@@ -324,7 +324,8 @@ void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
 	// Check is soldier is alive to act
 	if (state_soldiers[static_cast<int>(player_id)][soldier_index]->GetHp() ==
 	    0) {
-		LogErrors(player_id, 4, "Soldier must be alive in order to act");
+		LogErrors(player_id, logger::ErrorType::NO_ACTION_BY_DEAD_SOLDIER,
+		          "Soldier must be alive in order to act");
 		return;
 	}
 
@@ -358,7 +359,8 @@ void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
 	// Check is soldier is alive to act
 	if (state_soldiers[static_cast<int>(player_id)][soldier_index]->GetHp() ==
 	    0) {
-		LogErrors(player_id, 4, "Soldier must be alive in order to act");
+		LogErrors(player_id, logger::ErrorType::NO_ACTION_BY_DEAD_SOLDIER,
+		          "Soldier must be alive in order to act");
 		return;
 	}
 
@@ -407,7 +409,8 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
 	// Check if soldier is alive to act
 	if (state_soldiers[static_cast<int>(player_id)][soldier_index]->GetHp() ==
 	    0) {
-		LogErrors(player_id, 4, "Soldier must be alive in order to act");
+		LogErrors(player_id, logger::ErrorType::NO_ACTION_BY_DEAD_SOLDIER,
+		          "Soldier must be alive in order to act");
 		return;
 	}
 
