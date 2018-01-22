@@ -1,3 +1,4 @@
+#include "logger/error_type.h"
 #include "logger/mocks/logger_mock.h"
 #include "state/actor/soldier_states/soldier_state.h"
 #include "state/mocks/state_mock.h"
@@ -395,7 +396,6 @@ TEST_F(StateSyncerTest, UpdationTest) {
 TEST_F(StateSyncerTest, ExecutionTest) {
 	// Set logger expectations
 	EXPECT_CALL(*logger, LogState(_)).WillRepeatedly(Return());
-	EXPECT_CALL(*logger, LogError(_, _, _)).WillRepeatedly(Return());
 
 	player_money[0] = 1300;
 	player_money[1] = 400;
@@ -436,71 +436,64 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	skip_player_command_flags.push_back(false);
 	skip_player_command_flags.push_back(false);
 
-	EXPECT_CALL(*logger,
-	            LogError(PlayerId::PLAYER1, 1,
-	                     "Soldier can perform only one task each turn"))
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER1,
+	                              ErrorType::NO_MULTIPLE_SOLDIER_TASKS, _))
 	    .Times(2);
 
-	EXPECT_CALL(*logger,
-	            LogError(PlayerId::PLAYER2, 1,
-	                     "Soldier can perform only one task each turn"))
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2,
+	                              ErrorType::NO_MULTIPLE_SOLDIER_TASKS, _))
 	    .Times(1);
 
-	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER1, 2,
-	                              "Tower can perform only one task each turn"))
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER1,
+	                              ErrorType::NO_MULTIPLE_TOWER_TASKS, _))
 	    .Times(1);
 
 	EXPECT_CALL(*logger,
-	            LogError(PlayerId::PLAYER1, 3, "Do not alter id of actors"))
+	            LogError(PlayerId::PLAYER1, ErrorType::NO_ALTER_ACTOR_ID, _))
 	    .Times(3);
 
 	EXPECT_CALL(*logger,
-	            LogError(PlayerId::PLAYER2, 3, "Do not alter id of actors"))
+	            LogError(PlayerId::PLAYER2, ErrorType::NO_ALTER_ACTOR_ID, _))
 	    .Times(1);
 
 	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2,
 	                              ErrorType::NO_ACTION_BY_DEAD_SOLDIER, _))
 	    .Times(1);
 
-	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER1, 5, "Position not in map"))
+	EXPECT_CALL(*logger,
+	            LogError(PlayerId::PLAYER1, ErrorType::INVALID_POSITION, _))
 	    .Times(1);
 
 	EXPECT_CALL(*logger,
-	            LogError(PlayerId::PLAYER1, 6, "Attack Opponent's tower only"))
+	            LogError(PlayerId::PLAYER1, ErrorType::NO_ATTACK_SELF_TOWER, _))
 	    .Times(1);
 
-	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2, 7,
-	                              "Attack Opponent's soldier only"))
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2,
+	                              ErrorType::NO_ATTACK_SELF_SOLDIER, _))
+	    .Times(1);
+
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER1,
+	                              ErrorType::NO_ATTACK_DEAD_SOLDIER, _))
 	    .Times(1);
 
 	EXPECT_CALL(*logger,
-	            LogError(PlayerId::PLAYER1, 8,
-	                     "Opponent soldier must be alive to attack it"))
+	            LogError(PlayerId::PLAYER1, ErrorType::INVALID_TERRITORY, _))
+	    .Times(2);
+
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2,
+	                              ErrorType::NO_SUICIDE_BASE_TOWER, _))
 	    .Times(1);
 
 	EXPECT_CALL(*logger,
-	            LogError(PlayerId::PLAYER1, 9,
-	                     "Tower can be built only on valid territory."))
+	            LogError(PlayerId::PLAYER1, ErrorType::INSUFFICIENT_FUNDS, _))
+	    .Times(1);
+
+	EXPECT_CALL(*logger,
+	            LogError(PlayerId::PLAYER2, ErrorType::INSUFFICIENT_FUNDS, _))
 	    .Times(2);
 
 	EXPECT_CALL(*logger,
-	            LogError(PlayerId::PLAYER2, 10, "Cannot destroy base tower"))
-	    .Times(1);
-
-	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER1, 12,
-	                              "Insufficient funds to build tower"))
-	    .Times(1);
-
-	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2, 12,
-	                              "Insufficient funds to build tower"))
-	    .Times(1);
-
-	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2, 13,
-	                              "Insufficient funds to upgrade tower"))
-	    .Times(1);
-
-	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER1, 14,
-	                              "Cannot attack Base Tower of opponent"))
+	            LogError(PlayerId::PLAYER1, ErrorType::NO_ATTACK_BASE_TOWER, _))
 	    .Times(1);
 
 	// Single soldier targeting soldier and tower

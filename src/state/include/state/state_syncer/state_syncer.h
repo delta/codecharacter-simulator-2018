@@ -5,6 +5,7 @@
 #ifndef STATE_SYNCER_STATE_SYNCER_H
 #define STATE_SYNCER_STATE_SYNCER_H
 
+#include "logger/error_type.h"
 #include "logger/interfaces/i_logger.h"
 #include "state/interfaces/i_state.h"
 #include "state/interfaces/i_state_syncer.h"
@@ -138,11 +139,12 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * Logs the logic errors made by player
 	 *
 	 * @param[in]	player_id  	  player identifier
-	 * @param[in]	error_code	  code of error
+	 * @param[in]	error_type 	  error type
 	 * @param[in]	message	      error message
 	 *
 	 */
-	void LogErrors(PlayerId player_id, int64_t error_code, std::string message);
+	void LogErrors(PlayerId player_id, logger::ErrorType error_type,
+	               std::string message);
 
   public:
 	/**
