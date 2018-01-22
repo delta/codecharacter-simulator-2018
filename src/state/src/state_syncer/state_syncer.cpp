@@ -26,7 +26,11 @@ void StateSyncer::ExecutePlayerCommands(
 		if (skip_player_commands_flags[player_id] == false) {
 			int64_t soldier_index = 0;
 			int64_t tower_index = 0;
-			for (auto const &soldiers : player_states[player_id]->soldiers) {
+			for (int64_t soldier_index = 0;
+			     soldier_index < state_soldiers[player_id].size();
+			     ++soldier_index) {
+				auto const &soldiers =
+				    player_states[player_id]->soldiers[soldier_index];
 				// A soldier can only either move, attack tower or another
 				// soldier
 				bool is_attacking_tower = soldiers.tower_target != -1;
@@ -55,10 +59,11 @@ void StateSyncer::ExecutePlayerCommands(
 						            soldier_index);
 					}
 				}
-				soldier_index++;
 			}
 
-			for (auto const &tower : player_states[player_id]->towers) {
+			for (int64_t tower_index = 0;
+			     tower_index < state_towers[player_id].size(); ++tower_index) {
+				auto const &tower = player_states[player_id]->towers[tower_index];
 				if (tower.upgrade_tower == true && tower.suicide == true) {
 					LogErrors(static_cast<PlayerId>(player_id), 2,
 					          "Tower can perform only one task each turn");
@@ -69,7 +74,6 @@ void StateSyncer::ExecutePlayerCommands(
 					SuicideTower(static_cast<PlayerId>(player_id), tower.id,
 					             tower_index);
 				}
-				tower_index++;
 			}
 
 			for (int j = 0; j < player_states[player_id]->map.size(); ++j) {
@@ -111,8 +115,8 @@ void StateSyncer::UpdatePlayerStates(
 			map_element.terrain = state_map_element.GetTerrainType();
 
 			auto ownerships = state_map_element.GetOwnership();
-			std::copy(ownerships.begin(), ownerships.end(),
-			          map_element.territory.begin());
+			map_element.territory = ownerships[0];
+			map_element.enemy_territory = ownerships[1];
 
 			// Init map writables to default value
 			map_element.build_tower = false;
@@ -132,89 +136,15 @@ void StateSyncer::UpdatePlayerStates(
 		int64_t opponent_id =
 		    (player_id + 1) % static_cast<int>(PlayerId::PLAYER_COUNT);
 
-		// Reassigns properties to all the opponent soldiers
-		for (int i = 0; i < state_soldiers[opponent_id].size(); ++i) {
-			player_states[player_id]->opponent_soldiers[i].id =
-			    state_soldiers[opponent_id][i]->GetActorId();
-			player_states[player_id]->opponent_soldiers[i].hp =
-			    state_soldiers[opponent_id][i]->GetHp();
-			player_states[player_id]->opponent_soldiers[i].state =
-			    state_soldiers[opponent_id][i]->GetState();
-			if (static_cast<PlayerId>(player_id) == PlayerId::PLAYER1)
-				player_states[player_id]->opponent_soldiers[i].position =
-				    state_soldiers[opponent_id][i]->GetPosition();
-			else {
-				player_states[player_id]->opponent_soldiers[i].position =
-				    FlipPosition(map,
-				                 state_soldiers[opponent_id][i]->GetPosition());
-			}
-		}
+		AssignTowerAttributes(player_id, player_states[player_id]->towers,
+		                      false);
+		AssignTowerAttributes(opponent_id,
+		                      player_states[player_id]->opponent_towers, true);
 
-		// Reassigns properties to all opponent towers
-		for (int i = 0; i < state_towers[opponent_id].size(); ++i) {
-			player_states[player_id]->opponent_towers[i].id =
-			    state_towers[opponent_id][i]->GetActorId();
-			player_states[player_id]->opponent_towers[i].hp =
-			    state_towers[opponent_id][i]->GetHp();
-			if (static_cast<PlayerId>(player_id) == PlayerId::PLAYER1)
-				player_states[player_id]->opponent_towers[i].position =
-				    state_towers[opponent_id][i]->GetPosition();
-			else {
-				player_states[player_id]->opponent_towers[i].position =
-				    FlipPosition(map,
-				                 state_towers[opponent_id][i]->GetPosition());
-			}
-			player_states[player_id]->opponent_towers[i].level =
-			    state_towers[opponent_id][i]->GetTowerLevel();
-		}
-
-		for (int i = 0; i < state_soldiers[player_id].size(); ++i) {
-			// Reassigns id to all the soldiers
-			player_states[player_id]->soldiers[i].id =
-			    state_soldiers[player_id][i]->GetActorId();
-
-			// Init targets to default value
-			player_states[player_id]->soldiers[i].tower_target = -1;
-			player_states[player_id]->soldiers[i].soldier_target = -1;
-			player_states[player_id]->soldiers[i].destination =
-			    physics::Vector(-1, -1);
-
-			// Init soldier properties from state
-			player_states[player_id]->soldiers[i].hp =
-			    state_soldiers[player_id][i]->GetHp();
-			player_states[player_id]->soldiers[i].state =
-			    state_soldiers[player_id][i]->GetState();
-			if (static_cast<PlayerId>(player_id) == PlayerId::PLAYER1)
-				player_states[player_id]->soldiers[i].position =
-				    state_soldiers[player_id][i]->GetPosition();
-			else {
-				player_states[player_id]->soldiers[i].position = FlipPosition(
-				    map, state_soldiers[player_id][i]->GetPosition());
-			}
-		}
-
-		for (int i = 0; i < state_towers[player_id].size(); ++i) {
-			// Reassigns id to all the towers
-			player_states[player_id]->towers[i].id =
-			    state_towers[player_id][i]->GetActorId();
-
-			// Init tower writables to default value
-			player_states[player_id]->towers[i].suicide = false;
-			player_states[player_id]->towers[i].upgrade_tower = false;
-
-			// Init tower properties from state
-			player_states[player_id]->towers[i].hp =
-			    state_towers[player_id][i]->GetHp();
-			if (static_cast<PlayerId>(player_id) == PlayerId::PLAYER1)
-				player_states[player_id]->towers[i].position =
-				    state_towers[player_id][i]->GetPosition();
-			else {
-				player_states[player_id]->towers[i].position = FlipPosition(
-				    map, state_towers[player_id][i]->GetPosition());
-			}
-			player_states[player_id]->towers[i].level =
-			    state_towers[player_id][i]->GetTowerLevel();
-		}
+		AssignSoldierAttributes(player_id, player_states[player_id]->soldiers,
+		                        false);
+		AssignSoldierAttributes(
+		    opponent_id, player_states[player_id]->opponent_soldiers, true);
 
 		player_states[player_id]->num_towers = state_towers[player_id].size();
 		player_states[player_id]->num_opponent_towers =
@@ -225,14 +155,10 @@ void StateSyncer::UpdatePlayerStates(
 		for (auto &player_map_row : player_map) {
 			for (auto &player_map_element : player_map_row) {
 				player_map_element.valid_territory = true;
-				if (player_map_element.territory[0] == false) {
+				if (player_map_element.territory == false ||
+				    player_map_element.enemy_territory == true) {
 					player_map_element.valid_territory = false;
 					continue;
-				}
-				for (int i = 0; i < player_map_element.territory.size(); ++i) {
-					if (player_map_element.territory[i] == true && i != 0) {
-						player_map_element.valid_territory = false;
-					}
 				}
 			}
 		}
@@ -271,18 +197,80 @@ void StateSyncer::UpdatePlayerStates(
 	logger->LogState(state.get());
 }
 
+void StateSyncer::AssignTowerAttributes(
+    int64_t id, std::array<PlayerTower, MAX_NUM_TOWERS> &towers,
+    bool is_opponent) {
+	auto state_towers = state->GetAllTowers();
+	auto *map = state->GetMap();
+	int64_t player_id = id;
+	for (int i = 0; i < state_towers[id].size(); ++i) {
+		// Reassigns id to all the towers
+		towers[i].id = state_towers[id][i]->GetActorId();
+
+		// Init tower writables to default value
+		towers[i].suicide = false;
+		towers[i].upgrade_tower = false;
+
+		// Init tower properties from state
+		towers[i].hp = state_towers[id][i]->GetHp();
+		towers[i].level = state_towers[id][i]->GetTowerLevel();
+		if (is_opponent) {
+			player_id = ((id + 1) % static_cast<int>(PlayerId::PLAYER_COUNT));
+		}
+
+		if (static_cast<PlayerId>(player_id) == PlayerId::PLAYER1)
+			towers[i].position = state_towers[id][i]->GetPosition();
+		else {
+			towers[i].position =
+			    FlipPosition(map, state_towers[id][i]->GetPosition());
+		}
+	}
+}
+
+void StateSyncer::AssignSoldierAttributes(
+    int64_t id, std::array<PlayerSoldier, NUM_SOLDIERS> &soldiers,
+    bool is_opponent) {
+	auto state_soldiers = state->GetAllSoldiers();
+	auto *map = state->GetMap();
+	int64_t player_id = id;
+
+	for (int i = 0; i < state_soldiers[player_id].size(); ++i) {
+		// Reassigns id to all the soldiers
+		soldiers[i].id = state_soldiers[id][i]->GetActorId();
+
+		// Init targets to default value
+		soldiers[i].tower_target = -1;
+		soldiers[i].soldier_target = -1;
+		soldiers[i].destination = physics::Vector(-1, -1);
+
+		// Init soldier properties from state
+		soldiers[i].hp = state_soldiers[id][i]->GetHp();
+		soldiers[i].state = state_soldiers[id][i]->GetState();
+
+		if (is_opponent) {
+			player_id = ((id + 1) % static_cast<int>(PlayerId::PLAYER_COUNT));
+		}
+
+		if (static_cast<PlayerId>(player_id) == PlayerId::PLAYER1)
+			soldiers[i].position = state_soldiers[id][i]->GetPosition();
+		else {
+			soldiers[i].position =
+			    FlipPosition(map, state_soldiers[id][i]->GetPosition());
+		}
+	}
+}
+
 void StateSyncer::FlipMap(
     std::vector<std::vector<PlayerMapElement>> &player_map) {
 	int64_t map_size = player_map.size();
 	for (int i = 0; i < map_size / 2; ++i) {
 		for (int j = 0; j < player_map[i].size(); ++j) {
-			// Reversing the territory array for Player2
-			std::reverse(player_map[i][j].territory.begin(),
-			             player_map[i][j].territory.end());
-			std::reverse(
-			    player_map[map_size - 1 - i][map_size - 1 - j]
-			        .territory.begin(),
-			    player_map[map_size - 1 - i][map_size - 1 - j].territory.end());
+			// Swap territory for Player2
+			std::swap(player_map[i][j].territory,
+			          player_map[i][j].enemy_territory);
+			std::swap(
+			    player_map[map_size - 1 - i][map_size - 1 - j].territory,
+			    player_map[map_size - 1 - i][map_size - 1 - j].enemy_territory);
 
 			std::swap(player_map[i][j],
 			          player_map[map_size - 1 - i][map_size - 1 - j]);
@@ -291,13 +279,12 @@ void StateSyncer::FlipMap(
 	if (map_size % 2) {
 		int64_t i = map_size / 2;
 		for (int j = 0; j < map_size / 2; ++j) {
-			// Reversing the territory array for Player2
-			std::reverse(player_map[i][j].territory.begin(),
-			             player_map[i][j].territory.end());
-			std::reverse(
-			    player_map[map_size - 1 - i][map_size - 1 - j]
-			        .territory.begin(),
-			    player_map[map_size - 1 - i][map_size - 1 - j].territory.end());
+			// Swap territory for Player2
+			std::swap(player_map[i][j].territory,
+			          player_map[i][j].enemy_territory);
+			std::swap(
+			    player_map[map_size - 1 - i][map_size - 1 - j].territory,
+			    player_map[map_size - 1 - i][map_size - 1 - j].enemy_territory);
 
 			std::swap(player_map[i][j],
 			          player_map[map_size - 1 - i][map_size - 1 - j]);

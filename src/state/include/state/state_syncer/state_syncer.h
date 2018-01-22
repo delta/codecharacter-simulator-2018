@@ -144,6 +144,31 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 */
 	void LogErrors(PlayerId player_id, int64_t error_code, std::string message);
 
+	/**
+	 * Assigns attributes for towers
+	 *
+	 * @param[in]   id            player identifier
+	 * @param[in]   towers        array to assign values to
+	 * @param[in]   is_opponent   if it is opponent id
+	 *
+	 */
+	void AssignTowerAttributes(int64_t id,
+	                           std::array<PlayerTower, MAX_NUM_TOWERS> &towers,
+	                           bool is_opponent);
+
+	/**
+	 * Assigns attributes for towers
+	 *
+	 * @param[in]   id            player identifier
+	 * @param[in]   soldiers      array to assign values to
+	 * @param[in]   is_opponent   if it is opponent id
+	 *
+	 */
+	void
+	AssignSoldierAttributes(int64_t id,
+	                        std::array<PlayerSoldier, NUM_SOLDIERS> &soldiers,
+	                        bool is_opponent);
+
   public:
 	/**
 	 * Constructor for StateSyncer class
