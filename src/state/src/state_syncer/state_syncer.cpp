@@ -42,7 +42,8 @@ void StateSyncer::ExecutePlayerCommands(
 				                        is_attacking_tower};
 
 				if (std::count(flags.begin(), flags.end(), true) > 1) {
-					LogErrors(static_cast<PlayerId>(player_id), 1,
+					LogErrors(static_cast<PlayerId>(player_id),
+					          logger::ErrorType::NO_MULTIPLE_SOLDIER_TASKS,
 					          "Soldier can perform only one task each turn");
 				} else {
 					if (is_attacking_tower) {
@@ -65,7 +66,8 @@ void StateSyncer::ExecutePlayerCommands(
 			     tower_index < state_towers[player_id].size(); ++tower_index) {
 				auto const &tower = player_states[player_id]->towers[tower_index];
 				if (tower.upgrade_tower == true && tower.suicide == true) {
-					LogErrors(static_cast<PlayerId>(player_id), 2,
+					LogErrors(static_cast<PlayerId>(player_id),
+					          logger::ErrorType::NO_MULTIPLE_TOWER_TASKS,
 					          "Tower can perform only one task each turn");
 				} else if (tower.upgrade_tower == true) {
 					UpgradeTower(static_cast<PlayerId>(player_id), tower.id,
@@ -299,9 +301,9 @@ physics::Vector StateSyncer::FlipPosition(state::IMap *map,
 	    map->GetSize() * map->GetElementSize() - 1 - position.y);
 }
 
-void StateSyncer::LogErrors(PlayerId player_id, int64_t error_code,
+void StateSyncer::LogErrors(PlayerId player_id, logger::ErrorType error_type,
                             std::string message) {
-	logger->LogError(player_id, message);
+	logger->LogError(player_id, error_type, message);
 }
 
 void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
@@ -317,7 +319,8 @@ void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
 	if (soldier_id !=
 	    state_soldiers[static_cast<int>(player_id)][soldier_index]
 	        ->GetActorId()) {
-		LogErrors(player_id, 3, "Do not alter id of actors");
+		LogErrors(player_id, logger::ErrorType::NO_ALTER_ACTOR_ID,
+		          "Do not alter id of actors");
 		return;
 	}
 
@@ -334,7 +337,8 @@ void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
 	    position.x >= map->GetSize() * map->GetElementSize() ||
 	    position.y < 0 ||
 	    position.y >= map->GetSize() * map->GetElementSize()) {
-		LogErrors(player_id, 5, "Position not in map");
+		LogErrors(player_id, logger::ErrorType::INVALID_POSITION,
+		          "Position not in map");
 		return;
 	}
 
@@ -352,7 +356,8 @@ void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
 	if (soldier_id !=
 	    state_soldiers[static_cast<int>(player_id)][soldier_index]
 	        ->GetActorId()) {
-		LogErrors(player_id, 3, "Do not alter id of actors");
+		LogErrors(player_id, logger::ErrorType::NO_ALTER_ACTOR_ID,
+		          "Do not alter id of actors");
 		return;
 	}
 
@@ -371,7 +376,7 @@ void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
 		// Check if opponent actor id is correct id
 		if (tower_id == opponent_towers[i]->GetActorId()) {
 			if (opponent_towers[i]->GetIsBase()) {
-				LogErrors(player_id, 14,
+				LogErrors(player_id, logger::ErrorType::NO_ATTACK_BASE_TOWER,
 				          "Cannot attack Base Tower of opponent");
 				return;
 			}
@@ -380,7 +385,8 @@ void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
 		}
 	}
 	if (!valid_target) {
-		LogErrors(player_id, 6, "Attack Opponent's tower only");
+		LogErrors(player_id, logger::ErrorType::NO_ATTACK_SELF_TOWER,
+		          "Attack Opponent's tower only");
 		return;
 	}
 
@@ -402,7 +408,8 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
 	if (soldier_id !=
 	    state_soldiers[static_cast<int>(player_id)][soldier_index]
 	        ->GetActorId()) {
-		LogErrors(player_id, 3, "Do not alter id of actors");
+		LogErrors(player_id, logger::ErrorType::NO_ALTER_ACTOR_ID,
+		          "Do not alter id of actors");
 		return;
 	}
 
@@ -425,11 +432,13 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
 	}
 
 	if (!valid_target) {
-		LogErrors(player_id, 7, "Attack Opponent's soldier only");
+		LogErrors(player_id, logger::ErrorType::NO_ATTACK_SELF_SOLDIER,
+		          "Attack Opponent's soldier only");
 		return;
 	}
 	if (!opponent_alive) {
-		LogErrors(player_id, 8, "Opponent soldier must be alive to attack it");
+		LogErrors(player_id, logger::ErrorType::NO_ATTACK_DEAD_SOLDIER,
+		          "Opponent soldier must be alive to attack it");
 		return;
 	}
 
@@ -466,14 +475,16 @@ void StateSyncer::BuildTower(PlayerId player_id, physics::Vector offset,
 	}
 
 	if (!valid_territory) {
-		LogErrors(player_id, 9, "Tower can be built only on valid territory.");
+		LogErrors(player_id, logger::ErrorType::INVALID_TERRITORY,
+		          "Tower can be built only on valid territory.");
 		return;
 	}
 
 	// Check if player has sufficient balance
 	int64_t tower_cost = tower_build_costs[0];
 	if (player_money < tower_cost) {
-		LogErrors(player_id, 12, "Insufficient funds to build tower");
+		LogErrors(player_id, logger::ErrorType::INSUFFICIENT_FUNDS,
+		          "Insufficient funds to build tower");
 		return;
 	}
 
@@ -487,7 +498,8 @@ void StateSyncer::UpgradeTower(PlayerId player_id, int64_t tower_id,
 	// Check if id has been altered.
 	if (tower_id !=
 	    state_towers[static_cast<int>(player_id)][tower_index]->GetActorId()) {
-		LogErrors(player_id, 3, "Do not alter id of actors");
+		LogErrors(player_id, logger::ErrorType::NO_ALTER_ACTOR_ID,
+		          "Do not alter id of actors");
 		return;
 	}
 
@@ -496,14 +508,16 @@ void StateSyncer::UpgradeTower(PlayerId player_id, int64_t tower_id,
 	    state_towers[static_cast<int>(player_id)][tower_index]
 	        ->GetTowerLevel());
 	if (current_tower_level == tower_build_costs.size()) {
-		LogErrors(player_id, 11, "Max level reached, upgrade not allowed");
+		LogErrors(player_id, logger::ErrorType::NO_MORE_UPGRADES,
+		          "Max level reached, upgrade not allowed");
 		return;
 	}
 
 	// Check if player has sufficient balance
 	int64_t tower_upgrade_cost = tower_build_costs[current_tower_level];
 	if (player_money < tower_upgrade_cost) {
-		LogErrors(player_id, 13, "Insufficient funds to upgrade tower");
+		LogErrors(player_id, logger::ErrorType::INSUFFICIENT_FUNDS,
+		          "Insufficient funds to upgrade tower");
 		return;
 	}
 
@@ -517,13 +531,15 @@ void StateSyncer::SuicideTower(PlayerId player_id, int64_t tower_id,
 	// Check if id has been altered.
 	if (tower_id !=
 	    state_towers[static_cast<int>(player_id)][tower_index]->GetActorId()) {
-		LogErrors(player_id, 3, "Do not alter id of actors");
+		LogErrors(player_id, logger::ErrorType::NO_ALTER_ACTOR_ID,
+		          "Do not alter id of actors");
 		return;
 	}
 
 	// Check if tower is base tower
 	if (state_towers[static_cast<int>(player_id)][tower_index]->GetIsBase()) {
-		LogErrors(player_id, 10, "Cannot destroy base tower");
+		LogErrors(player_id, logger::ErrorType::NO_SUICIDE_BASE_TOWER,
+		          "Cannot destroy base tower");
 		return;
 	}
 
