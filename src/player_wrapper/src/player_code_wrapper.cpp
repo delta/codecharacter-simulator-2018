@@ -4,11 +4,15 @@
  */
 
 #include "player_wrapper/player_code_wrapper.h"
+#include <sstream>
 
 namespace player_wrapper {
 
 PlayerCodeWrapper::PlayerCodeWrapper(std::unique_ptr<IPlayerCode> player_code)
     : player_code(std::move(player_code)) {}
 
-void PlayerCodeWrapper::Update() { player_code->Update(); }
+std::string PlayerCodeWrapper::Update() {
+	player_code->Update();
+	return player_code->GetAndClearDebugLogs();
+}
 }
