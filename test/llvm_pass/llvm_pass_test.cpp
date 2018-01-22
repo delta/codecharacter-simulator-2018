@@ -3,9 +3,12 @@
 #include "drivers/shared_memory_utils/shared_memory_player.h"
 #include "player_code/test/player_code_test_0.h"
 #include "player_code/test/player_code_test_1.h"
+#include "player_code/test/player_code_test_2.h"
 #include "player_wrapper/player_code_wrapper.h"
 #include "state/player_state.h"
 #include "gtest/gtest.h"
+#include <cstdio>
+#include <fstream>
 
 using namespace drivers;
 using namespace player_wrapper;
@@ -27,7 +30,9 @@ class LLVMPassTest : public Test {
 		this->buf = shm_main->GetBuffer();
 	}
 
-	template <class T> void SetPlayerDriver(int num_turns, int time_limit_ms) {
+	template <class T>
+	void SetPlayerDriver(int num_turns, int time_limit_ms,
+	                     int64_t max_log_turn_length) {
 		unique_ptr<SharedMemoryPlayer> shm_player(
 		    new SharedMemoryPlayer(shm_name));
 
@@ -39,8 +44,15 @@ class LLVMPassTest : public Test {
 
 		this->driver = make_unique<PlayerDriver>(
 		    move(player_code_wrapper), move(shm_player), num_turns,
-		    Timer::Interval(time_limit_ms));
+		    Timer::Interval(time_limit_ms), log_file, turn_prefix,
+		    truncate_message, max_log_turn_length);
 	}
+
+	const string log_file = "lol.dlog";
+
+	const string turn_prefix = "<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>\n";
+
+	const string truncate_message = "(truncated due to very bigly)\n";
 
 	unique_ptr<SharedMemoryMain> shm_main;
 
@@ -53,7 +65,7 @@ class LLVMPassTest : public Test {
 
 // Test case to see if instrumentation works on a normal run
 TEST_F(LLVMPassTest, InstructionCountTest1) {
-	SetPlayerDriver<PlayerCode0>(2, 1000);
+	SetPlayerDriver<PlayerCode0>(2, 1000, 0);
 
 	buf->instruction_counter = 0;
 
@@ -87,7 +99,7 @@ TEST_F(LLVMPassTest, PlayerDriverTimeout) {
 	int num_turns = 50;
 	int time_limit_ms = 1000;
 
-	SetPlayerDriver<PlayerCode0>(num_turns, time_limit_ms);
+	SetPlayerDriver<PlayerCode0>(num_turns, time_limit_ms, 0);
 
 	buf->instruction_counter = 0;
 
@@ -123,9 +135,9 @@ TEST_F(LLVMPassTest, PlayerDriverTimeout) {
 // Just checking if instrumentation works
 TEST_F(LLVMPassTest, InstructionCountTest2) {
 	int num_turns = 50;
-	int time_limit_ms = 1000;
+	int time_limit_ms = 500;
 
-	SetPlayerDriver<PlayerCode1>(num_turns, time_limit_ms);
+	SetPlayerDriver<PlayerCode1>(num_turns, time_limit_ms, 0);
 
 	buf->instruction_counter = 0;
 
@@ -154,4 +166,104 @@ TEST_F(LLVMPassTest, InstructionCountTest2) {
 	}
 
 	runner.join();
+	while (!is_time_over)
+		;
+}
+
+// Test to see if debug log file is properly written to
+TEST_F(LLVMPassTest, DebugLogsNormalRun) {
+	int num_turns = 50;
+	int time_limit_ms = 1000;
+	int max_log_turn_length = 10E5;
+
+	// Run the player driver
+	SetPlayerDriver<PlayerCode2>(num_turns, time_limit_ms, max_log_turn_length);
+
+	thread runner([this] { driver->Start(); });
+
+	for (int i = 0; i < num_turns; ++i) {
+		buf->is_player_running = true;
+		while (buf->is_player_running)
+			;
+	}
+
+	runner.join();
+
+	// Player is done running
+
+	// Open the log file and expect it to exist
+	ifstream log_file(this->log_file);
+	EXPECT_TRUE(log_file.good());
+
+	// Read the log file
+	std::ostringstream logs;
+	logs << log_file.rdbuf();
+	auto log_str = logs.str();
+
+	// Check if it has the expected contents: turn prefix and 10^4 asterisks
+	// every turn
+	size_t pos = 0;
+	int num_turns_in_log = 0;
+	while ((pos = log_str.find(this->turn_prefix)) != std::string::npos) {
+		log_str.erase(0, pos + this->turn_prefix.length());
+		EXPECT_EQ(log_str.substr(0, 10E4), std::string(10E4, '*'));
+		num_turns_in_log++;
+	}
+
+	// Expect all turns to be logged
+	EXPECT_EQ(num_turns_in_log, num_turns);
+
+	// Delete log file
+	log_file.close();
+	EXPECT_EQ(std::remove(this->log_file.c_str()), 0);
+}
+
+// Test to see if debug logs are properly handling per turn character limits
+TEST_F(LLVMPassTest, DebugLogsTruncated) {
+	int num_turns = 50;
+	int time_limit_ms = 1000;
+	int max_log_turn_length = 10E3;
+
+	// Run the player driver
+	SetPlayerDriver<PlayerCode2>(num_turns, time_limit_ms, max_log_turn_length);
+
+	thread runner([this] { driver->Start(); });
+
+	for (int i = 0; i < num_turns; ++i) {
+		buf->is_player_running = true;
+		while (buf->is_player_running)
+			;
+	}
+
+	runner.join();
+
+	// Player is done running
+
+	// Open the log file and expect it to exist
+	ifstream log_file(this->log_file);
+	EXPECT_TRUE(log_file.good());
+
+	// Read the log file
+	std::ostringstream logs;
+	logs << log_file.rdbuf();
+	auto log_str = logs.str();
+
+	// Check if it has the expected contents: turn prefix and the truncation
+	// message
+	size_t pos = 0;
+	int num_turns_in_log = 0;
+	while ((pos = log_str.find(this->turn_prefix)) != std::string::npos) {
+		log_str.erase(0, pos + this->turn_prefix.length());
+		// Add 1 to account for newline after debug logs
+		EXPECT_EQ(log_str.find(this->truncate_message),
+		          max_log_turn_length + 1);
+		num_turns_in_log++;
+	}
+
+	// Expect all turns to be logged
+	EXPECT_EQ(num_turns_in_log, num_turns);
+
+	// Delete log file
+	log_file.close();
+	EXPECT_EQ(std::remove(this->log_file.c_str()), 0);
 }

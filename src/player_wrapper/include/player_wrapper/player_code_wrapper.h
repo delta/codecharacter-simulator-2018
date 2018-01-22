@@ -30,9 +30,11 @@ class PLAYER_WRAPPER_EXPORT PlayerCodeWrapper {
 	PlayerCodeWrapper(std::unique_ptr<IPlayerCode> player_code);
 
 	/**
-	 * Runs the player's update
+	 * Runs the player's update and returns the player's debug logs
+	 *
+	 * @return     The debug logs
 	 */
-	void Update();
+	std::string Update();
 };
 }
 
