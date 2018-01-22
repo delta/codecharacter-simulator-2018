@@ -203,21 +203,31 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	EXPECT_CALL(*state, GetAllSoldiers()).WillRepeatedly(Return(soldiers));
 
 	EXPECT_CALL(*state, GetAllTowers())
-	    .WillOnce(Return(towers))
-	    .WillOnce(Return(towers2))
-	    .WillOnce(Return(towers3));
+	    .Times(5)
+	    .WillRepeatedly(Return(towers3))
+	    .RetiresOnSaturation();
+
+	EXPECT_CALL(*state, GetAllTowers())
+	    .Times(5)
+	    .WillRepeatedly(Return(towers2))
+	    .RetiresOnSaturation();
+
+	EXPECT_CALL(*state, GetAllTowers())
+	    .Times(5)
+	    .WillRepeatedly(Return(towers))
+	    .RetiresOnSaturation();
 
 	this->state_syncer->UpdatePlayerStates(player_states);
 
 	// Check for Tower positions for playerstates
-	ASSERT_EQ(player_states[1]->towers[0].position, Vector(0, 0));
-	ASSERT_EQ(
-	    player_states[0]->opponent_towers[0].position,
-	    physics::Vector(map_size * elt_size - 1, map_size * elt_size - 1));
 	ASSERT_EQ(player_states[0]->towers[0].position, Vector(elt_size, elt_size));
 	ASSERT_EQ(player_states[1]->opponent_towers[0].position,
 	          Vector(map_size * elt_size - 1 - elt_size,
 	                 map_size * elt_size - 1 - elt_size));
+	ASSERT_EQ(player_states[1]->towers[0].position, Vector(0, 0));
+	ASSERT_EQ(
+	    player_states[0]->opponent_towers[0].position,
+	    physics::Vector(map_size * elt_size - 1, map_size * elt_size - 1));
 
 	// Check for Soldier positions for playerstates
 	ASSERT_EQ(player_states[0]->soldiers[0].position, Vector(0, 0));
@@ -249,11 +259,11 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	//  * * * * *
 
 	// Valid territory
-	ASSERT_EQ(player_states[0]->map[1][2].territory[0], true);
-	ASSERT_EQ(player_states[0]->map[1][2].territory[1], false);
+	ASSERT_EQ(player_states[0]->map[1][2].territory, true);
+	ASSERT_EQ(player_states[0]->map[1][2].enemy_territory, false);
 	ASSERT_EQ(player_states[0]->map[1][2].valid_territory, true);
-	ASSERT_EQ(player_states[0]->map[2][4].territory[0], false);
-	ASSERT_EQ(player_states[0]->map[2][4].territory[1], true);
+	ASSERT_EQ(player_states[0]->map[2][4].territory, false);
+	ASSERT_EQ(player_states[0]->map[2][4].enemy_territory, true);
 	ASSERT_EQ(player_states[0]->map[2][4].valid_territory, false);
 	// Can't build where tower is already present
 	ASSERT_EQ(player_states[0]->map[1][1].valid_territory, false);
@@ -262,8 +272,8 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	ASSERT_EQ(player_states[0]->map[4][3].valid_territory, false);
 	ASSERT_EQ(player_states[0]->map[4][2].valid_territory, false);
 	// Common territory is not valid.
-	ASSERT_EQ(player_states[0]->map[0][4].territory[0], true);
-	ASSERT_EQ(player_states[0]->map[0][4].territory[1], true);
+	ASSERT_EQ(player_states[0]->map[0][4].territory, true);
+	ASSERT_EQ(player_states[0]->map[0][4].enemy_territory, true);
 	ASSERT_EQ(player_states[0]->map[0][4].valid_territory, false);
 
 	// For Player2
@@ -281,8 +291,8 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	//  * * 2 * *
 
 	// Valid territory
-	ASSERT_EQ(player_states[1]->map[2][0].territory[0], true);
-	ASSERT_EQ(player_states[1]->map[2][0].territory[1], false);
+	ASSERT_EQ(player_states[1]->map[2][0].territory, true);
+	ASSERT_EQ(player_states[1]->map[2][0].enemy_territory, false);
 	ASSERT_EQ(player_states[1]->map[2][0].valid_territory, true);
 	ASSERT_EQ(player_states[1]->map[3][2].valid_territory, false);
 	// Can't build where tower is already present
@@ -292,8 +302,8 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	ASSERT_EQ(player_states[1]->map[4][3].valid_territory, false);
 	ASSERT_EQ(player_states[1]->map[0][3].valid_territory, false);
 	// Common territory is not valid.
-	ASSERT_EQ(player_states[1]->map[4][0].territory[0], true);
-	ASSERT_EQ(player_states[1]->map[4][0].territory[1], true);
+	ASSERT_EQ(player_states[1]->map[4][0].territory, true);
+	ASSERT_EQ(player_states[1]->map[4][0].enemy_territory, true);
 	ASSERT_EQ(player_states[1]->map[4][0].valid_territory, false);
 
 	// Check for Money
@@ -336,8 +346,8 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	//  * * * * *
 
 	// Valid territory
-	ASSERT_EQ(player_states[0]->map[1][2].territory[0], true);
-	ASSERT_EQ(player_states[0]->map[1][2].territory[1], false);
+	ASSERT_EQ(player_states[0]->map[1][2].territory, true);
+	ASSERT_EQ(player_states[0]->map[1][2].enemy_territory, false);
 	ASSERT_EQ(player_states[0]->map[1][2].valid_territory, true);
 	ASSERT_EQ(player_states[0]->map[2][4].valid_territory, false);
 	// Can't build where tower is already present
@@ -348,11 +358,11 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	ASSERT_EQ(player_states[0]->map[0][0].valid_territory, false);
 	ASSERT_EQ(player_states[0]->map[4][4].valid_territory, false);
 	// Territory that belongs to opponent.
-	ASSERT_EQ(player_states[0]->map[4][4].territory[1], true);
-	ASSERT_EQ(player_states[0]->map[4][2].territory[1], true);
+	ASSERT_EQ(player_states[0]->map[4][4].enemy_territory, true);
+	ASSERT_EQ(player_states[0]->map[4][2].enemy_territory, true);
 	// Common territory is not valid.
-	ASSERT_EQ(player_states[0]->map[0][4].territory[0], true);
-	ASSERT_EQ(player_states[0]->map[0][4].territory[1], true);
+	ASSERT_EQ(player_states[0]->map[0][4].territory, true);
+	ASSERT_EQ(player_states[0]->map[0][4].enemy_territory, true);
 	ASSERT_EQ(player_states[0]->map[0][4].valid_territory, false);
 
 	// For Player2
@@ -373,8 +383,8 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	//  * * 2 * *
 
 	// Valid territory
-	ASSERT_EQ(player_states[1]->map[2][0].territory[0], true);
-	ASSERT_EQ(player_states[1]->map[2][0].territory[1], false);
+	ASSERT_EQ(player_states[1]->map[2][0].territory, true);
+	ASSERT_EQ(player_states[1]->map[2][0].enemy_territory, false);
 	ASSERT_EQ(player_states[1]->map[2][0].valid_territory, true);
 	ASSERT_EQ(player_states[1]->map[3][2].valid_territory, false);
 	// Can't build where tower is already present
@@ -385,10 +395,10 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	ASSERT_EQ(player_states[1]->map[4][2].valid_territory, false);
 	ASSERT_EQ(player_states[1]->map[4][4].valid_territory, false);
 	// Territory that belongs to opponent.
-	ASSERT_EQ(player_states[1]->map[3][3].territory[1], true);
+	ASSERT_EQ(player_states[1]->map[3][3].enemy_territory, true);
 	// Common territory is not valid.
-	ASSERT_EQ(player_states[1]->map[4][0].territory[0], true);
-	ASSERT_EQ(player_states[1]->map[4][0].territory[1], true);
+	ASSERT_EQ(player_states[1]->map[4][0].territory, true);
+	ASSERT_EQ(player_states[1]->map[4][0].enemy_territory, true);
 	ASSERT_EQ(player_states[1]->map[4][0].valid_territory, false);
 
 	// Check for Money
@@ -428,11 +438,13 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	EXPECT_CALL(*state, GetMap()).WillRepeatedly(Return(map.get()));
 
 	EXPECT_CALL(*state, GetMoney())
-	    .Times(4)
-	    .WillOnce(Return(player_money))
-	    .WillOnce(Return(player_money))
-	    .WillOnce(Return(player_money))
-	    .WillOnce(Return(player_money2));
+	    .WillOnce(Return(player_money2))
+	    .RetiresOnSaturation();
+
+	EXPECT_CALL(*state, GetMoney())
+	    .Times(3)
+	    .WillRepeatedly(Return(player_money))
+	    .RetiresOnSaturation();
 
 	EXPECT_CALL(*state, GetAllSoldiers()).WillRepeatedly(Return(soldiers));
 

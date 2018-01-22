@@ -24,8 +24,8 @@ namespace state {
  */
 struct PlayerMapElement {
 	TerrainType terrain;
-	std::array<bool, static_cast<std::size_t>(PlayerId::PLAYER_COUNT)>
-	    territory;
+	bool territory;
+	bool enemy_territory;
 	bool valid_territory;
 
 	// Writable
@@ -59,26 +59,6 @@ struct PlayerTower {
 	// Writable
 	bool upgrade_tower;
 	bool suicide;
-};
-
-/**
- * Struct holding information about Opponent's soldier
- */
-struct OpponentSoldier {
-	int64_t id;
-	physics::Vector position;
-	int64_t hp;
-	SoldierStateName state;
-};
-
-/**
- * Struct holding information about Opponent's tower
- */
-struct OpponentTower {
-	int64_t id;
-	physics::Vector position;
-	int64_t hp;
-	int64_t level;
 };
 
 /**
