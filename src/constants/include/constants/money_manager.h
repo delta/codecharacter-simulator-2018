@@ -16,12 +16,12 @@ const int64_t MONEY_START = 300;
 const int64_t MONEY_MAX = INT64_MAX;
 
 // Rewards for killing towers indexed by tower level
-const auto TOWER_KILL_REWARD_AMOUNTS = std::vector<int64_t>{60, 120, 180};
+const auto TOWER_KILL_REWARD_AMOUNTS = std::vector<int64_t>{300, 500, 700};
 
 // Reward for killing one soldier
-const int64_t SOLDIER_KILL_REWARD_AMOUNT = 20;
+const int64_t SOLDIER_KILL_REWARD_AMOUNT = 200;
 
 // Rewards for tower sepukku indexed by tower level
-const auto TOWER_SUICIDE_REWARD_AMOUNT = std::vector<int64_t>{20, 40, 60};
+const auto TOWER_SUICIDE_REWARD_AMOUNT = std::vector<int64_t>{150, 250, 400};
 
 #endif
