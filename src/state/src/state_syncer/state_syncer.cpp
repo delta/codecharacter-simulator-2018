@@ -11,9 +11,10 @@
 namespace state {
 
 StateSyncer::StateSyncer(std::unique_ptr<IState> state, logger::ILogger *logger,
-                         std::vector<int64_t> tower_build_costs)
+                         std::vector<int64_t> tower_build_costs,
+                         int64_t max_num_towers)
     : state(std::move(state)), logger(logger),
-      tower_build_costs(tower_build_costs) {}
+      tower_build_costs(tower_build_costs), max_num_towers(max_num_towers) {}
 
 void StateSyncer::ExecutePlayerCommands(
     const std::vector<PlayerState *> &player_states,
@@ -24,6 +25,7 @@ void StateSyncer::ExecutePlayerCommands(
 
 	for (int player_id = 0; player_id < player_states.size(); ++player_id) {
 		if (skip_player_commands_flags[player_id] == false) {
+			int64_t current_num_towers = state_towers[player_id].size();
 			int64_t soldier_index = 0;
 			int64_t tower_index = 0;
 			for (int64_t soldier_index = 0;
@@ -64,7 +66,8 @@ void StateSyncer::ExecutePlayerCommands(
 
 			for (int64_t tower_index = 0;
 			     tower_index < state_towers[player_id].size(); ++tower_index) {
-				auto const &tower = player_states[player_id]->towers[tower_index];
+				auto const &tower =
+				    player_states[player_id]->towers[tower_index];
 				if (tower.upgrade_tower == true && tower.suicide == true) {
 					LogErrors(static_cast<PlayerId>(player_id),
 					          logger::ErrorType::NO_MULTIPLE_TOWER_TASKS,
@@ -85,7 +88,7 @@ void StateSyncer::ExecutePlayerCommands(
 					    true) {
 						BuildTower(static_cast<PlayerId>(player_id),
 						           physics::Vector(j, k),
-						           state_money[player_id]);
+						           state_money[player_id], current_num_towers);
 					}
 				}
 			}
@@ -446,7 +449,14 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
 }
 
 void StateSyncer::BuildTower(PlayerId player_id, physics::Vector offset,
-                             int64_t &player_money) {
+                             int64_t &player_money, int64_t &num_towers) {
+	// Check for max limit of towers
+	if (num_towers + 1 > max_num_towers) {
+		LogErrors(player_id, logger::ErrorType::NO_MORE_TOWERS,
+		          "No more towers can be built. Max limit reached.");
+		return;
+	}
+
 	bool valid_territory = true;
 	auto *map = state->GetMap();
 	auto state_towers = state->GetAllTowers();
@@ -489,6 +499,7 @@ void StateSyncer::BuildTower(PlayerId player_id, physics::Vector offset,
 	}
 
 	player_money = player_money - tower_cost;
+	num_towers = num_towers + 1;
 	state->BuildTower(player_id, offset);
 }
 

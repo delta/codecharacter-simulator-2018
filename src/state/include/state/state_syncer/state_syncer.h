@@ -5,6 +5,7 @@
 #ifndef STATE_SYNCER_STATE_SYNCER_H
 #define STATE_SYNCER_STATE_SYNCER_H
 
+#include "constants/constants.h"
 #include "logger/error_type.h"
 #include "logger/interfaces/i_logger.h"
 #include "state/interfaces/i_state.h"
@@ -38,6 +39,11 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * First element represents initial build cost
 	 */
 	std::vector<int64_t> tower_build_costs;
+
+	/**
+	 * Maximum number of towers that can be build
+	 */
+	int64_t max_num_towers;
 
 	// The functions below call corresponding action functions in State
 
@@ -90,7 +96,7 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * @throw      std::exception  if the operation was not possible
 	 */
 	void BuildTower(PlayerId player_id, physics::Vector offset,
-	                int64_t &player_money);
+	                int64_t &player_money, int64_t &num_towers);
 
 	/**
 	 * Handles tower upgrade commands
@@ -176,7 +182,7 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * Constructor for StateSyncer class
 	 */
 	StateSyncer(std::unique_ptr<IState> state, logger::ILogger *logger,
-	            std::vector<int64_t> tower_build_costs);
+	            std::vector<int64_t> tower_build_costs, int64_t max_num_towers);
 
 	/**
 	 * Function that takes the player states and exeutes commands
