@@ -9,7 +9,7 @@
 #include <cstdint>
 
 // Side length of map
-const int64_t MAP_SIZE = 60;
+const int64_t MAP_SIZE = 30;
 
 // Side length of each tile on the map
 const int64_t MAP_ELEMENT_SIZE = 50;
