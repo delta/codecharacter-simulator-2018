@@ -39,9 +39,11 @@ class StateSyncerTest : public Test {
 
 	std::vector<int64_t> tower_build_costs;
 
+	int64_t max_num_towers;
+
 	StateSyncerTest()
 	    : logger(std::move(make_unique<LoggerMock>())),
-	      tower_build_costs({500, 700, 900}) {
+	      tower_build_costs({500, 700, 900}), max_num_towers(3) {
 
 		auto state = make_unique<StateMock>();
 
@@ -162,7 +164,7 @@ class StateSyncerTest : public Test {
 		this->state = state.get();
 
 		this->state_syncer = make_unique<StateSyncer>(
-		    std::move(state), logger.get(), tower_build_costs);
+		    std::move(state), logger.get(), tower_build_costs, max_num_towers);
 	}
 };
 
@@ -423,17 +425,33 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	auto player_money2 = player_money;
 	player_money2[1] = 900;
 
-	auto *tower3 = new Tower(
-	    Actor::GetNextActorId(), PlayerId::PLAYER2, ActorType::TOWER, 500, 500,
-	    Vector(map_size * elt_size - 1, map_size * elt_size - 1), false, 1);
+	auto *tower3 =
+	    new Tower(Actor::GetNextActorId(), PlayerId::PLAYER2, ActorType::TOWER,
+	              500, 500, Vector(4 * elt_size, 2 * elt_size), false, 1);
 	towers[1].push_back(tower3);
 
 	this->map->GetElementByXY(tower3->GetPosition())
 	    .SetOwnership(PlayerId::PLAYER2, true);
 
+	// Towers
+	//  + * * * 2
+	//  * * * * *
+	//  * * * * 2
+	//  * 1 * * *
+	//  * * * * *
+
 	// Assigning another offset to player1
 	this->map->GetElementByOffset(Vector(0, 0))
 	    .SetOwnership(PlayerId::PLAYER1, true);
+	this->map->GetElementByOffset(Vector(4, 1))
+	    .SetOwnership(PlayerId::PLAYER2, true);
+
+	//  valid territory map
+	//  * * 2 * *
+	//  * * * * *
+	//  * 1 * * *
+	//  * * * * 2
+	//  1 * * * *
 
 	EXPECT_CALL(*state, GetMap()).WillRepeatedly(Return(map.get()));
 
@@ -516,6 +534,10 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 
 	EXPECT_CALL(*logger,
 	            LogError(PlayerId::PLAYER1, ErrorType::NO_ATTACK_BASE_TOWER, _))
+	    .Times(1);
+
+	EXPECT_CALL(*logger,
+	            LogError(PlayerId::PLAYER2, ErrorType::NO_MORE_TOWERS, _))
 	    .Times(1);
 
 	// Single soldier targeting soldier and tower
@@ -608,13 +630,16 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	player_states[1]->towers[1].suicide = true;
 	// Building towers
 	player_states[0]->map[0][0].build_tower = true;
-	player_states[1]->map[2][0].build_tower = true;
+	player_states[1]->map[0][3].build_tower = true;
 
 	// Trying to build after spending enough to not have enough balance
 	player_states[0]->map[1][2].build_tower = true;
 
 	// Trying to suicide base tower
 	player_states[1]->towers[0].suicide = true;
+
+	// Trying to build tower after reaching tower limit (3)
+	player_states[1]->map[2][0].build_tower = true;
 
 	// Checking if these exact calls are made when executing player commands
 	EXPECT_CALL(*state, AttackActor(static_cast<PlayerId>(0),
@@ -639,7 +664,7 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	    .Times(1);
 	EXPECT_CALL(*state, BuildTower(static_cast<PlayerId>(0), Vector(0, 0)))
 	    .Times(1);
-	EXPECT_CALL(*state, BuildTower(static_cast<PlayerId>(1), Vector(2, 4)))
+	EXPECT_CALL(*state, BuildTower(static_cast<PlayerId>(1), Vector(4, 1)))
 	    .Times(1);
 
 	// Execute the commands
