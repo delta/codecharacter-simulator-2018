@@ -34,8 +34,8 @@ enum class ErrorType {
 	NO_ALTER_ACTOR_ID,
 
 	/**
-	 * Trying to command a dead soldier
-	 */
+     * Trying to command a dead soldier
+     */
 	NO_ACTION_BY_DEAD_SOLDIER,
 
 	/**
@@ -81,20 +81,25 @@ enum class ErrorType {
 	/**
      * Trying to suicide the base tower
      */
-	NO_SUICIDE_BASE_TOWER
+	NO_SUICIDE_BASE_TOWER,
+
+	/**
+     * Trying to build tower after reaching maximum limit
+     */
+	NO_MORE_TOWERS
 };
 
 /**
  * Provides an easy way to get the string representation of the above enum
  */
 const std::vector<std::string> ErrorTypeName = {
-	"NO_MULTIPLE_SOLDIER_TASKS", "NO_MULTIPLE_TOWER_TASKS",
-	"NO_ALTER_ACTOR_ID",         "NO_ACTION_BY_DEAD_SOLDIER",
-	"NO_ATTACK_BASE_TOWER",      "INVALID_POSITION",
-	"NO_ATTACK_SELF_TOWER",      "NO_ATTACK_SELF_SOLDIER",
-	"NO_ATTACK_DEAD_SOLDIER",    "INVALID_TERRITORY",
-	"INSUFFICIENT_FUNDS",        "NO_MORE_UPGRADES",
-	"NO_SUICIDE_BASE_TOWER"};
+    "NO_MULTIPLE_SOLDIER_TASKS", "NO_MULTIPLE_TOWER_TASKS",
+    "NO_ALTER_ACTOR_ID",         "NO_ACTION_BY_DEAD_SOLDIER",
+    "NO_ATTACK_BASE_TOWER",      "INVALID_POSITION",
+    "NO_ATTACK_SELF_TOWER",      "NO_ATTACK_SELF_SOLDIER",
+    "NO_ATTACK_DEAD_SOLDIER",    "INVALID_TERRITORY",
+    "INSUFFICIENT_FUNDS",        "NO_MORE_UPGRADES",
+    "NO_SUICIDE_BASE_TOWER",     "NO_MORE_TOWERS"};
 }
 
 #endif

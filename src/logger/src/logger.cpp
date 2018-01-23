@@ -16,7 +16,8 @@ Logger::Logger(int64_t player_instruction_limit_turn,
                int64_t player_instruction_limit_game)
     : turn_count(0), tower_logs(), logs(std::make_unique<proto::Game>()),
       instruction_counts(std::vector<int64_t>((int)PlayerId::PLAYER_COUNT, 0)),
-      error_map(std::unordered_map<std::string, int64_t>()), current_error_code(0),
+      error_map(std::unordered_map<std::string, int64_t>()),
+      current_error_code(0),
       errors(std::vector<std::vector<int64_t>>(
           (int)state::PlayerId::PLAYER_COUNT, std::vector<int64_t>())),
       player_instruction_limit_turn(player_instruction_limit_turn),
