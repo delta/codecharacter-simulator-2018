@@ -26,7 +26,7 @@ class STATE_EXPORT IStateSyncer {
 	 *                                         indexed by player ID
 	 */
 	virtual void ExecutePlayerCommands(
-	    const std::vector<PlayerState *> &player_states,
+	    const std::vector<player_state::State *> &player_states,
 	    const std::vector<bool> &skip_player_commands_flags) = 0;
 
 	/**
@@ -40,7 +40,7 @@ class STATE_EXPORT IStateSyncer {
 	 * @param      player_states  The player states
 	 */
 	virtual void
-	UpdatePlayerStates(std::vector<PlayerState *> &player_states) = 0;
+	UpdatePlayerStates(std::vector<player_state::State *> &player_states) = 0;
 
 	/**
 	 * Get game scores of players, indexed by player ID

@@ -140,7 +140,7 @@ std::unique_ptr<drivers::MainDriver> BuildMainDriver() {
 	for (int i = 0; i < num_players; ++i) {
 		shm_names[i] = GenerateRandomString(64) + std::to_string(i);
 		shm_mains.push_back(std::make_unique<SharedMemoryMain>(
-		    shm_names[i], false, 0, PlayerState()));
+		    shm_names[i], false, 0, player_state::State()));
 	}
 
 	return std::make_unique<MainDriver>(

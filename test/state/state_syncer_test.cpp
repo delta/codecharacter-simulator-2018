@@ -31,7 +31,7 @@ class StateSyncerTest : public Test {
 
 	StateMock *state;
 
-	std::vector<PlayerState *> player_states;
+	std::vector<player_state::State *> player_states;
 
 	std::unique_ptr<StateSyncer> state_syncer;
 
@@ -49,8 +49,8 @@ class StateSyncerTest : public Test {
 
 		Actor::SetActorIdIncrement(0);
 		// Init PlayerStates
-		auto *player_state1 = new PlayerState();
-		auto *player_state2 = new PlayerState();
+		auto *player_state1 = new player_state::State();
+		auto *player_state2 = new player_state::State();
 
 		player_states.push_back(player_state1);
 		player_states.push_back(player_state2);
@@ -224,26 +224,27 @@ TEST_F(StateSyncerTest, UpdationTest) {
 
 	// Check for Tower positions for playerstates
 	ASSERT_EQ(player_states[0]->towers[0].position, Vector(elt_size, elt_size));
-	ASSERT_EQ(player_states[1]->opponent_towers[0].position,
+	ASSERT_EQ(player_states[1]->enemy_towers[0].position,
 	          Vector(map_size * elt_size - 1 - elt_size,
 	                 map_size * elt_size - 1 - elt_size));
 	ASSERT_EQ(player_states[1]->towers[0].position, Vector(0, 0));
 	ASSERT_EQ(
-	    player_states[0]->opponent_towers[0].position,
+	    player_states[0]->enemy_towers[0].position,
 	    physics::Vector(map_size * elt_size - 1, map_size * elt_size - 1));
 
 	// Check for Soldier positions for playerstates
 	ASSERT_EQ(player_states[0]->soldiers[0].position, Vector(0, 0));
-	ASSERT_EQ(player_states[1]->opponent_soldiers[0].position,
+	ASSERT_EQ(player_states[1]->enemy_soldiers[0].position,
 	          Vector(map_size * elt_size - 1, map_size * elt_size - 1));
 	ASSERT_EQ(player_states[1]->soldiers[0].position, Vector(0, 0));
-	ASSERT_EQ(player_states[1]->opponent_soldiers[0].position,
+	ASSERT_EQ(player_states[1]->enemy_soldiers[0].position,
 	          Vector(map_size * elt_size - 1, map_size * elt_size - 1));
 
 	// Check for Soldier State assignment
-	ASSERT_EQ(player_states[0]->opponent_soldiers[6].state,
-	          SoldierStateName::DEAD);
-	ASSERT_EQ(player_states[1]->soldiers[6].state, SoldierStateName::DEAD);
+	ASSERT_EQ(player_states[0]->enemy_soldiers[6].state,
+	          player_state::SoldierState::DEAD);
+	ASSERT_EQ(player_states[1]->soldiers[6].state,
+	          player_state::SoldierState::DEAD);
 
 	// Check for valid territory assignment for playerstates map
 
@@ -319,16 +320,16 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	ASSERT_EQ(player_states[1]->towers[1].position,
 	          physics::Vector(map_size * elt_size - 1 - 4 * elt_size,
 	                          map_size * elt_size - 1 - 2 * elt_size));
-	ASSERT_EQ(player_states[0]->opponent_towers[1].position,
+	ASSERT_EQ(player_states[0]->enemy_towers[1].position,
 	          Vector(4 * elt_size, 2 * elt_size));
 	ASSERT_EQ(player_states[1]->num_towers, 2);
-	ASSERT_EQ(player_states[1]->num_opponent_towers, 1);
+	ASSERT_EQ(player_states[1]->num_enemy_towers, 1);
 	ASSERT_EQ(player_states[0]->num_towers, 1);
-	ASSERT_EQ(player_states[0]->num_opponent_towers, 2);
+	ASSERT_EQ(player_states[0]->num_enemy_towers, 2);
 
 	// Check for Soldier positions for playerstates
 	ASSERT_EQ(player_states[0]->soldiers[0].position, Vector(0, 0));
-	ASSERT_EQ(player_states[1]->opponent_soldiers[0].position,
+	ASSERT_EQ(player_states[1]->enemy_soldiers[0].position,
 	          Vector(map_size * elt_size - 1 - 0, map_size * elt_size - 1 - 0));
 
 	// Check for valid territory assignment for playerstates map
@@ -360,7 +361,7 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	ASSERT_EQ(player_states[0]->map[4][3].valid_territory, false);
 	ASSERT_EQ(player_states[0]->map[0][0].valid_territory, false);
 	ASSERT_EQ(player_states[0]->map[4][4].valid_territory, false);
-	// Territory that belongs to opponent.
+	// Territory that belongs to enemy.
 	ASSERT_EQ(player_states[0]->map[4][4].enemy_territory, true);
 	ASSERT_EQ(player_states[0]->map[4][2].enemy_territory, true);
 	// Common territory is not valid.
@@ -397,7 +398,7 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	ASSERT_EQ(player_states[1]->map[4][3].valid_territory, false);
 	ASSERT_EQ(player_states[1]->map[4][2].valid_territory, false);
 	ASSERT_EQ(player_states[1]->map[4][4].valid_territory, false);
-	// Territory that belongs to opponent.
+	// Territory that belongs to enemy.
 	ASSERT_EQ(player_states[1]->map[3][3].enemy_territory, true);
 	// Common territory is not valid.
 	ASSERT_EQ(player_states[1]->map[4][0].territory, true);
@@ -412,7 +413,7 @@ TEST_F(StateSyncerTest, UpdationTest) {
 
 	// Player2 has only one tower now
 	ASSERT_EQ(player_states[1]->num_towers, 1);
-	ASSERT_EQ(player_states[0]->num_opponent_towers, 1);
+	ASSERT_EQ(player_states[0]->num_enemy_towers, 1);
 }
 
 TEST_F(StateSyncerTest, ExecutionTest) {
@@ -542,29 +543,29 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 
 	// Single soldier targeting soldier and tower
 	player_states[0]->soldiers[0].tower_target =
-	    player_states[0]->opponent_towers[0].id;
+	    player_states[0]->enemy_towers[0].id;
 	player_states[0]->soldiers[0].soldier_target =
-	    player_states[0]->opponent_soldiers[0].id;
+	    player_states[0]->enemy_soldiers[0].id;
 
 	// Single soldier moving and targeting tower
 	player_states[0]->soldiers[1].tower_target =
-	    player_states[0]->opponent_towers[0].id;
+	    player_states[0]->enemy_towers[0].id;
 	player_states[0]->soldiers[1].destination = Vector(1, 0);
 
 	// Single soldier moving and targeting soldier
 	player_states[1]->soldiers[0].soldier_target =
-	    player_states[1]->opponent_soldiers[0].id;
+	    player_states[1]->enemy_soldiers[0].id;
 	player_states[1]->soldiers[0].destination = Vector(1, 0);
 
 	// Soldier trying to attack soldier after changing own id.
 	player_states[0]->soldiers[2].id = player_states[0]->soldiers[2].id + 1;
 	player_states[0]->soldiers[2].soldier_target =
-	    player_states[0]->opponent_soldiers[0].id;
+	    player_states[0]->enemy_soldiers[0].id;
 
 	// Soldier trying to attack tower after changing own id.
 	player_states[0]->soldiers[3].id = player_states[0]->soldiers[3].id + 1;
 	player_states[0]->soldiers[3].tower_target =
-	    player_states[0]->opponent_towers[0].id;
+	    player_states[0]->enemy_towers[0].id;
 
 	// Soldier trying to move after changing own id.
 	player_states[0]->soldiers[4].id = player_states[0]->soldiers[4].id + 1;
@@ -572,11 +573,11 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 
 	// Soldier trying to act when dead.
 	player_states[1]->soldiers[3].soldier_target =
-	    player_states[1]->opponent_soldiers[6].id;
+	    player_states[1]->enemy_soldiers[6].id;
 
-	// Soldier attacking dead opponent soldier.
+	// Soldier attacking dead enemy soldier.
 	player_states[0]->soldiers[7].soldier_target =
-	    player_states[0]->opponent_soldiers[4].id;
+	    player_states[0]->enemy_soldiers[4].id;
 
 	// Soldier attacking own soldier
 	player_states[1]->soldiers[1].soldier_target =
@@ -609,9 +610,9 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	// Trying to build without sufficient funds
 	player_states[1]->map[2][0].build_tower = true;
 
-	// Trying to attack Base Tower of opponent.
+	// Trying to attack Base Tower of enemy.
 	player_states[0]->soldiers[8].tower_target =
-	    player_states[0]->opponent_towers[0].id;
+	    player_states[0]->enemy_towers[0].id;
 
 	this->state_syncer->ExecutePlayerCommands(player_states,
 	                                          skip_player_command_flags);
@@ -621,9 +622,9 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 
 	// Different soldiers given different valid jobs
 	player_states[0]->soldiers[0].tower_target =
-	    player_states[0]->opponent_towers[1].id;
+	    player_states[0]->enemy_towers[1].id;
 	player_states[0]->soldiers[1].soldier_target =
-	    player_states[0]->opponent_soldiers[0].id;
+	    player_states[0]->enemy_soldiers[0].id;
 	player_states[1]->soldiers[1].destination = Vector(4, 3);
 	// Different towers given different jobs
 	player_states[0]->towers[0].upgrade_tower = true;

@@ -13,7 +13,6 @@
 using namespace drivers;
 using namespace player_wrapper;
 using namespace player_code;
-using namespace state;
 using namespace std;
 using namespace ::testing;
 
@@ -25,8 +24,8 @@ class LLVMPassTest : public Test {
 	LLVMPassTest() {
 		boost::interprocess::shared_memory_object::remove(shm_name.c_str());
 
-		this->shm_main =
-		    make_unique<SharedMemoryMain>(shm_name, false, 0, PlayerState());
+		this->shm_main = make_unique<SharedMemoryMain>(shm_name, false, 0,
+		                                               player_state::State());
 		this->buf = shm_main->GetBuffer();
 	}
 

@@ -8,13 +8,25 @@
 
 #include "constants/constants.h"
 #include "physics/vector.h"
-#include "state/actor/soldier_states/soldier_state.h"
-#include "state/map/terrain_type.h"
-#include "state/state_export.h"
-#include "state/utilities.h"
 #include <array>
 
-namespace state {
+namespace player_state {
+
+/**
+ * Define a name for each soldier state
+ */
+enum class SoldierState {
+	// Soldier is doing nothing
+	IDLE,
+	// Soldier is in movement
+	MOVE,
+	// Soldier is currently attacking another actor
+	ATTACK,
+	// Soldier is currently moving to attack another actor
+	PURSUIT,
+	// Soldier is in the process of respawning
+	DEAD
+};
 
 // The members of each struct marked 'Writable' can be written to
 // by the player. They carry information about the player's current move
@@ -22,8 +34,7 @@ namespace state {
 /**
  * Struct holding information about each map grid element
  */
-struct PlayerMapElement {
-	TerrainType terrain;
+struct MapElement {
 	bool territory;
 	bool enemy_territory;
 	bool valid_territory;
@@ -35,11 +46,11 @@ struct PlayerMapElement {
 /**
  * Struct holding information about a particular soldier
  */
-struct PlayerSoldier {
+struct Soldier {
 	int64_t id;
 	physics::Vector position;
 	int64_t hp;
-	SoldierStateName state;
+	SoldierState state;
 
 	// Writable
 	int64_t tower_target;
@@ -50,7 +61,7 @@ struct PlayerSoldier {
 /**
  * Struct holding information about a particular tower
  */
-struct PlayerTower {
+struct Tower {
 	int64_t id;
 	physics::Vector position;
 	int64_t hp;
@@ -64,27 +75,27 @@ struct PlayerTower {
 /**
  * Player's copy of state
  */
-struct STATE_EXPORT PlayerState {
+struct State {
 	// Grid of map elements
-	std::array<std::array<PlayerMapElement, MAP_SIZE>, MAP_SIZE> map;
+	std::array<std::array<MapElement, MAP_SIZE>, MAP_SIZE> map;
 
 	// List of player soldiers
-	std::array<PlayerSoldier, NUM_SOLDIERS> soldiers;
+	std::array<Soldier, NUM_SOLDIERS> soldiers;
 
-	// List of opponent soldiers
-	std::array<PlayerSoldier, NUM_SOLDIERS> opponent_soldiers;
+	// List of enemy soldiers
+	std::array<Soldier, NUM_SOLDIERS> enemy_soldiers;
 
 	// List of player towers
-	std::array<PlayerTower, MAX_NUM_TOWERS> towers;
+	std::array<Tower, MAX_NUM_TOWERS> towers;
 
-	// List of opponent soldiers
-	std::array<PlayerTower, MAX_NUM_TOWERS> opponent_towers;
+	// List of enemy soldiers
+	std::array<Tower, MAX_NUM_TOWERS> enemy_towers;
 
 	// Number of player towers
 	int64_t num_towers;
 
-	// Number of opponent towers
-	int64_t num_opponent_towers;
+	// Number of enemy towers
+	int64_t num_enemy_towers;
 
 	// Money
 	int64_t money;

@@ -42,7 +42,7 @@ class DRIVERS_EXPORT MainDriver {
 	/**
 	 * Pointers to player state copies
 	 */
-	std::vector<state::PlayerState *> player_states;
+	std::vector<player_state::State *> player_states;
 
 	/**
 	 * Instruction count limit.

@@ -12,10 +12,10 @@ namespace player_code {
  */
 class PLAYER_CODE_EXPORT PlayerCode1 : public player_wrapper::IPlayerCode {
   private:
-	state::PlayerState *player_state;
+	player_state::State *player_state;
 
   public:
-	PlayerCode1(state::PlayerState *player_state);
+	PlayerCode1(player_state::State *player_state);
 
 	/**
 	 * Player AI update function (main logic of the AI)

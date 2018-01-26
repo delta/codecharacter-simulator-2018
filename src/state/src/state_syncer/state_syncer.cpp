@@ -17,7 +17,7 @@ StateSyncer::StateSyncer(std::unique_ptr<IState> state, logger::ILogger *logger,
       tower_build_costs(tower_build_costs), max_num_towers(max_num_towers) {}
 
 void StateSyncer::ExecutePlayerCommands(
-    const std::vector<PlayerState *> &player_states,
+    const std::vector<player_state::State *> &player_states,
     const std::vector<bool> &skip_player_commands_flags) {
 	auto state_soldiers = state->GetAllSoldiers();
 	auto state_towers = state->GetAllTowers();
@@ -99,7 +99,7 @@ void StateSyncer::ExecutePlayerCommands(
 void StateSyncer::UpdateMainState() { state->Update(); }
 
 void StateSyncer::UpdatePlayerStates(
-    std::vector<PlayerState *> &player_states) {
+    std::vector<player_state::State *> &player_states) {
 
 	auto state_soldiers = state->GetAllSoldiers();
 	auto state_towers = state->GetAllTowers();
@@ -107,17 +107,15 @@ void StateSyncer::UpdatePlayerStates(
 	auto state_money = state->GetMoney();
 
 	// Assigning values from map of state to map of player_state
-	std::vector<std::vector<PlayerMapElement>> player_map;
+	std::vector<std::vector<player_state::MapElement>> player_map;
 
 	for (int i = 0; i < map->GetSize(); ++i) {
-		std::vector<PlayerMapElement> map_element_vector;
+		std::vector<player_state::MapElement> map_element_vector;
 		for (int j = 0; j < map->GetSize(); ++j) {
 			// Init map properties from state
-			PlayerMapElement map_element;
+			player_state::MapElement map_element;
 			state::MapElement state_map_element =
 			    map->GetElementByOffset(physics::Vector(i, j));
-
-			map_element.terrain = state_map_element.GetTerrainType();
 
 			auto ownerships = state_map_element.GetOwnership();
 			map_element.territory = ownerships[0];
@@ -138,22 +136,22 @@ void StateSyncer::UpdatePlayerStates(
 			FlipMap(player_map);
 		}
 
-		int64_t opponent_id =
+		int64_t enemy_id =
 		    (player_id + 1) % static_cast<int>(PlayerId::PLAYER_COUNT);
 
 		AssignTowerAttributes(player_id, player_states[player_id]->towers,
 		                      false);
-		AssignTowerAttributes(opponent_id,
-		                      player_states[player_id]->opponent_towers, true);
+		AssignTowerAttributes(enemy_id, player_states[player_id]->enemy_towers,
+		                      true);
 
 		AssignSoldierAttributes(player_id, player_states[player_id]->soldiers,
 		                        false);
-		AssignSoldierAttributes(
-		    opponent_id, player_states[player_id]->opponent_soldiers, true);
+		AssignSoldierAttributes(enemy_id,
+		                        player_states[player_id]->enemy_soldiers, true);
 
 		player_states[player_id]->num_towers = state_towers[player_id].size();
-		player_states[player_id]->num_opponent_towers =
-		    state_towers[opponent_id].size();
+		player_states[player_id]->num_enemy_towers =
+		    state_towers[enemy_id].size();
 
 		// Checks if map element is valid for building tower and assigns
 		// bool value
@@ -203,8 +201,8 @@ void StateSyncer::UpdatePlayerStates(
 }
 
 void StateSyncer::AssignTowerAttributes(
-    int64_t id, std::array<PlayerTower, MAX_NUM_TOWERS> &towers,
-    bool is_opponent) {
+    int64_t id, std::array<player_state::Tower, MAX_NUM_TOWERS> &towers,
+    bool is_enemy) {
 	auto state_towers = state->GetAllTowers();
 	auto *map = state->GetMap();
 	int64_t player_id = id;
@@ -219,7 +217,7 @@ void StateSyncer::AssignTowerAttributes(
 		// Init tower properties from state
 		towers[i].hp = state_towers[id][i]->GetHp();
 		towers[i].level = state_towers[id][i]->GetTowerLevel();
-		if (is_opponent) {
+		if (is_enemy) {
 			player_id = ((id + 1) % static_cast<int>(PlayerId::PLAYER_COUNT));
 		}
 
@@ -233,8 +231,8 @@ void StateSyncer::AssignTowerAttributes(
 }
 
 void StateSyncer::AssignSoldierAttributes(
-    int64_t id, std::array<PlayerSoldier, NUM_SOLDIERS> &soldiers,
-    bool is_opponent) {
+    int64_t id, std::array<player_state::Soldier, NUM_SOLDIERS> &soldiers,
+    bool is_enemy) {
 	auto state_soldiers = state->GetAllSoldiers();
 	auto *map = state->GetMap();
 	int64_t player_id = id;
@@ -250,9 +248,25 @@ void StateSyncer::AssignSoldierAttributes(
 
 		// Init soldier properties from state
 		soldiers[i].hp = state_soldiers[id][i]->GetHp();
-		soldiers[i].state = state_soldiers[id][i]->GetState();
+		switch (state_soldiers[id][i]->GetState()) {
+		case SoldierStateName::ATTACK:
+			soldiers[i].state = player_state::SoldierState::ATTACK;
+			break;
+		case SoldierStateName::DEAD:
+			soldiers[i].state = player_state::SoldierState::DEAD;
+			break;
+		case SoldierStateName::IDLE:
+			soldiers[i].state = player_state::SoldierState::IDLE;
+			break;
+		case SoldierStateName::MOVE:
+			soldiers[i].state = player_state::SoldierState::MOVE;
+			break;
+		case SoldierStateName::PURSUIT:
+			soldiers[i].state = player_state::SoldierState::PURSUIT;
+			break;
+		}
 
-		if (is_opponent) {
+		if (is_enemy) {
 			player_id = ((id + 1) % static_cast<int>(PlayerId::PLAYER_COUNT));
 		}
 
@@ -266,7 +280,7 @@ void StateSyncer::AssignSoldierAttributes(
 }
 
 void StateSyncer::FlipMap(
-    std::vector<std::vector<PlayerMapElement>> &player_map) {
+    std::vector<std::vector<player_state::MapElement>> &player_map) {
 	int64_t map_size = player_map.size();
 	for (int i = 0; i < map_size / 2; ++i) {
 		for (int j = 0; j < player_map[i].size(); ++j) {
@@ -351,8 +365,8 @@ void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
 void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
                               int64_t tower_id, int64_t soldier_index) {
 	bool valid_target = false;
-	int64_t opponent_id = (static_cast<int>(player_id) + 1) %
-	                      static_cast<int>(PlayerId::PLAYER_COUNT);
+	int64_t enemy_id = (static_cast<int>(player_id) + 1) %
+	                   static_cast<int>(PlayerId::PLAYER_COUNT);
 	auto state_soldiers = state->GetAllSoldiers();
 
 	// Check if id has been altered
@@ -372,15 +386,15 @@ void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
 		return;
 	}
 
-	std::vector<Tower *> opponent_towers = state->GetAllTowers()[opponent_id];
+	std::vector<Tower *> enemy_towers = state->GetAllTowers()[enemy_id];
 
 	// Check if target  is valid
-	for (int i = 0; i < opponent_towers.size(); ++i) {
-		// Check if opponent actor id is correct id
-		if (tower_id == opponent_towers[i]->GetActorId()) {
-			if (opponent_towers[i]->GetIsBase()) {
+	for (int i = 0; i < enemy_towers.size(); ++i) {
+		// Check if enemy actor id is correct id
+		if (tower_id == enemy_towers[i]->GetActorId()) {
+			if (enemy_towers[i]->GetIsBase()) {
 				LogErrors(player_id, logger::ErrorType::NO_ATTACK_BASE_TOWER,
-				          "Cannot attack Base Tower of opponent");
+				          "Cannot attack Base Tower of enemy");
 				return;
 			}
 
@@ -389,7 +403,7 @@ void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
 	}
 	if (!valid_target) {
 		LogErrors(player_id, logger::ErrorType::NO_ATTACK_SELF_TOWER,
-		          "Attack Opponent's tower only");
+		          "Attack enemy's tower only");
 		return;
 	}
 
@@ -400,12 +414,11 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
                                 int64_t enemy_soldier_id,
                                 int64_t soldier_index) {
 	bool valid_target = false;
-	bool opponent_alive = false;
-	int64_t opponent_id = (static_cast<int>(player_id) + 1) %
-	                      static_cast<int>(PlayerId::PLAYER_COUNT);
+	bool enemy_alive = false;
+	int64_t enemy_id = (static_cast<int>(player_id) + 1) %
+	                   static_cast<int>(PlayerId::PLAYER_COUNT);
 	auto state_soldiers = state->GetAllSoldiers();
-	std::vector<Soldier *> opponent_soldiers =
-	    state->GetAllSoldiers()[opponent_id];
+	std::vector<Soldier *> enemy_soldiers = state->GetAllSoldiers()[enemy_id];
 
 	// Check if id has been altered
 	if (soldier_id !=
@@ -424,24 +437,24 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
 		return;
 	}
 
-	// Check if opponent actor id is correct id
-	for (int i = 0; i < opponent_soldiers.size(); ++i) {
-		if (enemy_soldier_id == opponent_soldiers[i]->GetActorId()) {
+	// Check if enemy actor id is correct id
+	for (int i = 0; i < enemy_soldiers.size(); ++i) {
+		if (enemy_soldier_id == enemy_soldiers[i]->GetActorId()) {
 			valid_target = true;
-			// Check if opponent soldier is alive.
-			if (opponent_soldiers[i]->GetHp() != 0)
-				opponent_alive = true;
+			// Check if enemy soldier is alive.
+			if (enemy_soldiers[i]->GetHp() != 0)
+				enemy_alive = true;
 		}
 	}
 
 	if (!valid_target) {
 		LogErrors(player_id, logger::ErrorType::NO_ATTACK_SELF_SOLDIER,
-		          "Attack Opponent's soldier only");
+		          "Attack enemy's soldier only");
 		return;
 	}
-	if (!opponent_alive) {
+	if (!enemy_alive) {
 		LogErrors(player_id, logger::ErrorType::NO_ATTACK_DEAD_SOLDIER,
-		          "Opponent soldier must be alive to attack it");
+		          "enemy soldier must be alive to attack it");
 		return;
 	}
 
