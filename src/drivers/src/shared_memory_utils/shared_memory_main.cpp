@@ -13,7 +13,7 @@ using namespace boost::interprocess;
 SharedMemoryMain::SharedMemoryMain(std::string shared_memory_name,
                                    bool is_player_running,
                                    int64_t instruction_counter,
-                                   const state::PlayerState &player_state)
+                                   const player_state::State &player_state)
     : shared_memory_name(shared_memory_name),
       // Creating shared memory
       shared_memory(create_only, shared_memory_name.c_str(), 65536) {

@@ -131,7 +131,8 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * @param[in]	player_map		map to be inverted
 	 *
 	 */
-	void FlipMap(std::vector<std::vector<PlayerMapElement>> &player_map);
+	void
+	FlipMap(std::vector<std::vector<player_state::MapElement>> &player_map);
 
 	/**
 	 * Returns flipped position
@@ -160,9 +161,9 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * @param[in]   is_opponent   if it is opponent id
 	 *
 	 */
-	void AssignTowerAttributes(int64_t id,
-	                           std::array<PlayerTower, MAX_NUM_TOWERS> &towers,
-	                           bool is_opponent);
+	void AssignTowerAttributes(
+	    int64_t id, std::array<player_state::Tower, MAX_NUM_TOWERS> &towers,
+	    bool is_opponent);
 
 	/**
 	 * Assigns attributes for towers
@@ -172,10 +173,9 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * @param[in]   is_opponent   if it is opponent id
 	 *
 	 */
-	void
-	AssignSoldierAttributes(int64_t id,
-	                        std::array<PlayerSoldier, NUM_SOLDIERS> &soldiers,
-	                        bool is_opponent);
+	void AssignSoldierAttributes(
+	    int64_t id, std::array<player_state::Soldier, NUM_SOLDIERS> &soldiers,
+	    bool is_opponent);
 
   public:
 	/**
@@ -195,7 +195,7 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 *                                          player_id's turn
 	 */
 	void ExecutePlayerCommands(
-	    const std::vector<PlayerState *> &player_states,
+	    const std::vector<player_state::State *> &player_states,
 	    const std::vector<bool> &skip_player_commands_flags) override;
 
 	/**
@@ -210,7 +210,8 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 *
 	 * @param[inout]  player_states  list of player states to update
 	 */
-	void UpdatePlayerStates(std::vector<PlayerState *> &player_states) override;
+	void UpdatePlayerStates(
+	    std::vector<player_state::State *> &player_states) override;
 
 	/**
 	 * @see IStateSyncer#GetScores

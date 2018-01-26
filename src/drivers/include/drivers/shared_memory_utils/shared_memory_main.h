@@ -40,7 +40,7 @@ class DRIVERS_EXPORT SharedMemoryMain {
 	 */
 	SharedMemoryMain(std::string shared_memory_name, bool is_player_running,
 	                 int64_t instruction_counter,
-	                 const state::PlayerState &player_state);
+	                 const player_state::State &player_state);
 
 	/**
 	 * Removes shm

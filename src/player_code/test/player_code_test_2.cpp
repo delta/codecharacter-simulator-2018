@@ -2,7 +2,7 @@
 
 namespace player_code {
 
-PlayerCode2::PlayerCode2(state::PlayerState *player_state)
+PlayerCode2::PlayerCode2(player_state::State *player_state)
     : player_state(player_state) {}
 
 void PlayerCode2::Update() {

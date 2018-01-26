@@ -18,7 +18,7 @@ void RemoveShm() {
 TEST(SharedMemoryUtilsTest, ValidWriteRead) {
 	RemoveShm();
 	// Create owner of shm
-	SharedMemoryMain shm_main(shm_name, false, 0, state::PlayerState());
+	SharedMemoryMain shm_main(shm_name, false, 0, player_state::State());
 
 	// Write to shm
 	SharedBuffer *buf = shm_main.GetBuffer();
@@ -38,15 +38,15 @@ TEST(SharedMemoryUtilsTest, InvalidRead) {
 	EXPECT_THROW((SharedMemoryPlayer(shm_name)), std::exception);
 
 	// Test if destructor for owner is working
-	{ SharedMemoryMain shm_main(shm_name, false, 0, state::PlayerState()); }
+	{ SharedMemoryMain shm_main(shm_name, false, 0, player_state::State()); }
 
 	EXPECT_THROW((SharedMemoryPlayer(shm_name)), std::exception);
 }
 
 TEST(SharedMemoryUtilsTest, InvalidCreate) {
 	RemoveShm();
-	SharedMemoryMain shm_main(shm_name, false, 0, state::PlayerState());
+	SharedMemoryMain shm_main(shm_name, false, 0, player_state::State());
 	// Cannot have two owners
-	EXPECT_THROW((SharedMemoryMain(shm_name, false, 0, state::PlayerState())),
+	EXPECT_THROW((SharedMemoryMain(shm_name, false, 0, player_state::State())),
 	             std::exception);
 }
