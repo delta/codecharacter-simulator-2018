@@ -25,6 +25,8 @@ const auto TOWER_BUILD_COSTS = std::vector<int64_t>{500, 300, 300};
 
 const auto TOWER_RANGES = std::vector<int64_t>{2, 3, 4};
 
+const int64_t MAX_TOWER_LEVEL = 3;
+
 const int64_t MAX_NUM_TOWERS = 15;
 
 #endif
