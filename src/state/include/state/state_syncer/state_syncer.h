@@ -67,11 +67,13 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * @param[in]  soldier_id    soldier who is attacking
 	 * @param[in]  tower_id      opponent tower to attack
 	 * @param[in]  soldier_index index of soldier in state
+	 * @param[in]  razed_towers  towers razed that turn
 	 *
 	 * @throw      std::exception  if the operation was not possible
 	 */
 	void AttackTower(PlayerId player_id, int64_t soldier_id, int64_t tower_id,
-	                 int64_t soldier_index);
+	                 int64_t soldier_index,
+	                 const std::vector<int64_t> &razed_towers);
 
 	/**
 	 * Handles enemy soldier attack commands
@@ -117,11 +119,12 @@ class STATE_EXPORT StateSyncer : public IStateSyncer {
 	 * @param[in]  player_id     player to act upon
 	 * @param[in]  tower_id      opponent tower to attack
 	 * @param[in]  tower_index   index of tower in state
+	 * @param[in]  razed_towers  towers razed that turn
 	 *
 	 * @throw      std::exception if the operation was not possible
 	 */
-	void SuicideTower(PlayerId player_id, int64_t tower_id,
-	                  int64_t tower_index);
+	void SuicideTower(PlayerId player_id, int64_t tower_id, int64_t tower_index,
+	                  std::vector<int64_t> &razed_towers);
 
 	/**
 	 * Changes orientation of map such that there is a
