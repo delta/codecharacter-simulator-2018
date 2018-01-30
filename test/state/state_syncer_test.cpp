@@ -521,24 +521,12 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	            LogError(PlayerId::PLAYER1, ErrorType::INVALID_TERRITORY, _))
 	    .Times(2);
 
-	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2,
-	                              ErrorType::NO_SUICIDE_BASE_TOWER, _))
-	    .Times(1);
-
-	EXPECT_CALL(*logger,
-	            LogError(PlayerId::PLAYER1, ErrorType::INSUFFICIENT_FUNDS, _))
-	    .Times(1);
-
 	EXPECT_CALL(*logger,
 	            LogError(PlayerId::PLAYER2, ErrorType::INSUFFICIENT_FUNDS, _))
 	    .Times(2);
 
 	EXPECT_CALL(*logger,
 	            LogError(PlayerId::PLAYER1, ErrorType::NO_ATTACK_BASE_TOWER, _))
-	    .Times(1);
-
-	EXPECT_CALL(*logger,
-	            LogError(PlayerId::PLAYER2, ErrorType::NO_MORE_TOWERS, _))
 	    .Times(1);
 
 	// Single soldier targeting soldier and tower
@@ -621,8 +609,8 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	this->state_syncer->UpdatePlayerStates(player_states);
 
 	// Different soldiers given different valid jobs
-	player_states[0]->soldiers[0].tower_target =
-	    player_states[0]->enemy_towers[1].id;
+	player_states[1]->soldiers[0].tower_target =
+	    player_states[1]->enemy_towers[0].id;
 	player_states[0]->soldiers[1].soldier_target =
 	    player_states[0]->enemy_soldiers[0].id;
 	player_states[1]->soldiers[1].destination = Vector(4, 3);
@@ -642,10 +630,14 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	// Trying to build tower after reaching tower limit (3)
 	player_states[1]->map[2][0].build_tower = true;
 
+	// Trying to attack tower that is being razed by opponent themselves
+	player_states[0]->soldiers[2].tower_target =
+	    player_states[0]->enemy_towers[1].id;
+
 	// Checking if these exact calls are made when executing player commands
-	EXPECT_CALL(*state, AttackActor(static_cast<PlayerId>(0),
-	                                player_states[0]->soldiers[0].id,
-	                                player_states[0]->soldiers[0].tower_target))
+	EXPECT_CALL(*state, AttackActor(static_cast<PlayerId>(1),
+	                                player_states[1]->soldiers[0].id,
+	                                player_states[1]->soldiers[0].tower_target))
 	    .Times(1);
 	EXPECT_CALL(*state,
 	            AttackActor(static_cast<PlayerId>(0),
@@ -666,6 +658,20 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	EXPECT_CALL(*state, BuildTower(static_cast<PlayerId>(0), Vector(0, 0)))
 	    .Times(1);
 	EXPECT_CALL(*state, BuildTower(static_cast<PlayerId>(1), Vector(4, 1)))
+	    .Times(1);
+
+	// Error call expectations in second round of execution.
+	EXPECT_CALL(*logger,
+	            LogError(PlayerId::PLAYER1, ErrorType::INSUFFICIENT_FUNDS, _))
+	    .Times(1);
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2,
+	                              ErrorType::NO_SUICIDE_BASE_TOWER, _))
+	    .Times(1);
+	EXPECT_CALL(*logger,
+	            LogError(PlayerId::PLAYER2, ErrorType::NO_MORE_TOWERS, _))
+	    .Times(1);
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER1,
+	                              ErrorType::NO_ATTACK_RAZED_TOWER, _))
 	    .Times(1);
 
 	// Execute the commands

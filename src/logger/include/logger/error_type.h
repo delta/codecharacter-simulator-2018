@@ -86,7 +86,12 @@ enum class ErrorType {
 	/**
      * Trying to build tower after reaching maximum limit
      */
-	NO_MORE_TOWERS
+	NO_MORE_TOWERS,
+
+	/**
+     * Trying to attack tower that will be razed in same turn by opponent
+     */
+	NO_ATTACK_RAZED_TOWER
 };
 
 /**
@@ -99,7 +104,8 @@ const std::vector<std::string> ErrorTypeName = {
     "NO_ATTACK_SELF_TOWER",      "NO_ATTACK_SELF_SOLDIER",
     "NO_ATTACK_DEAD_SOLDIER",    "INVALID_TERRITORY",
     "INSUFFICIENT_FUNDS",        "NO_MORE_UPGRADES",
-    "NO_SUICIDE_BASE_TOWER",     "NO_MORE_TOWERS"};
+    "NO_SUICIDE_BASE_TOWER",     "NO_MORE_TOWERS",
+    "NO_ATTACK_RAZED_TOWER"};
 }
 
 #endif

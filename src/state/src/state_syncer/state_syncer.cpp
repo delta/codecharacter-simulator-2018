@@ -22,12 +22,32 @@ void StateSyncer::ExecutePlayerCommands(
 	auto state_soldiers = state->GetAllSoldiers();
 	auto state_towers = state->GetAllTowers();
 	auto state_money = state->GetMoney();
+	std::vector<int64_t> razed_towers;
+
+	for (int player_id = 0; player_id < player_states.size(); ++player_id) {
+		if (skip_player_commands_flags[player_id] == false) {
+			for (int64_t tower_index = 0;
+			     tower_index < state_towers[player_id].size(); ++tower_index) {
+				auto const &tower =
+				    player_states[player_id]->towers[tower_index];
+				if (tower.upgrade_tower == true && tower.suicide == true) {
+					LogErrors(static_cast<PlayerId>(player_id),
+					          logger::ErrorType::NO_MULTIPLE_TOWER_TASKS,
+					          "Tower can perform only one task each turn");
+				} else if (tower.upgrade_tower == true) {
+					UpgradeTower(static_cast<PlayerId>(player_id), tower.id,
+					             tower_index, state_money[player_id]);
+				} else if (tower.suicide == true) {
+					SuicideTower(static_cast<PlayerId>(player_id), tower.id,
+					             tower_index, razed_towers);
+				}
+			}
+		}
+	}
 
 	for (int player_id = 0; player_id < player_states.size(); ++player_id) {
 		if (skip_player_commands_flags[player_id] == false) {
 			int64_t current_num_towers = state_towers[player_id].size();
-			int64_t soldier_index = 0;
-			int64_t tower_index = 0;
 			for (int64_t soldier_index = 0;
 			     soldier_index < state_soldiers[player_id].size();
 			     ++soldier_index) {
@@ -51,7 +71,7 @@ void StateSyncer::ExecutePlayerCommands(
 					if (is_attacking_tower) {
 						AttackTower(static_cast<PlayerId>(player_id),
 						            soldiers.id, soldiers.tower_target,
-						            soldier_index);
+						            soldier_index, razed_towers);
 					} else if (is_attacking_soldier) {
 						AttackSoldier(static_cast<PlayerId>(player_id),
 						              soldiers.id, soldiers.soldier_target,
@@ -61,23 +81,6 @@ void StateSyncer::ExecutePlayerCommands(
 						            soldiers.id, soldiers.destination,
 						            soldier_index);
 					}
-				}
-			}
-
-			for (int64_t tower_index = 0;
-			     tower_index < state_towers[player_id].size(); ++tower_index) {
-				auto const &tower =
-				    player_states[player_id]->towers[tower_index];
-				if (tower.upgrade_tower == true && tower.suicide == true) {
-					LogErrors(static_cast<PlayerId>(player_id),
-					          logger::ErrorType::NO_MULTIPLE_TOWER_TASKS,
-					          "Tower can perform only one task each turn");
-				} else if (tower.upgrade_tower == true) {
-					UpgradeTower(static_cast<PlayerId>(player_id), tower.id,
-					             tower_index, state_money[player_id]);
-				} else if (tower.suicide == true) {
-					SuicideTower(static_cast<PlayerId>(player_id), tower.id,
-					             tower_index);
 				}
 			}
 
@@ -363,7 +366,8 @@ void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
 }
 
 void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
-                              int64_t tower_id, int64_t soldier_index) {
+                              int64_t tower_id, int64_t soldier_index,
+                              const std::vector<int64_t> &razed_towers) {
 	bool valid_target = false;
 	int64_t enemy_id = (static_cast<int>(player_id) + 1) %
 	                   static_cast<int>(PlayerId::PLAYER_COUNT);
@@ -404,6 +408,14 @@ void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
 	if (!valid_target) {
 		LogErrors(player_id, logger::ErrorType::NO_ATTACK_SELF_TOWER,
 		          "Attack enemy's tower only");
+		return;
+	}
+
+	if (find(razed_towers.begin(), razed_towers.end(), tower_id) !=
+	    razed_towers.end()) {
+		LogErrors(
+		    player_id, logger::ErrorType::NO_ATTACK_RAZED_TOWER,
+		    "Can't attack tower that will be razed in same turn by opponent");
 		return;
 	}
 
@@ -550,7 +562,8 @@ void StateSyncer::UpgradeTower(PlayerId player_id, int64_t tower_id,
 }
 
 void StateSyncer::SuicideTower(PlayerId player_id, int64_t tower_id,
-                               int64_t tower_index) {
+                               int64_t tower_index,
+                               std::vector<int64_t> &razed_towers) {
 	auto state_towers = state->GetAllTowers();
 	// Check if id has been altered.
 	if (tower_id !=
@@ -566,7 +579,7 @@ void StateSyncer::SuicideTower(PlayerId player_id, int64_t tower_id,
 		          "Cannot destroy base tower");
 		return;
 	}
-
+	razed_towers.push_back(tower_id);
 	state->SuicideTower(player_id, tower_id);
 }
 
