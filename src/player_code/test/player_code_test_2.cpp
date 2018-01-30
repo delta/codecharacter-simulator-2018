@@ -2,11 +2,9 @@
 
 namespace player_code {
 
-PlayerCode2::PlayerCode2(player_state::State *player_state)
-    : player_state(player_state) {}
-
-void PlayerCode2::Update() {
+player_state::State PlayerCode2::Update(player_state::State state) {
 	std::string s(10E4, '*');
 	logr << s << std::endl;
+	return state;
 }
 }

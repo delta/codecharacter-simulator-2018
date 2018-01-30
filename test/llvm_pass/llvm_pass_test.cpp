@@ -35,8 +35,7 @@ class LLVMPassTest : public Test {
 		unique_ptr<SharedMemoryPlayer> shm_player(
 		    new SharedMemoryPlayer(shm_name));
 
-		unique_ptr<T> player_code(
-		    new T(&shm_player->GetBuffer()->player_state));
+		unique_ptr<T> player_code(new T());
 
 		unique_ptr<PlayerCodeWrapper> player_code_wrapper(
 		    new PlayerCodeWrapper(move(player_code)));

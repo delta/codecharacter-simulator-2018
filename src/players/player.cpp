@@ -23,8 +23,8 @@ std::unique_ptr<PlayerDriver>
 BuildPlayerDriver(std::string shm_name, std::string player_debug_log_file) {
 	auto shm_player = std::make_unique<SharedMemoryPlayer>(shm_name);
 
-	auto player_code_wrapper = std::make_unique<PlayerCodeWrapper>(
-	    std::make_unique<PlayerCode>(&shm_player->GetBuffer()->player_state));
+	auto player_code_wrapper =
+	    std::make_unique<PlayerCodeWrapper>(std::make_unique<PlayerCode>());
 
 	return std::make_unique<PlayerDriver>(
 	    std::move(player_code_wrapper), std::move(shm_player), NUM_TURNS,
