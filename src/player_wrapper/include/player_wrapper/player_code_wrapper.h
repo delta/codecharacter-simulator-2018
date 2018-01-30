@@ -7,6 +7,7 @@
 #define PLAYER_WRAPPER_PLAYER_CODE_WRAPPER_H
 
 #include "player_wrapper/interfaces/i_player_code.h"
+#include "state/player_state.h"
 #include <memory>
 
 namespace player_wrapper {
@@ -34,7 +35,7 @@ class PLAYER_WRAPPER_EXPORT PlayerCodeWrapper {
 	 *
 	 * @return     The debug logs
 	 */
-	std::string Update();
+	std::string Update(player_state::State &player_state);
 };
 }
 

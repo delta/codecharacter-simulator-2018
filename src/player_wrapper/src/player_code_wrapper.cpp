@@ -11,8 +11,8 @@ namespace player_wrapper {
 PlayerCodeWrapper::PlayerCodeWrapper(std::unique_ptr<IPlayerCode> player_code)
     : player_code(std::move(player_code)) {}
 
-std::string PlayerCodeWrapper::Update() {
-	player_code->Update();
+std::string PlayerCodeWrapper::Update(player_state::State &player_state) {
+	player_state = player_code->Update(player_state);
 	return player_code->GetAndClearDebugLogs();
 }
 }

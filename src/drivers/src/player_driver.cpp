@@ -63,7 +63,8 @@ void PlayerDriver::Run() {
 		// Run player's code and get number of instructions they used and their
 		// debug logs
 		instruction_count = 0;
-		auto logs = this->player_code_wrapper->Update();
+		auto logs = this->player_code_wrapper->Update(
+		    this->shared_buffer->player_state);
 		this->player_debug_logs << this->debug_logs_turn_prefix
 		                        << logs.substr(0, max_debug_logs_turn_length)
 		                        << std::endl;

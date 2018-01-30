@@ -12,6 +12,8 @@ set(EXPORTS_FILE_PATH ${EXPORTS_DIR}/player_wrapper/player_wrapper_export.h)
 
 add_library(player_wrapper SHARED ${SOURCE_FILES})
 
+target_link_libraries(player_wrapper state)
+
 generate_export_header(player_wrapper EXPORT_FILE_NAME ${EXPORTS_FILE_PATH})
 
 target_include_directories(player_wrapper PUBLIC

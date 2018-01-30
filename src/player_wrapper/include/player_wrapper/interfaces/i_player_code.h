@@ -7,6 +7,7 @@
 #define PLAYER_WRAPPER_INTERFACES_I_PLAYER_CODE_H
 
 #include "player_wrapper/player_wrapper_export.h"
+#include "state/player_state.h"
 #include <sstream>
 #include <string>
 
@@ -27,8 +28,15 @@ class PLAYER_WRAPPER_EXPORT IPlayerCode {
   public:
 	/**
 	 * Player AI update function (main logic of the AI)
+	 *
+	 * Takes in a player state, allows player to read and write to it, and
+	 * returns the modified player state
+	 *
+	 * @param[in]  state  The player state
+	 *
+	 * @return     The new player state
 	 */
-	virtual void Update() = 0;
+	virtual player_state::State Update(player_state::State state) = 0;
 
 	/**
 	 * Gets and clears player's debug logs
