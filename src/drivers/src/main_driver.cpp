@@ -131,6 +131,7 @@ const std::vector<PlayerResult> MainDriver::Run() {
 
 	logger->LogFinalGameParams();
 	logger->WriteGame(log_file);
+	this->game_timer.Cancel();
 	return player_results;
 }
 }
