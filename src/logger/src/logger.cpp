@@ -204,6 +204,14 @@ void Logger::LogState(IState *state) {
 				t_soldier->set_state(proto::DEAD);
 				break;
 			}
+			if (soldier->IsAttackTargetSet()) {
+				auto target_pos = soldier->GetAttackTarget()->GetPosition();
+				t_soldier->set_attack_target_x(target_pos.x);
+				t_soldier->set_attack_target_y(target_pos.y);
+			} else {
+				t_soldier->set_attack_target_x(-1);
+				t_soldier->set_attack_target_y(-1);
+			}
 		}
 	}
 
