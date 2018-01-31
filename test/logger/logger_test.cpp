@@ -227,4 +227,12 @@ TEST_F(LoggerTest, WriteReadTest) {
 	ASSERT_EQ(game->states(4).towers(1).id(), tower4->GetActorId());
 	ASSERT_TRUE(game->states(2).towers(0).is_dead());
 	ASSERT_EQ(game->states(4).towers(2).id(), tower5->GetActorId());
+
+	delete soldier;
+	delete soldier2;
+	delete tower;
+	delete tower2;
+	delete tower3;
+	delete tower4;
+	delete tower5;
 }
