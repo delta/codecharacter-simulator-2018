@@ -24,6 +24,26 @@ class DRIVERS_EXPORT Timer {
 	 */
 	std::atomic_bool is_running;
 
+	/**
+	 * Temporary used by the Cancel method
+	 *
+	 * Set to true by Cancel, and reset to false right before Cancel returns
+	 */
+	std::atomic_bool cancel;
+
+	/**
+	 * Amount of time the timer has been running for
+	 *
+	 * Valid if is_running is true
+	 */
+	std::chrono::milliseconds cur_duration;
+
+	/**
+	 * Timer wakes up every timer_wake_up_duration ms to check if it has been
+	 * cancelled
+	 */
+	std::chrono::milliseconds timer_wake_up_duration;
+
   public:
 	/**
 	 * Interval of time that timer operates for
@@ -51,6 +71,15 @@ class DRIVERS_EXPORT Timer {
 	 * @return     false if is_running is true, else true
 	 */
 	bool Start(Interval total_timer_duration, Callback callback);
+
+	/**
+	 * Method to cancel the timer
+	 *
+	 * Cancelled timer won't call callback unless it's very close to expiring
+	 * already.
+	 * Blocks for at most timer_wake_up_duration ms
+	 */
+	void Cancel();
 };
 }
 

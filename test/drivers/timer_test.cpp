@@ -48,3 +48,18 @@ TEST(TimerTest, MultipleTimersInvalid) {
 	// Count should only have been incremented once
 	EXPECT_EQ(count, 1);
 }
+
+TEST(TimerTest, Cancellation) {
+	Timer t;
+	bool flag = false;
+	bool result = false;
+
+	result =
+	    t.Start((Timer::Interval(timer_duration)), [&flag] { flag = true; });
+	EXPECT_TRUE(result);
+
+	t.Cancel();
+	this_thread::sleep_for(chrono::milliseconds(timer_duration + grace_period));
+	// Flag should have remain unset as timer was cancelled
+	EXPECT_FALSE(flag);
+}
