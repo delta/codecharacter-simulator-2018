@@ -115,7 +115,7 @@ void Soldier::LateUpdate() {
 
 	// Allow soldier to transition to dead state if it's dead
 	if (this->hp == 0 && state->GetName() != SoldierStateName::DEAD) {
-		auto new_state = std::move(state->Update());
+		auto new_state = state->Update();
 		state->Exit();
 		state = std::move(new_state);
 		state->Enter();
@@ -124,14 +124,14 @@ void Soldier::LateUpdate() {
 }
 
 void Soldier::Update() {
-	auto new_state = std::move(state->Update());
+	auto new_state = state->Update();
 
 	while (new_state != nullptr) {
 		// State transition has occured
 		state->Exit();
 		state = std::move(new_state);
 		state->Enter();
-		new_state = std::move(state->Update());
+		new_state = state->Update();
 	}
 }
 }
