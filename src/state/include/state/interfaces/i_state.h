@@ -21,6 +21,7 @@ namespace state {
  */
 class STATE_EXPORT IState : public IUpdatable {
   public:
+	virtual ~IState() {}
 	/**
 	 * Get all soldiers, indexed by PlayerId
 	 *
