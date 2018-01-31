@@ -5,8 +5,8 @@
 using namespace drivers;
 using namespace std;
 
-const int timer_duration = 1000;
-const int grace_period = 500;
+const int timer_duration = 100;
+const int grace_period = 50;
 
 TEST(TimerTest, Valid) {
 	Timer t;
