@@ -83,5 +83,6 @@ void PlayerDriver::Run() {
 	// Open debug log file and store player's debug logs in it
 	std::ofstream debug_log_file(this->player_debug_log_file);
 	debug_log_file << this->player_debug_logs.str();
+	this->game_timer.Cancel();
 }
 }
