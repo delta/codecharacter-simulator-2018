@@ -19,11 +19,11 @@ Soldier::Soldier(ActorId id, PlayerId player_id, ActorType actor_type,
                  IPathPlanner *path_planner, MoneyManager *money_manager)
     : Actor(id, player_id, actor_type, hp, max_hp, position), speed(speed),
       attack_range(attack_range), attack_damage(attack_damage),
-      path_planner(path_planner), money_manager(money_manager),
       attack_target(nullptr), destination(physics::Vector(0, 0)),
       is_destination_set(false), new_position(physics::Vector(0, 0)),
       is_new_position_set(false), damage_incurred(0),
-      state(std::make_unique<IdleState>(this)) {}
+      state(std::make_unique<IdleState>(this)), path_planner(path_planner),
+      money_manager(money_manager) {}
 
 int64_t Soldier::GetSpeed() { return speed; }
 
