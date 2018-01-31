@@ -18,6 +18,8 @@ message Soldier {
 	int32 x = 4;
 	int32 y = 5;
 	SOLDIER_STATE state = 6;
+	int32 attack_target_x = 7; //
+	int32 attack_target_y = 8; // Set to -1 if not attacking
 }
 
 message Tower {
