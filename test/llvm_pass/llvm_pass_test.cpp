@@ -93,44 +93,41 @@ TEST_F(LLVMPassTest, InstructionCountTest1) {
 // Test case for game timing out before all turns complete
 // Player driver needs to exit gracefully
 // Instrumentation needs to work correctly
+TEST_F(LLVMPassTest, PlayerDriverTimeout) {
+	int num_turns = 50;
+	int time_limit_ms = 1000;
 
-// NOTE: This test seems to be fine, but currently fails
-// Uncomment after debugging the issue
-// TEST_F(LLVMPassTest, PlayerDriverTimeout) {
-// 	int num_turns = 50;
-// 	int time_limit_ms = 1000;
+	SetPlayerDriver<PlayerCode0>(num_turns, time_limit_ms, 0);
 
-// 	SetPlayerDriver<PlayerCode0>(num_turns, time_limit_ms, 0);
+	buf->instruction_counter = 0;
 
-// 	buf->instruction_counter = 0;
+	thread runner([this] { driver->Start(); });
 
-// 	thread runner([this] { driver->Start(); });
+	Timer timer;
+	atomic_bool is_time_over(false);
+	timer.Start((Timer::Interval(time_limit_ms)),
+	            [&is_time_over]() { is_time_over = true; });
 
-// 	Timer timer;
-// 	atomic_bool is_time_over(false);
-// 	timer.Start((Timer::Interval(time_limit_ms)),
-// 	            [&is_time_over]() { is_time_over = true; });
+	buf->is_player_running = true;
+	while (buf->is_player_running && !is_time_over)
+		;
+	int prev_instruction_count = buf->instruction_counter;
 
-// 	buf->is_player_running = true;
-// 	while (buf->is_player_running && !is_time_over)
-// 		;
-// 	int prev_instruction_count = buf->instruction_counter;
+	for (int i = 1; i < num_turns / 2; ++i) {
+		buf->is_player_running = true;
+		while (buf->is_player_running && !is_time_over)
+			;
+		// Number of instructions every turn must be the same, as the exact same
+		// player code runs every turn
+		EXPECT_EQ(prev_instruction_count, buf->instruction_counter);
+		prev_instruction_count = buf->instruction_counter;
+		buf->instruction_counter = 0;
+	}
 
-// 	for (int i = 1; i < num_turns / 2; ++i) {
-// 		buf->is_player_running = true;
-// 		while (buf->is_player_running && !is_time_over)
-// 			;
-// 		// Number of instructions every turn must be the same, as the exact same
-// 		// player code runs every turn
-// 		EXPECT_EQ(prev_instruction_count, buf->instruction_counter);
-// 		prev_instruction_count = buf->instruction_counter;
-// 		buf->instruction_counter = 0;
-// 	}
-
-// 	runner.join();
-// 	while (!is_time_over)
-// 		;
-// }
+	runner.join();
+	while (!is_time_over)
+		;
+}
 
 // Normal test for another player code
 // Just checking if instrumentation works
