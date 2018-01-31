@@ -125,8 +125,7 @@ TEST_F(LLVMPassTest, PlayerDriverTimeout) {
 	}
 
 	runner.join();
-	while (!is_time_over)
-		;
+	timer.Cancel();
 }
 
 // Normal test for another player code
@@ -164,8 +163,7 @@ TEST_F(LLVMPassTest, InstructionCountTest2) {
 	}
 
 	runner.join();
-	while (!is_time_over)
-		;
+	timer.Cancel();
 }
 
 // Test to see if debug log file is properly written to
