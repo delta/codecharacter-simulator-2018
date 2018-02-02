@@ -6,6 +6,8 @@ set(PLAYER_ID "0" CACHE STRING "Specifies the player ID. Should be between 1
 
 file(GLOB SOURCE_FILES src/*.cpp)
 
+set(CMAKE_CXX_FLAGS "-Werror=return-type")
+
 set(INCLUDE_PATH include)
 
 set(EXPORTS_DIR ${CMAKE_BINARY_DIR}/exports)
