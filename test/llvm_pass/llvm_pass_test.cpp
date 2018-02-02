@@ -250,9 +250,7 @@ TEST_F(LLVMPassTest, DebugLogsTruncated) {
 	int num_turns_in_log = 0;
 	while ((pos = log_str.find(this->turn_prefix)) != std::string::npos) {
 		log_str.erase(0, pos + this->turn_prefix.length());
-		// Add 1 to account for newline after debug logs
-		EXPECT_EQ(log_str.find(this->truncate_message),
-		          max_log_turn_length + 1);
+		EXPECT_EQ(log_str.find(this->truncate_message), max_log_turn_length);
 		num_turns_in_log++;
 	}
 
