@@ -66,8 +66,7 @@ void PlayerDriver::Run() {
 		auto logs = this->player_code_wrapper->Update(
 		    this->shared_buffer->player_state);
 		this->player_debug_logs << this->debug_logs_turn_prefix
-		                        << logs.substr(0, max_debug_logs_turn_length)
-		                        << std::endl;
+		                        << logs.substr(0, max_debug_logs_turn_length);
 
 		// Truncate debug logs if they're too long and add a truncation message
 		if (logs.length() > this->max_debug_logs_turn_length) {
