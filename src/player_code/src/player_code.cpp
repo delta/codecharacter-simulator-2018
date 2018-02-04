@@ -10,6 +10,8 @@ using namespace player_state;
 int turn = 0;
 bool save_up = false;
 
+int impairment = 80; // Higher means AI is weaker
+
 void PrintMap(player_state::State &state) {
 	for (auto &row : state.map) {
 		for (auto &elt : row) {
@@ -110,7 +112,7 @@ State PlayerCode::Update(State state) {
 			}
 		}
 	}
-	if (best_offset != physics::Vector(0, 0)) {
+	if (best_offset != physics::Vector(0, 0) && turn % impairment == 0) {
 		state.map[best_offset.x][best_offset.y].build_tower = true;
 	}
 	return state;
