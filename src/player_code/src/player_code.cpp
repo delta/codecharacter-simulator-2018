@@ -8,7 +8,7 @@ using namespace player_state;
 
 int cur_patrol_index = 0;
 
-player_state::State PlayerCode::Update(player_state::State state) {
+State PlayerCode::Update(State state) {
 	// We're going to make our soldiers patrol our base tower
 	auto base_pos = state.towers[0].position;
 
