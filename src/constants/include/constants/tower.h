@@ -21,7 +21,7 @@ const auto BASE_TOWER_POSITIONS = std::vector<physics::Vector>{
 
 const auto TOWER_HPS = std::vector<int64_t>{7000, 10000, 15000};
 
-const auto TOWER_BUILD_COSTS = std::vector<int64_t>{500, 300, 300};
+const auto TOWER_BUILD_COSTS = std::vector<int64_t>{800, 800, 800};
 
 const auto TOWER_RANGES = std::vector<int64_t>{2, 3, 4};
 
