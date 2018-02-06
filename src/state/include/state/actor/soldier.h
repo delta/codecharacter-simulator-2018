@@ -88,6 +88,17 @@ class STATE_EXPORT Soldier : public Actor {
 	 */
 	MoneyManager *money_manager;
 
+	/**
+	 * true if soldier is invulnerable, false otherwise
+	 */
+	bool is_invulnerable;
+
+	/**
+	 * If is_invulnerable is set, contains number of remaining turns of
+	 * invincibility
+	 */
+	int64_t num_turns_invulnerable;
+
   public:
 	/**
 	 * Soldier Constructor
@@ -108,6 +119,11 @@ class STATE_EXPORT Soldier : public Actor {
 	 * Number of turns to wait before respawning
 	 */
 	static int64_t total_turns_to_respawn;
+
+	/**
+	 * Number of turns after respawning that a soldier is invulnerable for
+	 */
+	static int64_t total_num_turns_invulnerable;
 
 	/**
 	 * Get the soldier's speed stat
@@ -253,6 +269,18 @@ class STATE_EXPORT Soldier : public Actor {
 	 * @param[in]     attack_target  The target to attack
 	 */
 	void Attack(Actor *attack_target);
+
+	/**
+	 * Determines if the soldier is currently invulnerable
+	 *
+	 * @return     true if invulnerable, false otherwise
+	 */
+	bool IsInvulnerable();
+
+	/**
+	 * Makes this soldier invincible for total_num_turns_invulnerable
+	 */
+	void MakeInvulnerable();
 
 	/**
 	 * Returns soldier's new_hp

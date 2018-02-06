@@ -23,7 +23,8 @@ Soldier::Soldier(ActorId id, PlayerId player_id, ActorType actor_type,
       is_destination_set(false), new_position(physics::Vector(0, 0)),
       is_new_position_set(false), damage_incurred(0),
       state(std::make_unique<IdleState>(this)), path_planner(path_planner),
-      money_manager(money_manager) {}
+      money_manager(money_manager), is_invulnerable(false),
+      num_turns_invulnerable(0) {}
 
 int64_t Soldier::GetSpeed() { return speed; }
 
@@ -95,6 +96,15 @@ void Soldier::Attack(Actor *attack_target) {
 	this->is_destination_set = false;
 }
 
+bool Soldier::IsInvulnerable() { return is_invulnerable; }
+
+void Soldier::MakeInvulnerable() {
+	this->is_invulnerable = true;
+	// Adding 1 because this is decremented on the respawn turn as well,
+	// so must offset that
+	this->num_turns_invulnerable = total_num_turns_invulnerable + 1;
+}
+
 int64_t Soldier::GetLatestHp() { return hp - damage_incurred; }
 
 void Soldier::Damage(int64_t damage_amount) {
@@ -110,8 +120,18 @@ void Soldier::LateUpdate() {
 	}
 
 	// Update HP and reset damage counter
-	this->SetHp(this->GetLatestHp());
+	if (!this->is_invulnerable) {
+		this->SetHp(this->GetLatestHp());
+	}
 	this->damage_incurred = 0;
+
+	// Update invincibility status
+	if (this->is_invulnerable) {
+		this->num_turns_invulnerable--;
+		if (this->num_turns_invulnerable == 0) {
+			this->is_invulnerable = false;
+		}
+	}
 
 	// Allow soldier to transition to dead state if it's dead
 	if (this->hp == 0 && state->GetName() != SoldierStateName::DEAD) {

@@ -27,6 +27,7 @@ int num_players = (int)PlayerId::PLAYER_COUNT;
 
 auto Soldier::total_turns_to_respawn = SOLDIER_TOTAL_TURNS_TO_RESPAWN;
 auto Soldier::respawn_positions = BASE_TOWER_POSITIONS;
+auto Soldier::total_num_turns_invulnerable = SOLDIER_NUM_TURNS_INVULNERABLE;
 
 auto Tower::max_hp_levels = TOWER_HPS;
 

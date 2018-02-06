@@ -87,6 +87,22 @@ TEST_F(SoldierTest, Respawn) {
 	ASSERT_EQ(soldier->GetPosition(),
 	          Soldier::respawn_positions[(int)soldier->GetPlayerId()]);
 	ASSERT_EQ(soldier->GetState(), SoldierStateName::IDLE);
+
+	// Soldier should be invulnerable for correct number of turns
+	ASSERT_TRUE(soldier->IsInvulnerable());
+	for (int i = 0; i < Soldier::total_num_turns_invulnerable; ++i) {
+		soldier->Damage(soldier->GetHp());
+		soldier->Update();
+		soldier->LateUpdate();
+		ASSERT_EQ(soldier->GetHp(), soldier->GetMaxHp()) << i;
+	}
+
+	// Soldier should die after invulnerability wears off
+	soldier->Damage(soldier->GetHp());
+	soldier->Update();
+	soldier->LateUpdate();
+	ASSERT_EQ(soldier->GetHp(), 0);
+	ASSERT_EQ(soldier->GetState(), SoldierStateName::DEAD);
 }
 
 TEST_F(SoldierTest, Movement) {
