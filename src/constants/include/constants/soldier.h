@@ -25,4 +25,7 @@ const int64_t SOLDIER_ATTACK_DAMAGE = 50;
 // Must be greater than 0, otherwise horrible things will occur
 const int64_t SOLDIER_TOTAL_TURNS_TO_RESPAWN = 10;
 
+// Number of turns soldier is invincible for after respawning
+const int64_t SOLDIER_NUM_TURNS_INVULNERABLE = 2;
+
 #endif

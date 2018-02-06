@@ -36,5 +36,6 @@ void DeadState::Exit() {
 	soldier->SetHp(soldier->GetMaxHp());
 	soldier->SetAttackTarget(nullptr);
 	soldier->ClearDestination();
+	soldier->MakeInvulnerable();
 }
 }
