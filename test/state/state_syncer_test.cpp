@@ -84,6 +84,9 @@ class StateSyncerTest : public Test {
 			player1_soldiers.push_back(soldier);
 		}
 
+		// Make one soldier invulnerable
+		player1_soldiers[9]->MakeInvulnerable();
+
 		// Soldiers for Player 2
 		std::vector<Soldier *> player2_soldiers;
 		for (int i = 0; i < player_state2->soldiers.size(); ++i) {
@@ -92,8 +95,8 @@ class StateSyncerTest : public Test {
 			    100, 100,
 			    Vector(map_size * elt_size - 1, map_size * elt_size - 1), 5, 5,
 			    40, nullptr, nullptr);
-			// Last 8 soldiers of player2 are dead.
-			if (i > 2) {
+			// Last 7 soldiers of player2 are dead.
+			if (i > 3) {
 				soldier->SetHp(0);
 				soldier->Update();
 			}
@@ -245,6 +248,10 @@ TEST_F(StateSyncerTest, UpdationTest) {
 	          player_state::SoldierState::DEAD);
 	ASSERT_EQ(player_states[1]->soldiers[6].state,
 	          player_state::SoldierState::DEAD);
+
+	// Check for invulnerablity assignment
+	ASSERT_EQ(player_states[0]->soldiers[9].is_immune, true);
+	ASSERT_EQ(player_states[1]->enemy_soldiers[9].is_immune, true);
 
 	// Check for valid territory assignment for playerstates map
 
@@ -560,7 +567,7 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	player_states[0]->soldiers[4].destination = Vector(3, 3);
 
 	// Soldier trying to act when dead.
-	player_states[1]->soldiers[3].soldier_target =
+	player_states[1]->soldiers[4].soldier_target =
 	    player_states[1]->enemy_soldiers[6].id;
 
 	// Soldier attacking dead enemy soldier.
@@ -634,6 +641,10 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	player_states[0]->soldiers[2].tower_target =
 	    player_states[0]->enemy_towers[1].id;
 
+	// Trying to attack invulnerable soldier
+	player_states[1]->soldiers[2].soldier_target =
+	    player_states[1]->enemy_soldiers[9].id;
+
 	// Checking if these exact calls are made when executing player commands
 	EXPECT_CALL(*state, AttackActor(static_cast<PlayerId>(1),
 	                                player_states[1]->soldiers[0].id,
@@ -659,6 +670,10 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	    .Times(1);
 	EXPECT_CALL(*state, BuildTower(static_cast<PlayerId>(1), Vector(4, 1)))
 	    .Times(1);
+	EXPECT_CALL(*state,
+	            AttackActor(static_cast<PlayerId>(1),
+	                        player_states[1]->soldiers[2].id,
+	                        player_states[1]->soldiers[2].soldier_target));
 
 	// Error call expectations in second round of execution.
 	EXPECT_CALL(*logger,
@@ -672,6 +687,9 @@ TEST_F(StateSyncerTest, ExecutionTest) {
 	    .Times(1);
 	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER1,
 	                              ErrorType::NO_ATTACK_RAZED_TOWER, _))
+	    .Times(1);
+	EXPECT_CALL(*logger, LogError(PlayerId::PLAYER2,
+	                              ErrorType::NO_ATTACK_IMMUNE_SOLDIER, _))
 	    .Times(1);
 
 	// Execute the commands
