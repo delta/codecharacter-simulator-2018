@@ -51,6 +51,7 @@ struct Soldier {
 	physics::Vector position;
 	int64_t hp;
 	SoldierState state;
+	bool is_immune;
 
 	// Writable
 	int64_t tower_target;

@@ -269,6 +269,8 @@ void StateSyncer::AssignSoldierAttributes(
 			break;
 		}
 
+		soldiers[i].is_immune = state_soldiers[id][i]->IsInvulnerable();
+
 		if (is_enemy) {
 			player_id = ((id + 1) % static_cast<int>(PlayerId::PLAYER_COUNT));
 		}
@@ -427,6 +429,7 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
                                 int64_t soldier_index) {
 	bool valid_target = false;
 	bool enemy_alive = false;
+	bool enemy_immune = false;
 	int64_t enemy_id = (static_cast<int>(player_id) + 1) %
 	                   static_cast<int>(PlayerId::PLAYER_COUNT);
 	auto state_soldiers = state->GetAllSoldiers();
@@ -456,6 +459,9 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
 			// Check if enemy soldier is alive.
 			if (enemy_soldiers[i]->GetHp() != 0)
 				enemy_alive = true;
+			// Check if enemy soldier is invulnerable
+			if (enemy_soldiers[i]->IsInvulnerable())
+				enemy_immune = true;
 		}
 	}
 
@@ -468,6 +474,10 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
 		LogErrors(player_id, logger::ErrorType::NO_ATTACK_DEAD_SOLDIER,
 		          "enemy soldier must be alive to attack it");
 		return;
+	}
+	if (enemy_immune) {
+		LogErrors(player_id, logger::ErrorType::NO_ATTACK_IMMUNE_SOLDIER,
+		          "Cannot damage invulnerable soldier");
 	}
 
 	state->AttackActor(player_id, soldier_id, enemy_soldier_id);
