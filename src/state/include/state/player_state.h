@@ -9,6 +9,7 @@
 #include "constants/constants.h"
 #include "physics/vector.h"
 #include <array>
+#include <ostream>
 
 namespace player_state {
 
@@ -27,6 +28,27 @@ enum class SoldierState {
 	// Soldier is in the process of respawning
 	DEAD
 };
+
+inline std::ostream &operator<<(std::ostream &os, SoldierState soldier_state) {
+	switch (soldier_state) {
+	case SoldierState::IDLE:
+		os << "IDLE";
+		break;
+	case SoldierState::ATTACK:
+		os << "ATTACK";
+		break;
+	case SoldierState::PURSUIT:
+		os << "PURSUIT";
+		break;
+	case SoldierState::MOVE:
+		os << "MOVE";
+		break;
+	case SoldierState::DEAD:
+		os << "DEAD";
+		break;
+	}
+	return os;
+}
 
 // The members of each struct marked 'Writable' can be written to
 // by the player. They carry information about the player's current move
