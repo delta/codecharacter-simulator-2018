@@ -21,6 +21,6 @@ const int64_t PLAYER_INSTRUCTION_LIMIT_GAME = PLAYER_INSTRUCTION_LIMIT_TURN * 3;
 const int64_t NUM_TURNS = 1000;
 
 // Duration of the game in milliseconds
-const int64_t GAME_DURATION_MS = 40 * 1000;
+const int64_t GAME_DURATION_MS = 50 * 1000;
 
 #endif

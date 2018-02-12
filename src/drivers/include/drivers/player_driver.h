@@ -11,6 +11,7 @@
 #include "drivers/timer.h"
 #include "player_wrapper/player_code_wrapper.h"
 #include "state/player_state.h"
+#include <atomic>
 #include <cstdint>
 #include <memory>
 
@@ -24,7 +25,7 @@ class DRIVERS_EXPORT PlayerDriver {
 	/**
 	 * Number of LLVM IR instructions executed by the player
 	 */
-	static uint64_t instruction_count;
+	static std::atomic<uint64_t> instruction_count;
 
 	/**
 	 * An instance of the player code wrapper
