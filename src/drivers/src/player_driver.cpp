@@ -8,7 +8,7 @@
 
 namespace drivers {
 
-uint64_t PlayerDriver::instruction_count = 0;
+std::atomic<uint64_t> PlayerDriver::instruction_count(0);
 
 PlayerDriver::PlayerDriver(
     std::unique_ptr<player_wrapper::PlayerCodeWrapper> player_code_wrapper,

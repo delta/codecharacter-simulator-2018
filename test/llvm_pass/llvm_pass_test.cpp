@@ -95,7 +95,7 @@ TEST_F(LLVMPassTest, InstructionCountTest1) {
 // Instrumentation needs to work correctly
 TEST_F(LLVMPassTest, PlayerDriverTimeout) {
 	int num_turns = 50;
-	int time_limit_ms = 1000;
+	int time_limit_ms = 1500;
 
 	SetPlayerDriver<PlayerCode0>(num_turns, time_limit_ms, 0);
 
@@ -132,7 +132,7 @@ TEST_F(LLVMPassTest, PlayerDriverTimeout) {
 // Just checking if instrumentation works
 TEST_F(LLVMPassTest, InstructionCountTest2) {
 	int num_turns = 50;
-	int time_limit_ms = 500;
+	int time_limit_ms = 1000;
 
 	SetPlayerDriver<PlayerCode1>(num_turns, time_limit_ms, 0);
 
