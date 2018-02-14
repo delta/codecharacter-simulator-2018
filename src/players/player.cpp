@@ -41,8 +41,8 @@ int main(int argc, char *argv[]) {
 	std::string shm_name(argv[1]);
 
 	std::cout << "Running " << argv[0] << " ..." << std::endl;
-	auto driver = std::move(BuildPlayerDriver(
-	    shm_name, std::string(argv[0]) + player_debug_log_ext));
+	auto driver = BuildPlayerDriver(
+	    shm_name, std::string(argv[0]) + player_debug_log_ext);
 
 	driver->Start();
 	std::cout << argv[0] << " Done!" << std::endl;

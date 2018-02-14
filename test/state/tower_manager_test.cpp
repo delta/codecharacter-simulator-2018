@@ -250,10 +250,10 @@ TEST_F(TowerManagerTest, AdjacentBuildTower) {
 
 	// Make a tower via tower manager constructor at offset (0, 1) for player 2
 	vector<unique_ptr<Tower>> towers_enemy;
-	towers_enemy.push_back(move(make_unique<Tower>(
+	towers_enemy.push_back(make_unique<Tower>(
 	    Actor::GetNextActorId(), PlayerId::PLAYER2, ActorType::TOWER,
 	    Tower::max_hp_levels[0], Tower::max_hp_levels[0],
-	    Vector(0, map->GetElementSize()), true, 1)));
+	    Vector(0, map->GetElementSize()), true, 1));
 
 	auto tower_manager_2 = make_unique<TowerManager>(
 	    move(towers_enemy), PlayerId::PLAYER2, money_manager.get(), map.get());

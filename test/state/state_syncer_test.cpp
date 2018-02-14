@@ -42,8 +42,8 @@ class StateSyncerTest : public Test {
 	int64_t max_num_towers;
 
 	StateSyncerTest()
-	    : logger(std::move(make_unique<LoggerMock>())),
-	      tower_build_costs({500, 700, 900}), max_num_towers(3) {
+	    : logger(make_unique<LoggerMock>()), tower_build_costs({500, 700, 900}),
+	      max_num_towers(3) {
 
 		auto state = make_unique<StateMock>();
 
