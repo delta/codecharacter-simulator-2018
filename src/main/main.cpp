@@ -104,24 +104,24 @@ BuildTowerManager(PlayerId player_id, MoneyManager *money_manager, IMap *map) {
 std::unique_ptr<State> BuildState() {
 	Actor::SetActorIdIncrement();
 
-	auto map = std::move(BuildMap());
+	auto map = BuildMap();
 	auto path_planner = std::make_unique<SimplePathPlanner>(map.get());
-	auto money_manager = std::move(BuildMoneyManager());
+	auto money_manager = BuildMoneyManager();
 
 	std::vector<std::unique_ptr<TowerManager>> tower_managers(num_players);
 	std::vector<std::vector<std::unique_ptr<Soldier>>> soldiers(num_players);
 
 	for (int player_id = 0; player_id < num_players; ++player_id) {
 		for (int i = 0; i < NUM_SOLDIERS; ++i) {
-			soldiers[player_id].push_back(std::move(
+			soldiers[player_id].push_back(
 			    BuildSoldier(static_cast<PlayerId>(player_id),
-			                 path_planner.get(), money_manager.get())));
+			                 path_planner.get(), money_manager.get()));
 		}
 	}
 
 	for (int player_id = 0; player_id < num_players; ++player_id) {
-		tower_managers[player_id] = std::move(BuildTowerManager(
-		    static_cast<PlayerId>(player_id), money_manager.get(), map.get()));
+		tower_managers[player_id] = BuildTowerManager(
+		    static_cast<PlayerId>(player_id), money_manager.get(), map.get());
 	}
 
 	return std::make_unique<State>(
@@ -133,9 +133,8 @@ std::unique_ptr<drivers::MainDriver> BuildMainDriver() {
 	auto logger = std::make_unique<Logger>(PLAYER_INSTRUCTION_LIMIT_TURN,
 	                                       PLAYER_INSTRUCTION_LIMIT_GAME);
 
-	auto state_syncer =
-	    std::make_unique<StateSyncer>(std::move(BuildState()), logger.get(),
-	                                  TOWER_BUILD_COSTS, MAX_NUM_TOWERS);
+	auto state_syncer = std::make_unique<StateSyncer>(
+	    BuildState(), logger.get(), TOWER_BUILD_COSTS, MAX_NUM_TOWERS);
 	std::vector<std::unique_ptr<SharedMemoryMain>> shm_mains;
 
 	for (int i = 0; i < num_players; ++i) {
@@ -163,7 +162,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	std::cout << "Starting main...\n";
-	auto driver = std::move(BuildMainDriver());
+	auto driver = BuildMainDriver();
 
 	for (int i = 1; i <= num_players; ++i) {
 		std::string command =
