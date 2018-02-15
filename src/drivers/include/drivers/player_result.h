@@ -35,7 +35,12 @@ struct DRIVERS_EXPORT PlayerResult {
 	     * The player has exceeded the game instruction limit and thus
 	     * forfeited the game
 	     */
-		EXCEEDED_INSTRUCTION_LIMIT
+		EXCEEDED_INSTRUCTION_LIMIT,
+
+		/**
+	     * The player's code had a runtime error
+	     */
+		RUNTIME_ERROR
 	};
 
 	/**
@@ -60,6 +65,9 @@ operator<<(std::ostream &ostream, const PlayerResult::Status &status) {
 		break;
 	case PlayerResult::Status::EXCEEDED_INSTRUCTION_LIMIT:
 		ostream << "EXCEEDED_INSTRUCTION_LIMIT";
+		break;
+	case PlayerResult::Status::RUNTIME_ERROR:
+		ostream << "RUNTIME_ERROR";
 		break;
 	}
 	return ostream;

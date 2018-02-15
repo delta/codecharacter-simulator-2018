@@ -1,3 +1,4 @@
+#include "boost/process.hpp"
 #include "constants/constants.h"
 #include "drivers/main_driver.h"
 #include "drivers/shared_memory_utils/shared_memory_main.h"
@@ -17,11 +18,14 @@
 #include <memory>
 #include <random>
 #include <string>
+#include <thread>
 
 using namespace drivers;
 using namespace physics;
 using namespace state;
 using namespace logger;
+
+namespace bp = boost::process;
 
 int num_players = (int)PlayerId::PLAYER_COUNT;
 
@@ -164,12 +168,70 @@ int main(int argc, char *argv[]) {
 	std::cout << "Starting main...\n";
 	auto driver = BuildMainDriver();
 
-	for (int i = 1; i <= num_players; ++i) {
-		std::string command =
-		    "./player_" + std::to_string(i) + " " + shm_names[i - 1] + " &";
-		std::system(command.c_str());
+	// Launching player child processes
+	std::vector<bp::child> player_processes;
+	std::vector<std::error_code> player_process_errors(num_players);
+	for (int i = 0; i < num_players; ++i) {
+		player_processes.emplace_back("./player_" + std::to_string(i + 1),
+		                              shm_names[i], player_process_errors[i]);
 	}
-	auto results = driver->Start();
+
+	// Starting main driver
+	std::vector<PlayerResult> results;
+	std::thread main_runner([&driver, &results] { results = driver->Start(); });
+
+	// Monitor child processes
+	// If one fails, terminate the rest
+	std::vector<std::atomic_bool> players_failed(num_players);
+	std::atomic_bool any_player_failed(false);
+	std::vector<std::thread> player_monitors;
+	for (int player_id = 0; player_id < num_players; ++player_id) {
+		auto &process = player_processes[player_id];
+		players_failed[player_id] = false;
+		auto &player_failed = players_failed[player_id];
+		player_monitors.emplace_back([&process, &player_failed,
+		                              &any_player_failed, player_id] {
+			bool is_process_done = false;
+			while (!is_process_done) {
+				if (any_player_failed) {
+					process.terminate();
+					is_process_done = true;
+				} else {
+					std::error_code wait_error;
+					std::this_thread::sleep_for(
+					    std::chrono::milliseconds(1000));
+					is_process_done = process.wait_for(
+					    std::chrono::milliseconds(1), wait_error);
+
+					if (wait_error.value() != 0 || process.exit_code() != 0) {
+						any_player_failed = true;
+						player_failed = true;
+						is_process_done = true;
+					}
+				}
+			}
+		});
+	}
+
+	for (auto &monitor : player_monitors) {
+		monitor.join();
+	}
+
+	// If any child process failed, stop the main driver
+	// Otherwise, simply wait for the main driver to wrap up
+	if (any_player_failed) {
+		driver->Cancel();
+		main_runner.join();
+		for (int player_id = 0; player_id < num_players; ++player_id) {
+			if (players_failed[player_id]) {
+				results[player_id].status = PlayerResult::Status::RUNTIME_ERROR;
+			}
+		}
+	} else {
+		main_runner.join();
+	}
+
+	// Write results to stdout
 	std::cout << prefix_key << " " << results[0].score << " "
 	          << results[0].status << " " << results[1].score << " "
 	          << results[1].status << std::endl;
