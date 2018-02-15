@@ -21,7 +21,7 @@ MainDriver::MainDriver(
       player_instruction_limit_game(player_instruction_limit_game),
       max_no_turns(max_no_turns), player_count(player_count),
       is_game_timed_out(false), game_timer(), game_duration(game_duration),
-      logger(std::move(logger)), log_file_name(log_file_name) {
+      logger(std::move(logger)), log_file_name(log_file_name), cancel(false) {
 	for (auto &shared_memory : this->shared_memories) {
 		// Get pointers to shared memory and store
 		SharedBuffer *shared_buffer = shared_memory->GetBuffer();
@@ -71,10 +71,19 @@ const std::vector<PlayerResult> MainDriver::Run() {
 			// Let player do his updates
 			this->shared_buffers[cur_player_id]->is_player_running = true;
 
-			// Wait for updates (or the timer)
+			// Wait for updates, the timer or cancellation
 			while (this->shared_buffers[cur_player_id]->is_player_running &&
-			       !this->is_game_timed_out)
+			       !this->is_game_timed_out && !this->cancel)
 				;
+
+			// If game has been cancelled, return immediately
+			if (this->cancel) {
+				logger->LogFinalGameParams();
+				logger->WriteGame(log_file);
+				this->game_timer.Cancel();
+				this->cancel = false;
+				return player_results;
+			}
 
 			// Check for instruction counter to see if player has exceeded some
 			// limit
@@ -134,5 +143,11 @@ const std::vector<PlayerResult> MainDriver::Run() {
 	logger->WriteGame(log_file);
 	this->game_timer.Cancel();
 	return player_results;
+}
+
+void MainDriver::Cancel() {
+	this->cancel = true;
+	while (this->cancel)
+		;
 }
 }

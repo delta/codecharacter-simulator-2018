@@ -97,6 +97,11 @@ class DRIVERS_EXPORT MainDriver {
 	 */
 	std::string log_file_name;
 
+	/**
+	 * Flag that is set to cancel the game
+	 */
+	std::atomic_bool cancel;
+
   public:
 	/**
 	 * Constructor
@@ -117,6 +122,13 @@ class DRIVERS_EXPORT MainDriver {
 	 * @return     Results of the game indexed by player ID
 	 */
 	const std::vector<PlayerResult> Start();
+
+	/**
+	 * Cancels the execution of the main driver.
+	 *
+	 * Blocks until main driver fully exits and returns player results
+	 */
+	void Cancel();
 };
 }
 

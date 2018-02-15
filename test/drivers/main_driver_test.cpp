@@ -255,3 +255,52 @@ TEST_F(MainDriverTest, InstructionLimitReached) {
 		          PlayerResult::Status::EXCEEDED_INSTRUCTION_LIMIT);
 	}
 }
+
+// Test for cancelling main driver
+// Simulate a turn and then check if cancelling works
+TEST_F(MainDriverTest, Cancellation) {
+	unique_ptr<StateSyncerMock> state_syncer_mock(new StateSyncerMock());
+
+	// Expect only one turn to run
+	EXPECT_CALL(*state_syncer_mock, ExecutePlayerCommands(_, _)).Times(1);
+	EXPECT_CALL(*state_syncer_mock, UpdateMainState()).Times(1);
+	EXPECT_CALL(*state_syncer_mock, UpdatePlayerStates(_)).Times(2);
+	EXPECT_CALL(*state_syncer_mock, GetScores()).Times(0);
+
+	unique_ptr<LoggerMock> v_logger(new LoggerMock());
+	EXPECT_CALL(*v_logger, LogInstructionCount(PlayerId::PLAYER1, _)).Times(1);
+	EXPECT_CALL(*v_logger, LogInstructionCount(PlayerId::PLAYER2, _)).Times(1);
+	EXPECT_CALL(*v_logger, LogFinalGameParams()).Times(1);
+	EXPECT_CALL(*v_logger, WriteGame(_)).Times(1);
+
+	driver = CreateMockMainDriver(move(state_syncer_mock), move(v_logger));
+
+	vector<PlayerResult> player_results;
+	thread main_runner(
+	    [this, &player_results] { player_results = driver->Start(); });
+
+	// Simulating one turn
+	for (const auto &shm_name : shared_memory_names) {
+		SharedMemoryPlayer shm_player(shm_name);
+		SharedBuffer *buf = shm_player.GetBuffer();
+		while (!buf->is_player_running)
+			;
+		buf->is_player_running = false;
+	}
+
+	SharedMemoryPlayer shm_player(shared_memory_names[0]);
+	SharedBuffer *buf = shm_player.GetBuffer();
+	while (!buf->is_player_running)
+		;
+
+	driver->Cancel();
+
+	main_runner.join();
+
+	// Number of result structs should equal number of players
+	EXPECT_EQ(player_results.size(), player_count);
+
+	for (auto result : player_results) {
+		EXPECT_EQ(result.status, PlayerResult::Status::UNDEFINED);
+	}
+}
