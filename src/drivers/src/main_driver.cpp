@@ -103,6 +103,7 @@ const std::vector<PlayerResult> MainDriver::Run() {
 		if (instruction_count_exceeded || this->is_game_timed_out) {
 			logger->LogFinalGameParams();
 			logger->WriteGame(log_file);
+			this->game_timer.Cancel();
 			return player_results;
 		}
 
