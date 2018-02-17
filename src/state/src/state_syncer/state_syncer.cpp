@@ -33,7 +33,8 @@ void StateSyncer::ExecutePlayerCommands(
 				if (tower.upgrade_tower == true && tower.suicide == true) {
 					LogErrors(static_cast<PlayerId>(player_id),
 					          logger::ErrorType::NO_MULTIPLE_TOWER_TASKS,
-					          "Tower can perform only one task each turn");
+					          "Tower with id " + std::to_string(tower.id) +
+					              " can perform only one task each turn");
 				} else if (tower.upgrade_tower == true) {
 					UpgradeTower(static_cast<PlayerId>(player_id), tower.id,
 					             tower_index, state_money[player_id]);
@@ -66,7 +67,8 @@ void StateSyncer::ExecutePlayerCommands(
 				if (std::count(flags.begin(), flags.end(), true) > 1) {
 					LogErrors(static_cast<PlayerId>(player_id),
 					          logger::ErrorType::NO_MULTIPLE_SOLDIER_TASKS,
-					          "Soldier can perform only one task each turn");
+					          "Soldier with id " + std::to_string(soldiers.id) +
+					              " can perform only one task each turn");
 				} else {
 					if (is_attacking_tower) {
 						AttackTower(static_cast<PlayerId>(player_id),
@@ -349,8 +351,13 @@ void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
 	// Check is soldier is alive to act
 	if (state_soldiers[static_cast<int>(player_id)][soldier_index]->GetHp() ==
 	    0) {
-		LogErrors(player_id, logger::ErrorType::NO_ACTION_BY_DEAD_SOLDIER,
-		          "Soldier must be alive in order to act");
+		LogErrors(
+		    player_id, logger::ErrorType::NO_ACTION_BY_DEAD_SOLDIER,
+		    "Soldier with id " +
+		        std::to_string(
+		            state_soldiers[static_cast<int>(player_id)][soldier_index]
+		                .id) +
+		        " must be alive in order to act");
 		return;
 	}
 
@@ -360,7 +367,8 @@ void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
 	    position.y < 0 ||
 	    position.y >= map->GetSize() * map->GetElementSize()) {
 		LogErrors(player_id, logger::ErrorType::INVALID_POSITION,
-		          "Position not in map");
+		          "Position (" + std::to_string(position.x) + "," +
+		              std::to_string(position.y) + ") not in map");
 		return;
 	}
 
@@ -387,8 +395,13 @@ void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
 	// Check is soldier is alive to act
 	if (state_soldiers[static_cast<int>(player_id)][soldier_index]->GetHp() ==
 	    0) {
-		LogErrors(player_id, logger::ErrorType::NO_ACTION_BY_DEAD_SOLDIER,
-		          "Soldier must be alive in order to act");
+		LogErrors(
+		    player_id, logger::ErrorType::NO_ACTION_BY_DEAD_SOLDIER,
+		    "Soldier with id " +
+		        std::to_string(
+		            state_soldiers[static_cast<int>(player_id)][soldier_index]
+		                .id) +
+		        " must be alive in order to act");
 		return;
 	}
 
@@ -415,9 +428,9 @@ void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
 
 	if (find(razed_towers.begin(), razed_towers.end(), tower_id) !=
 	    razed_towers.end()) {
-		LogErrors(
-		    player_id, logger::ErrorType::NO_ATTACK_RAZED_TOWER,
-		    "Can't attack tower that will be razed in same turn by opponent");
+		LogErrors(player_id, logger::ErrorType::NO_ATTACK_RAZED_TOWER,
+		          "Can't attack tower with id " + std::to_string(tower_id) +
+		              " as it has been destroyed by the opponent");
 		return;
 	}
 
@@ -447,8 +460,13 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
 	// Check if soldier is alive to act
 	if (state_soldiers[static_cast<int>(player_id)][soldier_index]->GetHp() ==
 	    0) {
-		LogErrors(player_id, logger::ErrorType::NO_ACTION_BY_DEAD_SOLDIER,
-		          "Soldier must be alive in order to act");
+		LogErrors(
+		    player_id, logger::ErrorType::NO_ACTION_BY_DEAD_SOLDIER,
+		    "Soldier with id " +
+		        std::to_string(
+		            state_soldiers[static_cast<int>(player_id)][soldier_index]
+		                .id) +
+		        " must be alive in order to act");
 		return;
 	}
 
@@ -471,13 +489,22 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
 		return;
 	}
 	if (!enemy_alive) {
-		LogErrors(player_id, logger::ErrorType::NO_ATTACK_DEAD_SOLDIER,
-		          "enemy soldier must be alive to attack it");
+		LogErrors(
+		    player_id, logger::ErrorType::NO_ATTACK_DEAD_SOLDIER,
+		    "Enemy soldier with id " +
+		        std::to_string(
+		            state_soldiers[static_cast<int>(player_id)][soldier_index]
+		                .id) +
+		        " must be alive to attack it");
 		return;
 	}
 	if (enemy_immune) {
-		LogErrors(player_id, logger::ErrorType::NO_ATTACK_IMMUNE_SOLDIER,
-		          "Cannot damage invulnerable soldier");
+		LogErrors(
+		    player_id, logger::ErrorType::NO_ATTACK_IMMUNE_SOLDIER,
+		    "Cannot damage invulnerable soldier with id " +
+		        std::to_string(
+		            state_soldiers[static_cast<int>(player_id)][soldier_index]
+		                .id));
 	}
 
 	state->AttackActor(player_id, soldier_id, enemy_soldier_id);
@@ -555,7 +582,8 @@ void StateSyncer::UpgradeTower(PlayerId player_id, int64_t tower_id,
 	        ->GetTowerLevel());
 	if (current_tower_level == tower_build_costs.size()) {
 		LogErrors(player_id, logger::ErrorType::NO_MORE_UPGRADES,
-		          "Max level reached, upgrade not allowed");
+		          "Max level reached, upgrade not allowed for tower with id " +
+		              std::to_string(tower_id));
 		return;
 	}
 
@@ -563,7 +591,8 @@ void StateSyncer::UpgradeTower(PlayerId player_id, int64_t tower_id,
 	int64_t tower_upgrade_cost = tower_build_costs[current_tower_level];
 	if (player_money < tower_upgrade_cost) {
 		LogErrors(player_id, logger::ErrorType::INSUFFICIENT_FUNDS,
-		          "Insufficient funds to upgrade tower");
+		          "Insufficient funds to upgrade tower with id " +
+		              std::to_string(tower_id));
 		return;
 	}
 
