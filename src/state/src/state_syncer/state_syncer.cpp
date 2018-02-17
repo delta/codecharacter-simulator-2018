@@ -356,7 +356,7 @@ void StateSyncer::MoveSoldier(PlayerId player_id, int64_t soldier_id,
 		    "Soldier with id " +
 		        std::to_string(
 		            state_soldiers[static_cast<int>(player_id)][soldier_index]
-		                .id) +
+		                ->GetActorId()) +
 		        " must be alive in order to act");
 		return;
 	}
@@ -400,7 +400,7 @@ void StateSyncer::AttackTower(PlayerId player_id, int64_t soldier_id,
 		    "Soldier with id " +
 		        std::to_string(
 		            state_soldiers[static_cast<int>(player_id)][soldier_index]
-		                .id) +
+		                ->GetActorId()) +
 		        " must be alive in order to act");
 		return;
 	}
@@ -465,7 +465,7 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
 		    "Soldier with id " +
 		        std::to_string(
 		            state_soldiers[static_cast<int>(player_id)][soldier_index]
-		                .id) +
+		                ->GetActorId()) +
 		        " must be alive in order to act");
 		return;
 	}
@@ -494,7 +494,7 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
 		    "Enemy soldier with id " +
 		        std::to_string(
 		            state_soldiers[static_cast<int>(player_id)][soldier_index]
-		                .id) +
+		                ->GetActorId()) +
 		        " must be alive to attack it");
 		return;
 	}
@@ -504,7 +504,7 @@ void StateSyncer::AttackSoldier(PlayerId player_id, int64_t soldier_id,
 		    "Cannot damage invulnerable soldier with id " +
 		        std::to_string(
 		            state_soldiers[static_cast<int>(player_id)][soldier_index]
-		                .id));
+		                ->GetActorId()));
 	}
 
 	state->AttackActor(player_id, soldier_id, enemy_soldier_id);
