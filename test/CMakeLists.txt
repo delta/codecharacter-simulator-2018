@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.9.6)
 project(tests)
 
-find_package(Boost 1.64.0 EXACT REQUIRED)
+find_package(Boost 1.68.0)
 
 include_directories(.)
 include_directories(${Boost_INCLUDE_DIRS})

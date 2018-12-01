@@ -8,7 +8,7 @@ set(SOURCE_FILES
 set(INCLUDE_PATH include)
 
 set (Boost_USE_STATIC_LIBS ON)
-find_package(Boost 1.64.0 EXACT REQUIRED COMPONENTS system)
+find_package(Boost 1.68.0 EXACT REQUIRED COMPONENTS system)
 
 if((NOT BUILD_PROJECT STREQUAL "all") AND (NOT BUILD_PROJECT STREQUAL "no_tests"))
 	include(${CMAKE_INSTALL_PREFIX}/lib/physics_config.cmake)

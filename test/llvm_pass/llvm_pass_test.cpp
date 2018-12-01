@@ -74,12 +74,14 @@ TEST_F(LLVMPassTest, InstructionCountTest1) {
 	while (buf->is_player_running)
 		;
 	int count_one = driver->GetCount();
+	cout << "[--------->] Count One : " << count_one << endl;
 	buf->instruction_counter = 0;
 
 	buf->is_player_running = true;
 	while (buf->is_player_running)
 		;
 	int count_two = driver->GetCount();
+	cout << "[--------->] Count Two : " << count_two << endl;
 
 	runner.join();
 

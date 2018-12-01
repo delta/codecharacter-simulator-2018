@@ -29,9 +29,13 @@ struct DynamicInstructionCountPass : public llvm::FunctionPass {
 		// Get the function to call from our runtime library.
 		llvm::LLVMContext &Ctx = F.getContext();
 
-		llvm::Constant *resultFunc = F.getParent()->getOrInsertFunction(
-		    increment_function_name, llvm::Type::getVoidTy(Ctx),
-		    llvm::Type::getInt32Ty(Ctx), NULL);
+		llvm::Constant *resultFunc = F.getParent()
+		    ->getOrInsertFunction(
+			    increment_function_name,
+			    llvm::AttributeList(),
+			    llvm::Type::getVoidTy(Ctx),
+			    llvm::Type::getInt32Ty(Ctx)
+		    );
 
 		bool flag = false;
 

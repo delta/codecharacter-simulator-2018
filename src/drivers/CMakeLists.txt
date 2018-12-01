@@ -15,7 +15,7 @@ set(INCLUDE_PATH include)
 set(EXPORTS_DIR ${CMAKE_BINARY_DIR}/exports)
 set(EXPORTS_FILE_PATH ${EXPORTS_DIR}/drivers/drivers_export.h)
 
-find_package(Boost 1.64.0 EXACT REQUIRED)
+find_package(Boost 1.68.0)
 
 if((NOT BUILD_PROJECT STREQUAL "all") AND (NOT BUILD_PROJECT STREQUAL "no_tests"))
 	include(${CMAKE_INSTALL_PREFIX}/lib/physics_config.cmake)
